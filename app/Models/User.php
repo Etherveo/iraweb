@@ -6,6 +6,7 @@ use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
@@ -21,6 +22,7 @@ class User extends Authenticatable
     protected $fillable = [
         'name', 'email', 'password', 'role', 'origin', 'is_active',
         'deactivated_at', 'deactivation_reason', 'simulation_run_id',
+        'username', 'phone', 'gender', 'birthdate',
     ];
 
     protected $hidden = ['password', 'remember_token'];
@@ -32,6 +34,7 @@ class User extends Authenticatable
             'password' => 'hashed',
             'is_active' => 'boolean',
             'deactivated_at' => 'datetime',
+            'birthdate' => 'date',
         ];
     }
 
@@ -55,6 +58,11 @@ class User extends Authenticatable
     public function isSimulationAccount(): bool
     {
         return $this->origin === 'developer_simulation';
+    }
+
+    public function addresses(): HasMany
+    {
+        return $this->hasMany(Address::class);
     }
 
     public function scopePembeli(Builder $query): void

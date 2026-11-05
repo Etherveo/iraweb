@@ -34,6 +34,15 @@ class UserFactory extends Factory
             'origin' => 'normal',
             'is_active' => true,
             'simulation_run_id' => null,
+            // M4 slice 1 (buyer profile, Data_Pembeli §1). Every factory
+            // user gets a profile; username is the name slugged plus a
+            // unique number (same pattern the simulator will use).
+            'username' => function (array $attributes) {
+                return Str::slug($attributes['name'], '') . fake()->unique()->numberBetween(1, 9999);
+            },
+            'phone' => '08'.fake()->numerify('##########'),
+            'gender' => fake()->randomElement(['laki-laki', 'perempuan']),
+            'birthdate' => fake()->dateTimeBetween('-60 years', '-17 years')->format('Y-m-d'),
         ];
     }
 
