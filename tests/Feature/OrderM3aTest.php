@@ -296,8 +296,11 @@ test('ORD-02 checkout is atomic: order, snapshot items, reserved stock, booking 
     expect($payment->provider)->toBe('simulator');
     expect($payment->is_simulated)->toBeTrue();
     // M3b PAY-06: qr_url is filled from the adapter (internal
-    // simulator gateway): APP_URL + /pay/sim/<token>.
-    expect($payment->qr_url)->toStartWith('http://localhost/pay/sim/');
+    // simulator gateway): APP_URL + /pay/sim/<token>. APP_URL di .env
+    // bisa membawa port (mis. :8000), jadi asersi ini tidak mengunci
+    // port — yang dijamin adalah host localhost + path-nya.
+    expect($payment->qr_url)->toStartWith('http://localhost');
+    expect($payment->qr_url)->toContain('/pay/sim/');
     expect($payment->qr_url)->toContain($payment->payment_token);
     expect($payment->expires_at->equalTo($order->payment_deadline_at))->toBeTrue();
     expect($payment->reference_code)->toStartWith('SIMQR-');
@@ -315,6 +318,26 @@ test('ORD-02 checkout is atomic: order, snapshot items, reserved stock, booking 
         'payment_id' => $payment->id, 'from_status' => null,
         'to_status' => 'pending', 'trigger' => 'checkout',
     ]);
+});
+
+test('PAY-06 qr_url mengikuti APP_URL agar bisa discan dari perangkat lain', function () {
+    // Regresi: dulu qr_url dibuat dengan url(), yang mengikuti host
+    // request saat ini — dan di dalam internal dispatch host itu
+    // selalu localhost. Akibatnya ganti APP_URL di .env tidak pernah
+    // mengubah QR, bahkan untuk pesanan baru. Sekarang qr_url dibuat
+    // dari config('app.url') (QrPayload::simPageUrl).
+    config()->set('app.url', 'http://192.168.1.5:8000');
+
+    $buyer = m3Buyer();
+    $product = m3Product(['name' => 'Pulpen QR', 'price_idr' => 5000, 'stock_on_hand' => 10]);
+
+    $order = m3Checkout($this, $buyer, [
+        ['product' => $product, 'qty' => 1],
+    ]);
+
+    $payment = $order->payments()->first();
+    expect($payment->qr_url)->toStartWith('http://192.168.1.5:8000/pay/sim/');
+    expect($payment->qr_url)->toContain($payment->payment_token);
 });
 
 test('ORD-01 checkout summary shows items, server total and the six simulation methods', function () {

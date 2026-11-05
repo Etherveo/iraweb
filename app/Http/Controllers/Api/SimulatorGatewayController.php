@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Payment;
+use App\Payments\QrPayload;
 use App\Services\TraceRecorder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -62,7 +63,7 @@ class SimulatorGatewayController extends Controller
         $body = [
             'payment_id' => $payment->id,
             'reference_code' => $payment->reference_code,
-            'qr_url' => url('/pay/sim/'.$payment->payment_token),
+            'qr_url' => QrPayload::simPageUrl($payment->payment_token),
             'va_number' => $kind === 'va' ? $payment->reference_code : null,
             'payment_token' => $payment->payment_token,
             'expires_at' => $payment->expires_at->toIso8601String(),

@@ -130,7 +130,7 @@ class PaymentService
         return new PaymentInstruction(
             paymentId: $payment->id,
             referenceCode: $payment->reference_code,
-            qr: new QrPayload('url', (string) ($payment->qr_url ?? url('/pay/sim/'.$payment->payment_token))),
+            qr: new QrPayload('url', (string) ($payment->qr_url ?? QrPayload::simPageUrl($payment->payment_token))),
             vaNumber: $kind === 'va' ? $payment->reference_code : null,
             paymentToken: $payment->payment_token,
             expiresAt: $payment->expires_at->toImmutable(),
