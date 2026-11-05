@@ -8,15 +8,17 @@ use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
-// M3a PAY-28/PAY-29/PAY-32/PAY-33, PRD §9.1/§9.2. The ONLY writer of
-// payment status changes (and of payment_status_transitions). Final
-// statuses (paid, failed, expired, cancelled) can never change again.
-// markPaid/markExpired/markCancelled are the full cascades: payment +
-// order + stock + events in ONE transaction, so a failure anywhere
-// rolls everything back. There is NO webhook/callback in M3a: markPaid
-// is the service the M3b webhook handler will call, and unit tests
-// call it directly. A duplicate paid call is rejected (the payment is
-// already final), so stock and purchase events can never double.
+// M3a/M3b PAY-28/PAY-29/PAY-30/PAY-32/PAY-33, PRD §9.1/§9.2. The ONLY
+// writer of payment status changes (and of payment_status_transitions).
+// Final statuses (paid, failed, expired, cancelled) can never change
+// again. markPaid/markExpired/markCancelled are the full cascades:
+// payment + order + stock + events in ONE transaction, so a failure
+// anywhere rolls everything back; markFailed changes only the payment
+// (PAY-30). In M3b the webhook handler (PaymentCallbackHandler) is
+// the only caller of these methods from the payment flow — a duplicate
+// paid call is rejected (the payment is already final), so stock and
+// purchase events can never double (PAY-27 maps that rejection to
+// 200 already_processed).
 class PaymentStateMachine
 {
     public const TRANSITIONS = [
@@ -105,6 +107,27 @@ class PaymentStateMachine
             foreach ($order->items as $item) {
                 $this->events->recordPurchase($item, $order->user);
             }
+
+            return $payment->fresh();
+        });
+    }
+
+    // M3b PAY-28/PAY-30: pending -> failed. ONLY the payment changes:
+    // the order stays menunggu_pembayaran, no purchase event is
+    // recorded, and the stock stays reserved (U-12) until the order
+    // is cancelled or expires. The buyer may repay (PAY-31) or cancel.
+    public function markFailed(Payment $payment, string $trigger = 'callback_simulasi', ?string $requestId = null): Payment
+    {
+        return DB::transaction(function () use ($payment, $trigger, $requestId) {
+            $payment = $payment->fresh();
+
+            if ($payment->status !== 'pending') {
+                throw ValidationException::withMessages([
+                    'status' => 'Pembayaran sudah berstatus '.(Payment::STATUS_LABELS[$payment->status] ?? $payment->status).' dan tidak dapat diubah.',
+                ]);
+            }
+
+            $this->transition($payment, 'failed', $trigger, $requestId);
 
             return $payment->fresh();
         });

@@ -8,10 +8,12 @@ use App\Http\Controllers\Auth\BuyerAuthController;
 use App\Http\Controllers\Auth\DeveloperAuthController;
 use App\Http\Controllers\Developer\SimulationAccountController;
 use App\Http\Controllers\PageController;
+use App\Http\Controllers\Payment\SimulationPageController;
 use App\Http\Controllers\Shop\CartController;
 use App\Http\Controllers\Shop\CatalogController;
 use App\Http\Controllers\Shop\CheckoutController;
 use App\Http\Controllers\Shop\OrderController as ShopOrderController;
+use App\Http\Controllers\Shop\PaymentInstructionController;
 use Illuminate\Support\Facades\Route;
 
 // M0+M1 route map (blueprint §12, PRD §12).
@@ -21,8 +23,10 @@ use Illuminate\Support\Facades\Route;
 // auth-only exceptions are the two logout routes, where any authenticated
 // user of that guard may log out (that is the point of logout).
 // M3a adds the buyer cart/checkout/order routes and the admin order
-// routes below. No payment simulator, instruction page, webhook, or
-// analytics routes yet: those are M3b/M4-M7.
+// routes below. M3b adds the payment instruction page, the public
+// simulator page (token capability, no login), and the webhook /
+// internal gateway API routes (routes/api.php). No analytics routes
+// yet: those are M4-M7.
 
 Route::get('/', function () {
     return view('welcome');
@@ -74,6 +78,21 @@ Route::middleware(['auth:web', 'active', 'role:pembeli', 'no-cache'])->group(fun
     Route::get('/pesanan', [ShopOrderController::class, 'index'])->name('pesanan.index');
     Route::get('/pesanan/{order}', [ShopOrderController::class, 'show'])->name('pesanan.show');
     Route::post('/pesanan/{order}/batal', [ShopOrderController::class, 'cancel'])->name('pesanan.batal');
+
+    // M3b PAY-11/PAY-13/PAY-31: payment instruction page, status
+    // polling (owner only), and repay after a failed payment.
+    Route::get('/pesanan/{order}/bayar', [PaymentInstructionController::class, 'show'])->name('pesanan.bayar');
+    Route::post('/pesanan/{order}/bayar-ulang', [PaymentInstructionController::class, 'repay'])->name('pesanan.bayar-ulang');
+    Route::get('/pembayaran/{payment}/status', [PaymentInstructionController::class, 'status'])->name('pembayaran.status');
+});
+
+// ---- Simulator page (M3b PAY-15..23): public, no login — the
+// payment token is a limited capability (one payment, expires with
+// it). Rate limited; the page itself never shows buyer personal data.
+Route::middleware('throttle:60,1')->group(function () {
+    Route::get('/pay/sim/{token}', [SimulationPageController::class, 'show'])->name('pay.sim.show');
+    Route::post('/pay/sim/{token}/bayar', [SimulationPageController::class, 'pay'])->name('pay.sim.bayar');
+    Route::post('/pay/sim/{token}/gagal', [SimulationPageController::class, 'fail'])->name('pay.sim.gagal');
 });
 
 // ---- Admin surface (ACC-11/12/13, M2 CAT/PRD; dashboard is an M5 placeholder) ----

@@ -5,10 +5,12 @@ namespace App\Console\Commands;
 use App\Services\OrderExpiryService;
 use Illuminate\Console\Command;
 
-// M3a PAY-32/PAY-34 (on-access variant). There is NO scheduled job in
-// M3a: expiry normally happens when an order page is opened (PAY-35).
-// This command is the manual/batch equivalent (and the hook the M3b
-// scheduler will call). Idempotent: already-expired orders are skipped.
+// M3a/M3b PAY-32/PAY-34/PAY-36. The scheduled job (wired to run
+// every minute from routes/console.php). Overdue orders WITH a
+// pending payment expire through the signed internal webhook, so the
+// expired callback is a real recorded HTTP event; orders without a
+// pending payment (e.g. after a failed payment) expire directly.
+// Idempotent: already-expired orders are skipped.
 // Run: php artisan ira:expire-overdue-orders
 class ExpireOverdueOrdersCommand extends Command
 {
@@ -18,7 +20,7 @@ class ExpireOverdueOrdersCommand extends Command
 
     public function handle(OrderExpiryService $expiry): int
     {
-        $count = $expiry->expireOverdue();
+        $count = $expiry->expireOverdueViaWebhook();
 
         $this->info('Pesanan kedaluwarsa diproses: '.$count.'.');
 

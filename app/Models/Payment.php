@@ -9,8 +9,9 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-// M3a PAY-03/PAY-28, blueprint §6.2. id is a ULID (payment_id).
-// qr_url stays NULL in M3a (the instruction/simulator page is M3b).
+// M3a/M3b PAY-03/PAY-06/PAY-28, blueprint §6.2. id is a ULID
+// (payment_id). qr_url is the simulator-page URL
+// (APP_URL + /pay/sim/<token>), filled by PaymentService in M3b.
 // Status changes never go through update() directly: they go through
 // PaymentStateMachine, which also writes payment_status_transitions.
 class Payment extends Model
@@ -72,6 +73,18 @@ class Payment extends Model
     public function formattedAmount(): string
     {
         return 'Rp '.number_format((int) $this->amount_idr, 0, ',', '.');
+    }
+
+    // M3b PAY-09: a VA number (16 digits) is grouped in fours for
+    // readability; the value copied to the clipboard has no spaces.
+    // QR references (SIMQR-...) are shown as-is.
+    public function formattedReference(): string
+    {
+        if (ctype_digit($this->reference_code)) {
+            return trim((string) chunk_split($this->reference_code, 4, ' '));
+        }
+
+        return $this->reference_code;
     }
 
     public function isFinal(): bool

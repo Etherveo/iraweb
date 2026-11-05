@@ -10,11 +10,11 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 
-// M3a ORD-01/ORD-02. The summary page shows server-computed items and
-// total plus the payment-method choice (PAY-02); the POST creates the
-// order atomically in CheckoutService. After success the buyer lands
-// on the ORDER DETAIL page — the payment instruction page is M3b
-// (PAY-11), so there is no instruction page to redirect to yet.
+// M3a/M3b ORD-01/ORD-02. The summary page shows server-computed
+// items and total plus the payment-method choice (PAY-02); the POST
+// creates the order atomically in CheckoutService. After success the
+// buyer lands on the PAYMENT INSTRUCTION page (PAY-11), where the
+// QR/VA, countdown and sim link live.
 class CheckoutController extends Controller
 {
     public function __construct(
@@ -54,7 +54,7 @@ class CheckoutController extends Controller
             $request->validated('checkout_key'),
         );
 
-        return redirect()->route('pesanan.show', $order)
+        return redirect()->route('pesanan.bayar', $order)
             ->with('status', 'Pesanan '.$order->order_number.' dibuat. Batas waktu bayar: '.$order->payment_deadline_at->setTimezone(config('ira.reporting_timezone'))->format('d M Y H:i').' WITA.');
     }
 }

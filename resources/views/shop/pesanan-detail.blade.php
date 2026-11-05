@@ -47,8 +47,28 @@
             </ul>
         @endif
         @if ($order->status === 'menunggu_pembayaran')
-            <p><button class="btn-primary" type="button" disabled>Pembayaran — M3b</button></p>
-            <p>Halaman pembayaran (instruksi, QR/VA, simulasi) dibangun di M3b; tombol ini belum berfungsi di M3a.</p>
+            @php
+                $pendingPayment = $order->pendingPayment();
+                $failedPayment = $order->payments->where('status', 'failed')->sortByDesc('created_at')->first();
+            @endphp
+            @if ($pendingPayment)
+                <p><a class="btn-primary" href="{{ route('pesanan.bayar', $order) }}">Lanjutkan Pembayaran (Simulasi)</a></p>
+            @elseif ($failedPayment && now()->lessThan($order->payment_deadline_at))
+                <form method="POST" action="{{ route('pesanan.bayar-ulang', $order) }}">
+                    @csrf
+                    <fieldset>
+                        <legend>Bayar ulang / pilih metode lain (Simulasi)</legend>
+                        @foreach ($methods as $method)
+                            <div>
+                                <input type="radio" id="ulang-{{ $method['code'] }}" name="payment_method" value="{{ $method['code'] }}" @checked($loop->first)>
+                                <label for="ulang-{{ $method['code'] }}">{{ $method['label'] }}</label>
+                            </div>
+                        @endforeach
+                    </fieldset>
+                    <p>Pembayaran sebelumnya gagal; pembayaran baru memakai token dan referensi baru, batas waktu bayar tidak diperpanjang.</p>
+                    <button type="submit">Buat Pembayaran Baru</button>
+                </form>
+            @endif
             <form method="POST" action="{{ route('pesanan.batal', $order) }}" onsubmit="return confirm('Batalkan pesanan {{ $order->order_number }}? Stok yang dicadangkan akan dilepas dan pembayaran dibatalkan.');">
                 @csrf
                 <button type="submit">Batalkan Pesanan</button>

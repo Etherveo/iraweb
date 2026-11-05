@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Order;
 use App\Services\CheckoutService;
 use App\Services\OrderExpiryService;
+use App\Services\PaymentService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -20,6 +21,7 @@ class OrderController extends Controller
     public function __construct(
         private readonly CheckoutService $checkout,
         private readonly OrderExpiryService $expiry,
+        private readonly PaymentService $payments,
     ) {}
 
     public function index(Request $request): View
@@ -50,7 +52,13 @@ class OrderController extends Controller
 
         $found->load(['items.product', 'histories', 'payments.transitions', 'user']);
 
-        return view('shop.pesanan-detail', ['order' => $found->fresh(['items.product', 'histories', 'payments.transitions'])]);
+        // M3b PAY-31: the detail page offers repay (with a method
+        // choice) when the last payment failed and the deadline is
+        // still open.
+        return view('shop.pesanan-detail', [
+            'order' => $found->fresh(['items.product', 'histories', 'payments.transitions']),
+            'methods' => $this->payments->methods(),
+        ]);
     }
 
     public function cancel(int $order): RedirectResponse

@@ -14,9 +14,9 @@ use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
 // M3a CRT-01..06, STK-02..06, ORD-01..14, EVT-01..09, PAY-01..03/05.
-// No Python, no Figma images, no external HTTP, no simulator page,
-// no webhook: the paid path is tested by calling PaymentStateMachine
-// directly (the service the M3b webhook handler will call).
+// No Python, no Figma images, no external HTTP. The paid path is
+// tested here by calling PaymentStateMachine directly; the M3b
+// webhook/simulator path is tested in PaymentM3bTest.
 
 function m3Buyer(): User
 {
@@ -295,7 +295,10 @@ test('ORD-02 checkout is atomic: order, snapshot items, reserved stock, booking 
     expect($payment->payment_method)->toBe('qris');
     expect($payment->provider)->toBe('simulator');
     expect($payment->is_simulated)->toBeTrue();
-    expect($payment->qr_url)->toBeNull();
+    // M3b PAY-06: qr_url is filled from the adapter (internal
+    // simulator gateway): APP_URL + /pay/sim/<token>.
+    expect($payment->qr_url)->toStartWith('http://localhost/pay/sim/');
+    expect($payment->qr_url)->toContain($payment->payment_token);
     expect($payment->expires_at->equalTo($order->payment_deadline_at))->toBeTrue();
     expect($payment->reference_code)->toStartWith('SIMQR-');
     expect(strlen($payment->payment_token))->toBe(43);
@@ -632,7 +635,7 @@ test('ORD-08 buyer order list is newest first, paginated, filterable, with an em
     $this->get('/pesanan')->assertOk()->assertSee('Belum ada pesanan.');
 });
 
-test('ORD-09 buyer order detail shows items, total, payment summary, timeline and the M3b pay placeholder', function () {
+test('ORD-09 buyer order detail shows items, total, payment summary, timeline and the real pay link (M3b)', function () {
     $buyer = m3Buyer();
     $product = m3Product(['name' => 'Pulpen Detail Pesanan', 'price_idr' => 8000]);
     $order = m3Checkout($this, $buyer, [['product' => $product, 'qty' => 2]]);
@@ -642,7 +645,7 @@ test('ORD-09 buyer order detail shows items, total, payment summary, timeline an
         ->assertSee($order->order_number)
         ->assertSee('Pulpen Detail Pesanan')->assertSee('Rp 8.000')->assertSee('Rp 16.000')
         ->assertSee('Menunggu Pembayaran')->assertSee('QRIS (Simulasi)')
-        ->assertSee('Pembayaran — M3b')->assertSee('Batalkan Pesanan')
+        ->assertSee('Lanjutkan Pembayaran (Simulasi)')->assertSee('Batalkan Pesanan')
         ->assertSee('menunggu_pembayaran');
 });
 
