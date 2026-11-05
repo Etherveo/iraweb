@@ -249,6 +249,11 @@ test('CRT-06 cart persists per account and another account cannot read or change
 // ---- ORD / STK: checkout ----
 
 test('ORD-02 checkout is atomic: order, snapshot items, reserved stock, booking events, empty cart, pending payment', function () {
+    // qr_url dibuat dari config('app.url'), jadi kunci ke localhost
+    // di sini: tes ini tidak boleh tergantung APP_URL di .env mesin
+    // yang menjalankannya (mis. IP LAN saat tes scan HP).
+    config()->set('app.url', 'http://localhost');
+
     $buyer = m3Buyer();
     $a = m3Product(['name' => 'Pulpen Checkout', 'price_idr' => 5000, 'stock_on_hand' => 10]);
     $b = m3Product(['name' => 'Buku Checkout', 'price_idr' => 2500, 'stock_on_hand' => 10]);
