@@ -30,7 +30,33 @@ class UserFactory extends Factory
             'email_verified_at' => now(),
             'password' => static::$password ??= Hash::make('password'),
             'remember_token' => Str::random(10),
+            'role' => 'pembeli',
+            'origin' => 'normal',
+            'is_active' => true,
+            'simulation_run_id' => null,
         ];
+    }
+
+    public function admin(): static
+    {
+        return $this->state(fn (array $attributes) => ['role' => 'admin_toko']);
+    }
+
+    public function inactive(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'is_active' => false,
+            'deactivated_at' => now(),
+        ]);
+    }
+
+    public function simulation(?string $runId = null): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'origin' => 'developer_simulation',
+            'simulation_run_id' => $runId ?? 'run-test-1',
+            'email' => fake()->unique()->userName().'@'.config('ira.sim_account_email_domain'),
+        ]);
     }
 
     /**

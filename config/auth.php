@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Developer;
 use App\Models\User;
 
 return [
@@ -42,6 +43,14 @@ return [
             'driver' => 'session',
             'provider' => 'users',
         ],
+
+        // M1 ACC-04: separate developer guard/table. Sessions for web and
+        // developer live in the same session store under different keys;
+        // logging out one guard must not log out the other (ACC-06).
+        'developer' => [
+            'driver' => 'session',
+            'provider' => 'developers',
+        ],
     ],
 
     /*
@@ -65,6 +74,11 @@ return [
         'users' => [
             'driver' => 'eloquent',
             'model' => env('AUTH_MODEL', User::class),
+        ],
+
+        'developers' => [
+            'driver' => 'eloquent',
+            'model' => Developer::class,
         ],
 
         // 'users' => [

@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ $title ?? 'Ira Stationery' }}</title>
+    {{-- Same conditional as the stock welcome view: only use @vite when a
+         build manifest (or hot file) exists, so tests without a Vite build
+         do not fail. Run `npm run build` after adding frontend packages. --}}
+    @if (file_exists(public_path('build/manifest.json')) || file_exists(public_path('hot')))
+        @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @endif
+</head>
+<body>
+<header>
+    <strong>Ira Stationery</strong>
+    <nav>
+        @auth('web')
+            @if (auth('web')->user()->isAdmin())
+                <a href="{{ route('admin.dashboard') }}">Dashboard Admin</a>
+                <a href="{{ route('admin.akun-pembeli.index') }}">Akun Pembeli</a>
+            @else
+                <a href="{{ route('katalog') }}">Katalog</a>
+            @endif
+            <form method="POST" action="{{ route('keluar') }}" style="display:inline">
+                @csrf
+                <button type="submit">Keluar</button>
+            </form>
+        @endauth
+        @auth('developer')
+            <a href="{{ route('developer.dashboard') }}">Panel Developer</a>
+            <a href="{{ route('developer.akun-simulasi.index') }}">Akun Simulasi</a>
+            <form method="POST" action="{{ route('developer.keluar') }}" style="display:inline">
+                @csrf
+                <button type="submit">Keluar Developer</button>
+            </form>
+        @endauth
+        @guest('web')
+            @guest('developer')
+                <a href="{{ route('masuk') }}">Masuk Pembeli</a>
+                <a href="{{ route('daftar') }}">Daftar Pembeli</a>
+                <a href="{{ route('admin.masuk') }}">Masuk Admin</a>
+                <a href="{{ route('developer.masuk') }}">Masuk Developer</a>
+            @endguest
+        @endguest
+    </nav>
+</header>
+<main>
+    @if (session('status'))
+        <p class="alert-success">{{ session('status') }}</p>
+    @endif
+    @if ($errors->any())
+        <ul class="alert-error">
+            @foreach ($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    @endif
+    @yield('content')
+</main>
+<footer>
+    <small>Ira Stationery &bull; Gorontalo &bull; WITA (Asia/Makassar)</small>
+</footer>
+</body>
+</html>
