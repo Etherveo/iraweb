@@ -15,13 +15,13 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
-// M3b PAY-06..14, PAY-31. The buyer-facing payment instruction page
-// (GET /pesanan/{order}/bayar) and the status endpoint the page polls
-// (GET /pembayaran/{payment}/status), plus repay-after-failure
-// (POST /pesanan/{order}/bayar-ulang). All scoped to the owning
-// buyer (ACC-09); overdue orders expire on access first (PAY-35).
-// The result pages (PAY-45..47) are M3c, so a final payment redirects
-// the buyer to the order detail page for now.
+// M3b PAY-06..14, PAY-31; M3c PAY-13/PAY-45..47. The buyer-facing
+// payment instruction page (GET /pesanan/{order}/bayar) and the
+// status endpoint the page polls (GET /pembayaran/{payment}/status),
+// plus repay-after-failure (POST /pesanan/{order}/bayar-ulang). All
+// scoped to the owning buyer (ACC-09); overdue orders expire on
+// access first (PAY-35). A final payment redirects the buyer to its
+// result page (PAY-45..47), not to the order detail.
 class PaymentInstructionController extends Controller
 {
     public function __construct(
@@ -69,8 +69,7 @@ class PaymentInstructionController extends Controller
     // PAY-13: status polling (owner only). The server decides the
     // status: expiry is processed on access before answering, so the
     // client never determines it. A final payment returns the
-    // redirect the page must follow (order detail; the M3c result
-    // pages will replace this target).
+    // redirect the page must follow (M3c: its result page).
     public function status(string $payment): JsonResponse
     {
         $user = Auth::guard('web')->user();
@@ -83,8 +82,24 @@ class PaymentInstructionController extends Controller
         return response()->json([
             'status' => $found->status,
             'order_status' => $order->status,
-            'redirect_url' => $found->isFinal() ? route('pesanan.show', $order) : null,
+            'redirect_url' => $this->resultRedirect($found, $order),
         ]);
+    }
+
+    // M3c PAY-13/PAY-45..47: a final payment redirects to its result
+    // page; a cancelled payment has no result page, so the order
+    // detail is the target.
+    private function resultRedirect(Payment $payment, Order $order): ?string
+    {
+        if (in_array($payment->status, ['paid', 'failed', 'expired'], true)) {
+            return route('pembayaran.hasil', $payment);
+        }
+
+        if ($payment->status === 'cancelled') {
+            return route('pesanan.show', $order);
+        }
+
+        return null;
     }
 
     // PAY-31: repay after a failed payment. Only while the order is

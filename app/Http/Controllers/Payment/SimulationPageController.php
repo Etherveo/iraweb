@@ -7,6 +7,7 @@ use App\Models\Order;
 use App\Models\Payment;
 use App\Services\InternalDispatcher;
 use App\Services\OrderExpiryService;
+use App\Services\PaymentTracePanel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
@@ -23,6 +24,7 @@ class SimulationPageController extends Controller
     public function __construct(
         private readonly OrderExpiryService $expiry,
         private readonly InternalDispatcher $dispatcher,
+        private readonly PaymentTracePanel $panel,
     ) {}
 
     public function show(string $token): View
@@ -110,6 +112,10 @@ class SimulationPageController extends Controller
             'message' => $message,
             'expiresAtIso' => $payment->expires_at->toIso8601String(),
             'serverNowIso' => now()->toIso8601String(),
+            // M3c PAY-15/PAY-37..42: the HTTP panel, read-only. The
+            // page shows only this payment's traces — no buyer
+            // personal data (PAY-22).
+            'panel' => $this->panel->forPayment($payment),
         ]);
     }
 

@@ -172,7 +172,9 @@ test('PAY-13 status endpoint returns the payment and order status, and redirects
 
     $this->getJson('/pembayaran/'.$payment->id.'/status')->assertOk()
         ->assertJson(['status' => 'paid', 'order_status' => 'dibayar'])
-        ->assertJsonPath('redirect_url', route('pesanan.show', $order));
+        // M3c PAY-13: a final payment now redirects to its result
+        // page (PAY-45), not to the order detail.
+        ->assertJsonPath('redirect_url', route('pembayaran.hasil', $payment));
 
     // Another buyer cannot poll this payment.
     $this->actingAs(m3bBuyer(), 'web');

@@ -34,6 +34,7 @@
                 <p>Nominal: {{ $payment->formattedAmount() }}</p>
                 <p>Kode referensi: {{ $payment->reference_code }}</p>
                 <p>Kedaluwarsa: {{ $payment->expires_at?->setTimezone(config('ira.reporting_timezone'))->format('d M Y H:i') }} WITA</p>
+                <p><a href="{{ route('pembayaran.show', $payment) }}">Lihat detail pembayaran &amp; jejak</a></p>
             @endforeach
         @endif
         <h2>Riwayat Status</h2>

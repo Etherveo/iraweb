@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\BuyerAccountController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\OrderController as AdminOrderController;
+use App\Http\Controllers\Admin\PaymentController as AdminPaymentController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Auth\BuyerAuthController;
 use App\Http\Controllers\Auth\DeveloperAuthController;
@@ -13,6 +14,7 @@ use App\Http\Controllers\Shop\CartController;
 use App\Http\Controllers\Shop\CatalogController;
 use App\Http\Controllers\Shop\CheckoutController;
 use App\Http\Controllers\Shop\OrderController as ShopOrderController;
+use App\Http\Controllers\Shop\PaymentController as ShopPaymentController;
 use App\Http\Controllers\Shop\PaymentInstructionController;
 use Illuminate\Support\Facades\Route;
 
@@ -84,6 +86,14 @@ Route::middleware(['auth:web', 'active', 'role:pembeli', 'no-cache'])->group(fun
     Route::get('/pesanan/{order}/bayar', [PaymentInstructionController::class, 'show'])->name('pesanan.bayar');
     Route::post('/pesanan/{order}/bayar-ulang', [PaymentInstructionController::class, 'repay'])->name('pesanan.bayar-ulang');
     Route::get('/pembayaran/{payment}/status', [PaymentInstructionController::class, 'status'])->name('pembayaran.status');
+
+    // M3c PAY-49/50: buyer payment history + detail (owner only).
+    Route::get('/pembayaran', [ShopPaymentController::class, 'index'])->name('pembayaran.index');
+    Route::get('/pembayaran/{payment}', [ShopPaymentController::class, 'show'])->name('pembayaran.show');
+    // M3c PAY-45..47: one result page, variant by payment status.
+    Route::get('/pembayaran/{payment}/hasil', [ShopPaymentController::class, 'result'])->name('pembayaran.hasil');
+    // M3c PAY-48: printable receipt, paid payments only.
+    Route::get('/pembayaran/{payment}/struk', [ShopPaymentController::class, 'receipt'])->name('pembayaran.struk');
 });
 
 // ---- Simulator page (M3b PAY-15..23): public, no login — the
@@ -121,6 +131,10 @@ Route::middleware(['auth:web', 'active', 'role:admin_toko', 'no-cache'])->group(
     Route::get('/admin/pesanan', [AdminOrderController::class, 'index'])->name('admin.pesanan.index');
     Route::get('/admin/pesanan/{order}', [AdminOrderController::class, 'show'])->name('admin.pesanan.show');
     Route::post('/admin/pesanan/{order}/status', [AdminOrderController::class, 'updateStatus'])->name('admin.pesanan.status');
+    // M3c PAY-51/52: admin payment list/detail, read-only (PAY-53:
+    // no route or control changes a payment).
+    Route::get('/admin/pembayaran', [AdminPaymentController::class, 'index'])->name('admin.pembayaran.index');
+    Route::get('/admin/pembayaran/{payment}', [AdminPaymentController::class, 'show'])->name('admin.pembayaran.show');
 });
 
 // ---- Developer surface (ACC-14; full panel is M4) ----

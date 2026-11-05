@@ -44,6 +44,7 @@
         @endauth
         <p>Catatan: signature webhook pada simulasi ini adalah dummy, bukan signature gateway riil.</p>
     </div>
+    @include('payments._panel', ['payment' => $payment, 'panel' => $panel])
     @if ($payment->status === 'pending' && now()->lessThan($payment->expires_at))
         @include('payments._countdown')
     @endif

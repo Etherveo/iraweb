@@ -31,7 +31,7 @@
             <p>Belum ada pembayaran.</p>
         @else
             @foreach ($order->payments as $payment)
-                <p>Metode: {{ config('payment.methods.'.$payment->payment_method.'.label', $payment->payment_method) }} — Status: {{ $payment->statusLabel() }} — Nominal: {{ $payment->formattedAmount() }} — Referensi: {{ $payment->reference_code }}</p>
+                <p>Metode: {{ config('payment.methods.'.$payment->payment_method.'.label', $payment->payment_method) }} — Status: {{ $payment->statusLabel() }} — Nominal: {{ $payment->formattedAmount() }} — Referensi: {{ $payment->reference_code }} — <a href="{{ route('admin.pembayaran.show', $payment) }}">Detail &amp; jejak</a></p>
                 @if ($payment->transitions->isNotEmpty())
                     <ul>
                     @foreach ($payment->transitions->sortBy('occurred_at') as $transition)
