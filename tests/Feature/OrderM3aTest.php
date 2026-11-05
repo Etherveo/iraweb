@@ -382,11 +382,14 @@ test('ORD-02 re-posting the same checkout_key returns the same order instead of 
 
     $first = $this->post('/checkout', ['payment_method' => 'qris', 'checkout_key' => $key]);
     $orderId = Order::first()->id;
-    $first->assertRedirect('/pesanan/'.$orderId);
+    // Sejak M3b checkout sukses redirect ke halaman instruksi
+    // pembayaran, bukan detail pesanan (perubahan ini terlewat saat
+    // M3b memperbarui tes ORD-02 satunya; idempotensi sendiri benar).
+    $first->assertRedirect('/pesanan/'.$orderId.'/bayar');
 
     // The cart is empty now, but the same key still returns the order.
     $second = $this->post('/checkout', ['payment_method' => 'qris', 'checkout_key' => $key]);
-    $second->assertRedirect('/pesanan/'.$orderId);
+    $second->assertRedirect('/pesanan/'.$orderId.'/bayar');
     $this->assertDatabaseCount('orders', 1);
     $this->assertDatabaseCount('payments', 1);
 });
