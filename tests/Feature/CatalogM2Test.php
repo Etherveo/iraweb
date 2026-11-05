@@ -200,6 +200,11 @@ test('PRD-04 toggling a product hides it from the buyer catalog without deleting
     $this->assertDatabaseHas('products', ['id' => $product->id]);
 
     $this->actingAs($buyer, 'web');
+    // Flash dari POST toggle admin masih tersimpan di sesi tes yang sama
+    // (tes tidak mengikuti redirect toggle, jadi flash belum dikonsumsi).
+    // GET pertama menghabiskan flash itu; di kehidupan nyata admin dan
+    // pembeli adalah sesi berbeda, jadi flash tidak bocor ke pembeli.
+    $this->get('/katalog');
     $this->get('/katalog')->assertOk()->assertDontSee($product->name);
     $this->get('/produk/'.$product->id)->assertNotFound();
 });
@@ -378,11 +383,18 @@ test('M2 guards: guests are redirected to login, wrong-role web users get 403, d
     $this->get('/admin/produk')->assertForbidden();
 });
 
-test('M2 guards: admin cannot open the buyer catalog as a buyer, developer cannot open admin catalog routes', function () {
+test('M2 guards: admin cannot open the buyer catalog as a buyer', function () {
     $admin = m2Admin();
     $this->actingAs($admin, 'web');
     $this->get('/katalog')->assertForbidden();
+});
 
+test('M2 guards: developer cannot open admin catalog routes', function () {
+    // Skenario terpisah dari tes admin di atas: actingAs() menambah sesi
+    // guard developer TANPA mengeluarkan sesi guard web yang masih aktif,
+    // jadi bila digabung dalam satu tes, /admin/kategori akan lolos
+    // sebagai admin web (200), bukan redirect. Tiap tes Pest mendapat
+    // aplikasi/sesi baru, jadi skenario developer-only di sini bersih.
     $developer = \App\Models\Developer::factory()->create();
     $this->actingAs($developer, 'developer');
     $this->get('/admin/kategori')->assertRedirect('/masuk?aktor=admin_toko');
