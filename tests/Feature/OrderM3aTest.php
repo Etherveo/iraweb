@@ -261,7 +261,8 @@ test('ORD-02 checkout is atomic: order, snapshot items, reserved stock, booking 
     expect($order->status)->toBe('menunggu_pembayaran');
     expect($order->total_idr)->toBe(12500);
     expect($order->order_number)->toMatch('/^IRA-\d{6}-[A-HJ-NP-Z2-9]{6}$/');
-    expect($order->created_at->diffInMinutes($order->payment_deadline_at))->toBe(30);
+    // Carbon 3 mengembalikan float untuk diffInMinutes, jadi cast ke int.
+    expect((int) $order->created_at->diffInMinutes($order->payment_deadline_at))->toBe(30);
 
     $items = $order->items()->orderBy('product_id')->get();
     expect($items)->toHaveCount(2);
@@ -773,6 +774,11 @@ test('M3a guards: guests are redirected, wrong-role users get 403, other buyers 
     $other = m3Buyer();
     $admin = m3Admin();
     $order = m3Checkout($this, $buyer, [['product' => m3Product(), 'qty' => 1]]);
+
+    // m3Checkout() di atas login sebagai pembeli; tanpa logout, GET di
+    // bawah ini masih berstatus login dan mengembalikan 200, bukan redirect.
+    // Kelas kebocoran sesi yang sama seperti ACC-10 (M1) dan guards M2.
+    $this->post('/keluar');
 
     $this->get('/keranjang')->assertRedirect('/masuk');
     $this->get('/checkout')->assertRedirect('/masuk');

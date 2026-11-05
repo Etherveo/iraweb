@@ -24,7 +24,7 @@
                 <a href="{{ route('admin.akun-pembeli.index') }}">Akun Pembeli</a>
             @else
                 <a href="{{ route('katalog') }}">Katalog</a>
-                <a href="{{ route('keranjang.index') }}">Keranjang @if (($cartItemCount ?? 0) > 0) ({{ $cartItemCount }}) @endif</a>
+                <a href="{{ route('keranjang.index') }}">Keranjang{{ ($cartItemCount ?? 0) > 0 ? " ($cartItemCount)" : '' }}</a>
                 <a href="{{ route('pesanan.index') }}">Pesanan</a>
             @endif
             <form method="POST" action="{{ route('keluar') }}" style="display:inline">
