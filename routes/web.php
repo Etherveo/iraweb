@@ -1,10 +1,13 @@
 <?php
 
 use App\Http\Controllers\Admin\BuyerAccountController;
+use App\Http\Controllers\Admin\CategoryController;
+use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Auth\BuyerAuthController;
 use App\Http\Controllers\Auth\DeveloperAuthController;
 use App\Http\Controllers\Developer\SimulationAccountController;
 use App\Http\Controllers\PageController;
+use App\Http\Controllers\Shop\CatalogController;
 use Illuminate\Support\Facades\Route;
 
 // M0+M1 route map (blueprint §12, PRD §12).
@@ -13,8 +16,8 @@ use Illuminate\Support\Facades\Route;
 // Every protected route declares its guard + role (ACC-08); the only
 // auth-only exceptions are the two logout routes, where any authenticated
 // user of that guard may log out (that is the point of logout).
-// No catalog, cart, order, payment, simulator, or analytics routes yet:
-// those are M2-M7.
+// No cart, order, payment, simulator, or analytics routes yet:
+// those are M3-M7. The catalog routes above are M2.
 
 Route::get('/', function () {
     return view('welcome');
@@ -43,14 +46,33 @@ Route::get('/developer/masuk', function () {
     return redirect()->route('masuk', ['aktor' => 'developer']);
 })->name('developer.masuk');
 
-// ---- Buyer surface (M1: only the katalog placeholder, M2 replaces it) ----
+// ---- Buyer surface (M2: real catalog, SHP-01..04) ----
+// /katalog/cari is an alias of the same listing (same controller, same
+// search via ?q=); it is not a separate search page.
 Route::middleware(['auth:web', 'active', 'role:pembeli', 'no-cache'])->group(function () {
-    Route::get('/katalog', [PageController::class, 'katalog'])->name('katalog');
+    Route::get('/katalog', [CatalogController::class, 'index'])->name('katalog');
+    Route::get('/katalog/cari', [CatalogController::class, 'index'])->name('katalog.cari');
+    Route::get('/produk/{produk}', [CatalogController::class, 'show'])->name('produk.show');
 });
 
-// ---- Admin surface (ACC-11/12/13; dashboard is an M5 placeholder) ----
+// ---- Admin surface (ACC-11/12/13, M2 CAT/PRD; dashboard is an M5 placeholder) ----
 Route::middleware(['auth:web', 'active', 'role:admin_toko', 'no-cache'])->group(function () {
     Route::get('/admin', [PageController::class, 'adminDashboard'])->name('admin.dashboard');
+    Route::get('/admin/kategori', [CategoryController::class, 'index'])->name('admin.kategori.index');
+    Route::get('/admin/kategori/tambah', [CategoryController::class, 'create'])->name('admin.kategori.create');
+    Route::post('/admin/kategori', [CategoryController::class, 'store'])->name('admin.kategori.store');
+    Route::get('/admin/kategori/{kategori}/ubah', [CategoryController::class, 'edit'])->name('admin.kategori.edit');
+    Route::put('/admin/kategori/{kategori}', [CategoryController::class, 'update'])->name('admin.kategori.update');
+    Route::delete('/admin/kategori/{kategori}', [CategoryController::class, 'destroy'])->name('admin.kategori.destroy');
+    Route::get('/admin/produk', [ProductController::class, 'index'])->name('admin.produk.index');
+    Route::get('/admin/produk/tambah', [ProductController::class, 'create'])->name('admin.produk.create');
+    Route::post('/admin/produk', [ProductController::class, 'store'])->name('admin.produk.store');
+    Route::get('/admin/produk/{produk}/ubah', [ProductController::class, 'edit'])->name('admin.produk.edit');
+    Route::put('/admin/produk/{produk}', [ProductController::class, 'update'])->name('admin.produk.update');
+    Route::post('/admin/produk/{produk}/toggle', [ProductController::class, 'toggle'])->name('admin.produk.toggle');
+    Route::get('/admin/produk/{produk}/stok', [ProductController::class, 'stockForm'])->name('admin.produk.stok');
+    Route::post('/admin/produk/{produk}/stok', [ProductController::class, 'adjustStock'])->name('admin.produk.stok.update');
+    Route::get('/admin/produk/{produk}/riwayat-stok', [ProductController::class, 'history'])->name('admin.produk.riwayat');
     Route::get('/admin/akun-pembeli', [BuyerAccountController::class, 'index'])->name('admin.akun-pembeli.index');
     Route::get('/admin/akun-pembeli/{account}', [BuyerAccountController::class, 'show'])->name('admin.akun-pembeli.show');
     Route::post('/admin/akun-pembeli/{account}/status', [BuyerAccountController::class, 'updateStatus'])->name('admin.akun-pembeli.status');
