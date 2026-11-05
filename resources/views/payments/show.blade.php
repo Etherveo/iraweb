@@ -6,7 +6,7 @@
         <p><strong>⚠ SIMULASI — bukan pembayaran riil.</strong> Tidak ada uang yang berpindah.</p>
         <p>Pesanan: <strong><a href="{{ route('pesanan.show', $order) }}">{{ $order->order_number }}</a></strong></p>
         <p>Status pesanan: {{ $order->statusLabel() }}</p>
-        <p>Metode: <strong>{{ $method['label'] ?? $payment->payment_method }}</strong> (Simulasi)</p>
+        <p>Metode: <strong>{{ $method['label'] ?? $payment->payment_method }}</strong></p>
         <p>Status pembayaran: <strong>{{ $payment->statusLabel() }}</strong></p>
         <p>Nominal: <strong>{{ $payment->formattedAmount() }}</strong></p>
         <p>Kode referensi: {{ $payment->reference_code }}</p>

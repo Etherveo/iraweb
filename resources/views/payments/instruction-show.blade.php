@@ -7,7 +7,7 @@
         <p>Nama toko: <strong>Ira Stationery</strong></p>
         <p>Nomor pesanan: <strong>{{ $order->order_number }}</strong></p>
         <p>Total: <strong>{{ $order->formattedTotal() }}</strong></p>
-        <p>Metode: <strong>{{ $method['label'] ?? $payment->payment_method }}</strong> (Simulasi)</p>
+        <p>Metode: <strong>{{ $method['label'] ?? $payment->payment_method }}</strong></p>
         <p>Kode referensi: {{ $payment->reference_code }}</p>
         <p>Dibuat: {{ $payment->created_at?->setTimezone(config('ira.reporting_timezone'))->format('d M Y H:i') }} WITA</p>
         <p>Kedaluwarsa: {{ $payment->expires_at?->setTimezone(config('ira.reporting_timezone'))->format('d M Y H:i') }} WITA</p>

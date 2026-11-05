@@ -7,7 +7,7 @@
         <p>Ira Stationery — Gorontalo</p>
         <p>Nomor pesanan: <strong>{{ $order->order_number }}</strong></p>
         <p>Kode referensi: {{ $payment->reference_code }}</p>
-        <p>Metode: {{ $method['label'] ?? $payment->payment_method }} (Simulasi)</p>
+        <p>Metode: {{ $method['label'] ?? $payment->payment_method }}</p>
         <p>Dibayar: {{ $payment->paid_at?->setTimezone(config('ira.reporting_timezone'))->format('d M Y H:i') }} WITA</p>
         <h2>Item</h2>
         <ul>

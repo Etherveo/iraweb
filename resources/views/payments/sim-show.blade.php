@@ -9,7 +9,7 @@
         @endif
         <p>Nomor pesanan: <strong>{{ $order->order_number }}</strong></p>
         <p>Total: <strong>{{ $order->formattedTotal() }}</strong></p>
-        <p>Metode: <strong>{{ $method['label'] ?? $payment->payment_method }}</strong> (Simulasi)</p>
+        <p>Metode: <strong>{{ $method['label'] ?? $payment->payment_method }}</strong></p>
         <p>Kode referensi: {{ $payment->reference_code }}</p>
         @if ($isVa)
             <p>Nomor VA (Simulasi): <strong>{{ $payment->formattedReference() }}</strong></p>
