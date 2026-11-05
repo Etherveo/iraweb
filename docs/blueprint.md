@@ -27,7 +27,7 @@ Batas:
 | No | Keputusan | Status | Alasan singkat |
 | --- | --- | --- | --- |
 | A-01 | Aplikasi utama: **Laravel (PHP)**, monolit modular (satu basis kode, satu basis data). | Diputuskan (`D§12b`) | Stack ditetapkan pemilik proyek. |
-| A-02 | Kalkulasi analitik: **servis Python terpisah**; Laravel mengirim data, Python menghitung dan mengembalikan hasil. | Diputuskan (`D§12b`); pembagian rinci = U-19 | numpy/pandas/scikit-learn dipakai apa adanya, tidak di-refactor ke PHP. |
+| A-02 | Kalkulasi analitik: **servis Python HTTP internal terpisah**; Laravel mengirim data, Python menghitung dan mengembalikan hasil. | Diputuskan (`D§12b`); pembagian rinci = U-19; **dikonfirmasi 2026-11-05 (K14): servis HTTP, bukan CLI, bukan PHP** — sistem berbasis web, semua operasi tanpa CLI kecuali menyalakan server (aktor Developer ada supaya tidak perlu CLI). | numpy/pandas/scikit-learn dipakai apa adanya untuk biodata, tidak di-refactor ke PHP; untuk analitik sendiri scikit-learn TIDAK dibutuhkan (statistik cukup stdlib, numpy/scipy opsional). |
 | A-03 | Basis data: **SQLite** (berkas tunggal). | **Diputuskan pemilik proyek 2026-11-02, menggantikan usulan PostgreSQL (U-01)** | Alasan: simpel, tanpa server basis data, cukup untuk tugas/simulator. Indeks parsial dan constraint `CHECK` tetap bisa dipakai di SQLite. Konversi zona waktu WITA dilakukan di lapisan aplikasi (`PeriodResolver`), bukan `AT TIME ZONE` di SQL. Penguncian bukan per baris: SQLite mengunci berkas basis data saat tulis (disarankan mode WAL); karena itu idiom `FOR UPDATE` / `SKIP LOCKED` pada §7 sudah diganti dengan transaksi tulis dan update bersyarat. |
 | A-04 | Antarmuka: **server-rendered Blade + Tailwind CSS + Alpine.js**; grafik Chart.js dibundel (tanpa CDN). | Usulan (U-01) | Muatan klien minimum (`AGENTS §5`); satu mekanisme gaya. `DESIGN` Appendix H (React/shadcn) hanya default bila stack tidak ditentukan. |
 | A-05 | Autentikasi memakai mekanisme bawaan framework: dua guard terpisah — `web` (tabel `users`, peran `pembeli` dan `admin_toko`) dan `developer` (tabel `developers`, peran `dev`). **Keputusan 2026-11-05: login disatukan** — satu formulir di `/masuk` dengan sakelar aktor, guard/tabel tetap terpisah; hanya formulirnya yang disatukan, bukan autentikasinya. | Usulan | Developer tidak boleh dicampur (`D§3`, ACC-04); tidak menulis autentikasi sendiri (`AGENTS §9`). |
@@ -503,7 +503,7 @@ Untuk setiap pesanan hasil panel: `PaymentStateMachine` dan `OrderStateMachine` 
 | `dibatalkan` (10%) | `cancelled` | `menunggu_pembayaran → dibatalkan` + event `cancel` (alasan `buyer`) |
 | `kedaluwarsa` (10%) | `expired` | `menunggu_pembayaran → kedaluwarsa` + event `cancel` (alasan `expired`) |
 
-Metode pembayaran dipilih dari katalog (PAY-01) secara berbenih. Tidak ada callback HTTP dan tidak ada trace HTTP. Stok **tidak** dikurangi (SIM-15, tidak ada baris `stock_movements`).
+Metode pembayaran dipilih dari katalog (PAY-01) secara berbenih. Tidak ada callback HTTP dan tidak ada trace HTTP. Stok **tidak** dikurangi (SIM-15, tidak ada baris `stock_movements`). **Catatan analitik (K16):** karena simulator tidak memodelkan stok, penjualan rendah pada data uji tidak boleh disimpulkan stok habis — layar analitik wajib menampilkan catatan itu; pada data riil, minggu dengan stok 0 ditandai dari riwayat stok (PRD-07).
 
 ### 9.8 Aksi 4 — funnel eksplisit (SIM-31..33)
 
@@ -542,8 +542,8 @@ Pembagian (U-19): Laravel menyusun **data fakta** dari basis data (satu sumber),
 ```
 analytics-service/
   app.py                 # pembungkus HTTP tipis (usulan FastAPI) — U-01
-  algorithms/            # kode Python yang sudah ada, dipakai apa adanya (tidak di-refactor)
-    trend.py funnel.py compare.py interest.py category.py summary.py
+  algorithms/            # fungsi Python murni (terima fakta, kembalikan hasil; tanpa DB/jaringan/kunci)
+    trend.py funnel.py compare.py interest.py category.py summary.py insight.py
   schemas.py             # validasi bentuk request/response
   tests/                 # pytest, uji golden-data
   requirements.txt
@@ -586,8 +586,11 @@ Riwayat aktivitas (ANL-52) dan penelusuran (ANL-05) adalah kueri langsung Larave
 ```
 
 - `facts` berbutir **per hari WITA per produk**, hanya baris yang memiliki aktivitas atau penjualan (Python mengisi bucket kosong dengan 0 pada deret waktu). Ukuran terbatas: ≤ 366 hari × jumlah produk (dataset contoh ±40 produk ≈ ≤ 15.000 baris).
+- **Blok opsional `order_totals` (tambahan 2026-11-05, temuan AI B):** `orders_paid` per (hari, produk) menghitung pesanan unik PER PRODUK, jadi menjumlahkannya atas produk akan menghitung ganda pesanan berisi ≥2 produk. Jumlah transaksi (FR-01, FR-04) WAJIB dari blok ini, bukan dari Σ `orders_paid` per produk. Bentuknya: `"order_totals": [{"date": "2026-10-01", "orders_paid": 30, "by_category": [{"category_id": 3, "orders_paid": 12}]}]` — `orders_paid` per hari = pesanan paid unik hari itu; `by_category` = pesanan paid unik yang berisi ≥1 item paid pada kategori itu (jumlah antar kategori BOLEH melebihi total hari itu bila satu pesanan berisi ≥2 kategori — itu diharapkan, bukan galat). Bila blok ini tidak ada, jumlah transaksi = "Belum dapat dihitung" + `warning` (bukan 0, bukan Σ per produk). Pendapatan (Rp) dan unit tetap dijumlahkan dari `facts` (keduanya aditif per item).
 - Endpoint `compare` menerima dua blok `period`/`facts` berlabel `A` dan `B`.
-- Tidak ada data pribadi: `facts` tidak memuat akun; riwayat per pelanggan tidak dikirim ke Python.
+- Endpoint `summary` (FR-01 KPI vs periode sebelumnya) menerima `previous_facts` opsional dengan format sama seperti `facts` (periode tepat sebelum, panjang sama, filter sama); bila tidak ada, perubahan KPI = "Belum dapat dihitung" + `warning`.
+- `products` boleh membawa field opsional `active_since` (tanggal WITA, `YYYY-MM-DD`) — tanggal produk pertama aktif; bila kosong, Python memakai minggu pertama yang punya aktivitas apa pun di `facts` untuk produk itu sebagai awal deret (FR-02).
+- Tidak ada data pribadi: `facts` tidak memuat akun; riwayat per pelanggan tidak dikirim ke Python. Fungsi bantu `dedup_views()` (khusus tes, lihat §11.7 FR-05) menerima referensi pengguna ANONIM saja, bukan ID akun asli.
 
 ### 11.4 Bentuk respons (usulan)
 
@@ -597,7 +600,7 @@ Riwayat aktivitas (ANL-52) dan penelusuran (ANL-05) adalah kueri langsung Larave
   "request_id": "01J…",
   "algorithm_version": "<dari kode Python>",
   "computed_at": "2026-11-02T03:00:00Z",
-  "result": { "…": "bergantung endpoint; mis. trend: [{product_id, label: naik|turun|stabil|data_belum_cukup, change_pct, series: [...]}]" },
+  "result": { "…": "bergantung endpoint; mis. trend: [{product_id, label: naik|turun|tidak_ada_tren_jelas|data_belum_cukup, change_pct, series: [...]}]" },
   "warnings": []
 }
 ```
@@ -606,7 +609,7 @@ Laravel memvalidasi kunci wajib per endpoint sebelum dipakai; bentuk tidak sesua
 
 ### 11.5 Penyusunan data fakta (`FactsQuery`) — satu sumber
 
-Sketsa (SQLite — diubah dari PostgreSQL), parameter periode dikonversi ke rentang UTC dari tanggal WITA (`PeriodResolver`), filter asal data ditambahkan bila bukan `all`. Bucket tanggal WITA dihitung dengan penyesuaian +7 jam pada fungsi tanggal SQLite (bukan `AT TIME ZONE`), karena waktu disimpan UTC:
+Sketsa (SQLite — diubah dari PostgreSQL), parameter periode dikonversi ke rentang UTC dari tanggal WITA (`PeriodResolver`), filter asal data ditambahkan bila bukan `all`. Bucket tanggal WITA dihitung dengan penyesuaian +8 jam pada fungsi tanggal SQLite (bukan `AT TIME ZONE`), karena waktu disimpan UTC (koreksi prosa 2026-11-05; SQL di bawah sudah benar `'+8 hours'`):
 
 ```sql
 -- Penjualan (waktu transaksi = paid_at, ANL-07)
@@ -643,12 +646,13 @@ Kedua hasil digabung per `(d, product_id)` menjadi `facts`. Penelusuran (ANL-05)
 
 | FR | Definisi yang harus dipatuhi hasil |
 | --- | --- |
-| FR-01 | Penjualan = Σ `revenue_idr`; transaksi = Σ `orders_paid` (per pesanan unik); terlaris = kuantitas menurun, seri → nilai menurun → nama; paling sedikit = kuantitas menaik **termasuk 0** untuk produk aktif, seri → nama. |
-| FR-02 | Deret per bucket granularitas; klasifikasi naik/turun/stabil dengan ambang U-25 dan minimum bucket; basis nol → persen tidak ditampilkan. |
+| FR-01 | Penjualan = Σ `revenue_idr`; transaksi = `order_totals.orders_paid` per hari (pesanan paid unik, BUKAN Σ `orders_paid` per produk — Σ itu menghitung ganda pesanan multi-produk, temuan AI B 2026-11-05); terlaris = kuantitas menurun, seri → nilai menurun → nama; paling sedikit = kuantitas menaik **termasuk 0** untuk produk aktif, seri → nama. KPI vs periode sebelumnya memakai definisi FR-04 + tanda signifikansi (ANL-11, K8) dan `previous_facts` bila ada. |
+| FR-02 | Deret mingguan WITA; klasifikasi naik/turun/"Tidak ada tren jelas" (Mann–Kendall + Sen's slope, koreksi Benjamini–Hochberg atas semua produk aktif pada filter yang sama) dengan ambang U-25 (N_MIN 8 minggu, |r| ≥ 10%); basis nol → "Belum dapat dihitung". Keluaran memuat label, kekuatan, n, beta, r, p, q, granularitas, periode, filter (ANL-24). |
 | FR-03 | Empat hitungan event; rasio = tahap/tahap sebelumnya dan tahap/`view`; pembagi nol → null; anomali ditandai, tidak disembunyikan. |
-| FR-04 | Metrik A dan B, selisih absolut dan persen, basis nol → null. |
-| FR-05 | Produk dilihat (distinct produk dengan `views` > 0); sorotan `views ≥ 20` dan `purchases/views ≤ 5%` (U-26). |
-| FR-06 | Agregasi per kategori (`category_id`), porsi, tren, matriks kategori × dua periode, kelompok harga (ANL-64). |
+| FR-04 | Metrik A dan B, selisih absolut dan persen, laju per hari bila panjang periode berbeda (normalisasi wajib, ANL-42); basis nol → "Belum dapat dihitung"; tanda signifikansi uji binomial eksak untuk unit/transaksi/pembelian per produk; total Rp hanya deskriptif. |
+| FR-05 | Produk dilihat (distinct produk dengan `views` > 0); sorotan "Perlu ditinjau" `views ≥ 20`, `purchases/views ≤ 5%` DAN batas atas interval Wilson 95% ≤ 10% (U-26, ANL-53); pembanding ANL-56 (rasio titik ≥ 10%, `purchase` ≥ 10, maks 3). |
+| FR-06 | Agregasi per kategori (`category_id`), porsi largest remainder (jumlah tepat 100,0%), tren per kategori (algoritma FR-02, BH atas kategori), matriks kategori × dua periode, kelompok harga BINNING TETAP <Rp10.000 / Rp10.000–49.999 / ≥Rp50.000 (ANL-64, bukan k-means). |
+| Insight | Templat INS-01–INS-06, modul terpisah dari statistik inti, deterministik, bisa ditelusur ke sumber, tanpa kata sebab dan tanpa rekomendasi tindakan (PRD §10, K11). |
 
 ## 12. Peta Rute dan Otorisasi
 

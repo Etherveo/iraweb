@@ -9,6 +9,7 @@
 | Stack yang sudah diputuskan | Laravel (PHP) untuk aplikasi; Python sebagai servis kalkulasi terpisah (`Ira-discussion.md` §12b) |
 | Catatan penting | Pada tahap ini yang dibangun adalah **simulator**. Tidak ada gateway pembayaran riil yang terhubung dan tidak ada uang riil yang berpindah. |
 | Perubahan pemilik proyek 2026-11-02 | **Basis data: SQLite** (menggantikan usulan PostgreSQL pada U-01, agar simpel). **Zona waktu: WITA saja** — waktu disimpan UTC, batas hari/minggu/bulan dan tampilan memakai WITA (Asia/Makassar, UTC+8). **Tidak memakai starter kit** — tahap inisialisasi (M0 pada blueprint) adalah checklist, bukan starter kit bernama. Keputusan ini sudah diterapkan pada PRD ini dan pada `blueprint.md` di folder proyek ini; naskah asli Claude di file kiriman tetap utuh sebagai sumber. |
+| Perubahan pemilik proyek 2026-11-05 (K1–K16) | **Keputusan algoritma analitik (dari analisis AI C, ditentukan Rin atas delegasi pemilik proyek, 2026-11-05).** Diterapkan di bawah ini: U-25 (N_MIN tren 8 minggu, label "Tidak ada tren jelas", koreksi Benjamini–Hochberg), U-26/ANL-53 (interval Wilson, hapus "add_to_cart tinggi"), ANL-56 baru (pembanding FR-05), INS-01–INS-06 baru (insight templat), ANL-11 (KPI vs periode sebelumnya), ANL-23/ANL-43 (basis nol → "Belum dapat dihitung"), ANL-42 (normalisasi per hari bila panjang periode berbeda), ANL-24 (transparansi p/q/beta/r). Lokasi kalkulasi dikonfirmasi: **Python servis HTTP internal, bukan CLI, bukan PHP** (sistem berbasis web, semua operasi tanpa CLI kecuali menyalakan server). Simulator tidak memodelkan stok (SIM-15): penjualan rendah pada data uji tidak boleh disimpulkan stok habis. Detail lengkap: `about-script/analisis-algoritma-trend-analytics-REVISI-RIN-2026-11-05.md`. |
 
 ---
 
@@ -176,8 +177,8 @@ Semua butir berikut **belum diputuskan** pada kedua file sumber. Nilai di bawah 
 | **U-22** | Pembuatan akun Admin Toko dan Developer (K-07) | Provisioning lewat perintah artisan/seeder dengan kredensial dari input aman; tanpa halaman registrasi publik. | Admin dapat membuat Admin lain di panel. |
 | **U-23** | Cakupan reset (`D§7.5`) | Reset per run dan reset seluruh data simulasi; konfirmasi dengan mengetik frasa; akun simulasi dihapus hanya bila tidak memiliki data `origin = normal`. | — |
 | **U-24** | Semantik event `cancel` (`D§4.2`) | Dicatat per item untuk pembatalan pembeli (alasan `buyer`) dan kedaluwarsa (alasan `expired`); pembayaran `failed` tidak mencatat `cancel`. | — |
-| **U-25** | Ambang klasifikasi tren dan jumlah data minimum (FR-02) | Mengikuti kode Python yang ada; bila belum ada: minimal 3 bucket waktu, perubahan relatif ≥ +10% = naik, ≤ −10% = turun, selain itu stabil. | — |
-| **U-26** | Ambang sorotan minat tinggi/pembelian rendah (FR-05) | Produk dengan ≥ 20 view pada periode dan rasio purchase/view ≤ 5%. | — |
+| **U-25** | Ambang klasifikasi tren dan jumlah data minimum (FR-02) | **Perubahan 2026-11-05 (K1, K2, K3):** minimum **8 minggu penuh** (bucket mingguan Senin–Minggu WITA; minggu parsial di tepi tidak diklasifikasi); perubahan relatif ≥ +10% = naik, ≤ −10% = turun, selain itu **"Tidak ada tren jelas"** (bukan "stabil"). Klasifikasi memakai Mann–Kendall + Sen's slope, dengan koreksi Benjamini–Hochberg atas SEMUA produk aktif pada filter yang sama (q < 0,05). Kurang dari 8 minggu → "Data belum cukup" (bukan ditebak). Nilai lama "minimal 3 bucket" tidak berlaku lagi — 3–4 bucket tidak mungkin signifikan secara statistik. | — |
+| **U-26** | Ambang sorotan minat tinggi/pembelian rendah (FR-05) | **Perubahan 2026-11-05 (K6):** produk "Perlu ditinjau" bila `view` ≥ 20 pada periode, rasio `purchase`/`view` ≤ 5%, DAN batas atas interval Wilson 95% ≤ 10%. Pembanding (ANL-56): rasio titik ≥ 10% dan `purchase` ≥ 10, maks 3, urut `purchase` menurun. Ambang ini default dan dikalibrasi ulang setelah ada data riil. | — |
 | **U-27** | Jumlah item daftar peringkat (FR-01) | Top/Bottom 5. | — |
 | **U-28** | Kredensial akun simulasi | Satu kata sandi bersama dari environment (`SIM_ACCOUNT_PASSWORD`), disimpan hash per akun; tidak pernah ditampilkan atau dicatat. | Kata sandi acak per akun yang ditampilkan sekali. |
 | **U-29** | Kebijakan kata sandi | Minimal 8 karakter. | — |
@@ -537,14 +538,14 @@ Seluruh fitur ANL hanya untuk **Admin Toko** (ANL-08). Perhitungan dilakukan ser
 | ANL-04 | Pembaruan cepat | Admin Toko | D§5 (komponen lintas) | Setelah transaksi atau event baru tercatat, pemuatan/penyegaran berikutnya pada layar analitik sudah memuat angka baru tanpa proses manual, batch, atau tombol hitung ulang. Target waktu muat: ≤ 3 detik pada rentang 12 bulan dengan dataset contoh (target usulan; diverifikasi pada pengujian). | BB+WB |
 | ANL-05 | Penelusuran ke sumber | Admin Toko | D§2 butir 5, D§6.4 | Setiap angka agregat (kartu, batang grafik, baris tabel) menyediakan tautan "Lihat sumber" ke daftar pesanan atau event yang menyusunnya dengan filter yang sama (periode, asal data, produk/kategori). Jumlah baris sumber cocok dengan angka yang ditelusuri. | BB+WB |
 | ANL-06 | Kontrak servis Python | Sistem | D§12b | Laravel mengirim data fakta via HTTP ke servis Python internal dan menerima hasil terstruktur; timeout dan kunci internal dari environment; bentuk respons divalidasi sebelum dipakai; servis tidak dapat dijangkau → layar menampilkan keadaan "Perhitungan sedang tidak tersedia" dengan tombol coba lagi (bukan angka nol). Detail kontrak: blueprint §11. | WB+BB |
-| ANL-07 | Definisi penjualan dan `purchase` | Sistem | P§1 butir 3, D§6.4 | Penjualan, jumlah transaksi, kuantitas terjual, dan event `purchase` hanya dihitung dari pesanan dengan pembayaran `paid`; pesanan `menunggu_pembayaran`, `dibatalkan`, `kedaluwarsa` tidak dihitung. Pesanan dengan pembayaran `failed` yang kemudian dibayar ulang dihitung sekali. Waktu transaksi = `paid_at` (U-20). | WB |
+| ANL-07 | Definisi penjualan dan `purchase` | Sistem | P§1 butir 3, D§6.4 | Penjualan, jumlah transaksi, kuantitas terjual, dan event `purchase` hanya dihitung dari pesanan dengan pembayaran `paid`; pesanan `menunggu_pembayaran`, `dibatalkan`, `kedaluwarsa` tidak dihitung. Pesanan dengan pembayaran `failed` yang kemudian dibayar ulang dihitung sekali. Waktu transaksi = `paid_at` (U-20). **Perubahan 2026-11-05 (K9):** "transaksi berhasil" = jumlah PESANAN paid, sedangkan "pembelian (event)" = jumlah ITEM paid (satu event per item) — keduanya ditampilkan bila berbeda, jangan disamakan. | WB |
 | ANL-08 | Hak akses analitik | Sistem | D§6.1, D§4, D§3 (K-06) | Hanya Admin Toko yang dapat membuka layar dan endpoint analitik (termasuk endpoint data grafik). Pembeli, Developer, dan pengunjung ditolak. | BB+WB |
 
 #### FR-01 — Dashboard Analitik Penjualan (P0)
 
 | ID | Fitur | Aktor | Sumber | Kriteria terima | Uji |
 | --- | --- | --- | --- | --- | --- |
-| ANL-11 | Ringkasan penjualan dan jumlah transaksi | Admin Toko | FR-01, D§5 | Kartu: total penjualan (Rp, format `Rp 1.250.000`) dan jumlah transaksi terhitung pada periode terfilter. Nilai sama dengan penjumlahan pesanan terbayar pada ANL-05. | BB+WB |
+| ANL-11 | Ringkasan penjualan dan jumlah transaksi | Admin Toko | FR-01, D§5 | Kartu: total penjualan (Rp, format `Rp 1.250.000`) dan jumlah transaksi terhitung pada periode terfilter. Nilai sama dengan penjumlahan pesanan terbayar pada ANL-05. **Perubahan 2026-11-05 (K8):** kartu juga menampilkan perubahan vs periode sebelumnya memakai definisi FR-04 (ANL-43) beserta tanda signifikansinya — ini perbandingan deskriptif, bukan klaim tren. **Tambahan 2026-11-05 (temuan AI B):** jumlah transaksi dihitung dari blok `order_totals` (pesanan paid unik per hari, blueprint §11.3), BUKAN dijumlahkan dari `orders_paid` per produk — pesanan multi-produk akan terhitung ganda bila dijumlahkan. Bila `order_totals` tidak ada, jumlah transaksi = "Belum dapat dihitung" + peringatan. | BB+WB |
 | ANL-12 | Produk terlaris | Admin Toko | FR-01, D§8 (FR-01) | Daftar Top 5 (U-27) berdasarkan kuantitas terjual pada periode; seri diurutkan menurut nilai penjualan lalu nama; menampilkan kuantitas dan nilai. Kurang dari 5 produk terjual → tampil sebanyak yang ada. | BB+WB |
 | ANL-13 | Produk paling sedikit terjual | Admin Toko | FR-01, D§8 (FR-01) | Daftar 5 produk aktif dengan kuantitas terjual terendah, **termasuk yang 0** (ditulis "0 terjual"); seri diurutkan menurut nama agar deterministik. Produk nonaktif tanpa penjualan tidak ikut. | BB+WB |
 | ANL-14 | Grafik tren penjualan | Admin Toko | FR-01, D§5 | Grafik garis/area penjualan (Rp) dengan granularitas harian, mingguan, atau bulanan (default menyesuaikan panjang periode); bucket tanpa transaksi bernilai 0, bukan hilang. | BB+WB |
@@ -555,9 +556,9 @@ Seluruh fitur ANL hanya untuk **Admin Toko** (ANL-08). Perhitungan dilakukan ser
 | ID | Fitur | Aktor | Sumber | Kriteria terima | Uji |
 | --- | --- | --- | --- | --- | --- |
 | ANL-21 | Deret waktu penjualan per produk | Admin Toko | FR-02, D§8 (FR-02) | Memilih 1–5 produk dan metrik (kuantitas terjual — default — atau nilai Rp; "permintaan" diartikan kuantitas terjual); grafik garis per produk pada granularitas yang dipilih dengan bucket kosong = 0. | BB+WB |
-| ANL-22 | Klasifikasi tren naik/turun/stabil | Admin Toko | FR-02 | Setiap produk diklasifikasikan **naik**, **turun**, atau **stabil** oleh servis Python berdasarkan deret waktunya; data kurang dari jumlah bucket minimum → "data belum cukup" (bukan ditebak). Ambang dan minimum mengikuti U-25. Deret naik monoton → naik; menurun monoton → turun; datar → stabil (diuji dengan data sintetis). | WB+BB |
-| ANL-23 | Daftar produk naik dan turun | Admin Toko | FR-02, D§5 | Dua daftar peringkat produk berdasarkan besar perubahan (persen dan absolut) antara awal dan akhir periode; produk dengan basis nol menampilkan "baru" atau "—" untuk persen, bukan tak hingga. | BB+WB |
-| ANL-24 | Transparansi parameter tren | Admin Toko | FR-02, D§2 butir 5 | Layar menampilkan granularitas, jumlah bucket, dan ambang yang dipakai klasifikasi, sehingga hasil dapat ditelusur dan dijelaskan. | BB |
+| ANL-22 | Klasifikasi tren naik/turun/"Tidak ada tren jelas" | Admin Toko | FR-02 | Setiap produk diklasifikasikan **naik**, **turun**, atau **"Tidak ada tren jelas"** oleh servis Python berdasarkan deret waktunya (Mann–Kendall + Sen's slope, koreksi Benjamini–Hochberg atas semua produk aktif pada filter yang sama); data kurang dari jumlah bucket minimum (U-25: 8 minggu) → "data belum cukup" (bukan ditebak). Ambang dan minimum mengikuti U-25. Deret naik monoton → naik; menurun monoton → turun; datar → "Tidak ada tren jelas" (diuji dengan data sintetis). Label lama "stabil" tidak dipakai lagi — tidak adanya bukti tren bukan berarti stabil. | WB+BB |
+| ANL-23 | Daftar produk naik dan turun | Admin Toko | FR-02, D§5 | Dua daftar peringkat produk berdasarkan besar perubahan (persen dan absolut) antara awal dan akhir periode; produk dengan basis nol menampilkan **"Belum dapat dihitung"** untuk persen, bukan tak hingga dan bukan "baru"/"—" (Perubahan 2026-11-05, K7). | BB+WB |
+| ANL-24 | Transparansi parameter tren | Admin Toko | FR-02, D§2 butir 5 | Layar menampilkan granularitas, jumlah bucket, ambang, serta statistik klasifikasi (p, q terkoreksi BH, beta Sen, perubahan relatif r) yang dipakai, sehingga hasil dapat ditelusur dan dijelaskan. | BB |
 
 #### FR-03 — Analisis Funnel Pelanggan (P0)
 
@@ -574,8 +575,8 @@ Seluruh fitur ANL hanya untuk **Admin Toko** (ANL-08). Perhitungan dilakukan ser
 | ID | Fitur | Aktor | Sumber | Kriteria terima | Uji |
 | --- | --- | --- | --- | --- | --- |
 | ANL-41 | Pilih dua periode pembanding | Admin Toko | FR-04, D§8 (FR-04) | Periode A dan B dipilih sebagai hari, minggu, bulan, atau rentang kustom (mis. bulan ini vs bulan lalu). | BB+WB |
-| ANL-42 | Validasi periode pembanding | Admin Toko | FR-04 | Masing-masing mulai ≤ akhir dan valid; panjang periode berbeda atau tumpang tindih tidak ditolak tetapi diberi peringatan eksplisit; kedua periode kosong → keadaan kosong. | WB+BB |
-| ANL-43 | Metrik perbandingan | Admin Toko | FR-04 | Untuk A dan B: total penjualan, jumlah transaksi, kuantitas terjual; selisih absolut dan persen A→B; basis nol → persen "—". | BB+WB |
+| ANL-42 | Validasi periode pembanding | Admin Toko | FR-04 | Masing-masing mulai ≤ akhir dan valid; panjang periode berbeda atau tumpang tindih tidak ditolak tetapi diberi peringatan eksplisit; kedua periode kosong → keadaan kosong. **Perubahan 2026-11-05:** bila panjang periode berbeda, perbandingan juga dinormalisasi per hari (laju A/dA vs B/dB) sebelum disimpulkan — persen mentah saja tidak cukup. | WB+BB |
+| ANL-43 | Metrik perbandingan | Admin Toko | FR-04 | Untuk A dan B: total penjualan, jumlah transaksi, kuantitas terjual; selisih absolut dan persen A→B; basis nol → persen **"Belum dapat dihitung"** (bukan "—", Perubahan 2026-11-05, K7). Untuk unit, transaksi, dan pembelian per produk, tampilkan juga tanda signifikansi uji binomial eksak dua sisi (p < 0,05 → "Berbeda dari variasi acak", p ≥ 0,05 → "Belum dapat dibedakan dari variasi acak"); total penjualan (Rp) hanya deskriptif di versi ini. | BB+WB |
 | ANL-44 | Grafik perbandingan | Admin Toko | FR-04, D§5 | Grafik berdampingan (batang/garis) kedua periode dengan sumbu dan legenda jelas; tabel alternatif. | BB |
 | ANL-45 | Perbandingan per produk | Admin Toko | FR-04 | Daftar produk dengan perubahan terbesar naik dan turun antara A dan B. | BB+WB |
 | ANL-46 | Pintasan periode sebelumnya | Admin Toko | FR-04 | Satu aksi mengisi B dengan periode berpanjang sama tepat sebelum A (mis. minggu lalu untuk minggu ini). | BB+WB |
@@ -586,9 +587,10 @@ Seluruh fitur ANL hanya untuk **Admin Toko** (ANL-08). Perhitungan dilakukan ser
 | --- | --- | --- | --- | --- | --- |
 | ANL-51 | Jumlah produk yang dilihat | Admin Toko | FR-05 | Menampilkan jumlah produk berbeda yang dilihat dan total event `view` pada periode, dengan penelusuran (ANL-05). | BB+WB |
 | ANL-52 | Riwayat aktivitas pelanggan | Admin Toko | FR-05, D§4.2 | Tabel berpaginasi event (waktu WITA, pelanggan, jenis event, produk); filter pelanggan, jenis, periode, asal data; terbaru lebih dulu. Tidak menampilkan data kredensial. | BB |
-| ANL-53 | Sorotan minat tinggi, pembelian rendah | Admin Toko | FR-05, D§8 (FR-05) | Daftar produk dengan `view` ≥ 20 (atau `add_to_cart` tinggi) dan rasio `purchase`/`view` ≤ 5% (U-26), diurutkan menurut selisih terbesar; ambang tampil di layar. Produk yang tidak memenuhi ambang tidak disorot. | WB+BB |
+| ANL-53 | Sorotan minat tinggi, pembelian rendah ("Perlu ditinjau") | Admin Toko | FR-05, D§8 (FR-05) | Daftar produk "Perlu ditinjau" dengan `view` ≥ 20 dan rasio `purchase`/`view` ≤ 5% (U-26) DAN batas atas interval Wilson 95% ≤ 10%; diurutkan menurut selisih `add_to_cart` − `purchase` terbesar, seri → nama menaik; ambang dan interval tampil di layar. Frasa lama "(atau `add_to_cart` tinggi)" dihapus karena tidak terdefinisi (Perubahan 2026-11-05, K4/K6). Produk yang tidak memenuhi ambang tidak disorot. | WB+BB |
 | ANL-54 | Ringkasan minat per produk | Admin Toko | FR-05, FR-03 | Per produk: view, add_to_cart, booking, purchase, rasio konversi; dapat diurutkan dan difilter kategori. Memakai data event yang sama dengan FR-03. | BB+WB |
 | ANL-55 | Penelusuran dari sorotan ke riwayat | Admin Toko | FR-05, D§2 butir 5 | Dari baris sorotan produk, satu klik membuka riwayat aktivitas (ANL-52) yang sudah terfilter pada produk itu. | BB |
+| ANL-56 | Pembanding minat (baru, 2026-11-05, K5) | Admin Toko | FR-05, D§5 | Daftar pembanding berdampingan dengan sorotan ANL-53: produk dengan rasio titik `purchase`/`view` ≥ 10% dan `purchase` ≥ 10, maks 3, urut `purchase` menurun. Pembanding memakai rasio titik dan jumlah minimum (bukan batas bawah interval), supaya produk yang jelas tinggi pembeliannya tidak gugur karena intervalnya. | WB+BB |
 
 #### FR-06 — Analisis Kategori/Karakteristik Produk (P2)
 
@@ -599,6 +601,21 @@ Seluruh fitur ANL hanya untuk **Admin Toko** (ANL-08). Perhitungan dilakukan ser
 | ANL-63 | Perbandingan kategori antar periode | Admin Toko | FR-06, FR-04 | Matriks kategori × dua periode dengan selisih; memakai pemilih periode ANL-41. | BB+WB |
 | ANL-64 | Karakteristik produk: kelompok harga | Admin Toko | FR-06 ("karakteristik produk"; atribut yang ada hanya kategori dan harga) | Produk dikelompokkan ke rentang harga (batas ditampilkan; usulan 3 kelompok) dan performa tiap kelompok ditampilkan. Karakteristik lain tidak tersedia sampai atribut produk ditambah (di luar scope). | BB+WB |
 | ANL-65 | Kategori tanpa transaksi | Admin Toko | FR-06, D§8 (FR-06) | Kategori tanpa penjualan pada periode tampil dengan nilai 0 (tidak hilang); bila hanya satu kategori yang memiliki penjualan, tampil catatan bahwa perbandingan antar-kategori belum bermakna. | BB |
+
+#### Insight otomatis — templat (baru, 2026-11-05, K11)
+
+Insight BUKAN generasi bahasa: kalimat ringkasan di setiap layar adalah templat deterministik yang diisi angka hasil fitur lain, sehingga bisa diuji dan ditelusur ke sumbernya (ANL-05).
+
+| ID | Pemicu | Templat |
+| --- | --- | --- |
+| INS-01 | Penjualan harian tertinggi dalam periode | "Penjualan tertinggi pada {tgl}: Rp {nilai}, tertinggi dari {n} hari pada periode ini." |
+| INS-02 | Penurunan antar tahap funnel terbesar | "Penurunan terbesar: {tahap_a} ke {tahap_b}, {selisih} event ({persen}%)." |
+| INS-03 | Produk berlabel "Perlu ditinjau" | "{produk}: {V} kali dilihat, {C} masuk keranjang, {P} pembelian ({r_b}%; interval 95%: {L}–{U}%)." |
+| INS-04 | Perubahan produk/total dengan p ≥ 0,05 | "Perubahan {objek} ({A} dibanding {B}) belum dapat dibedakan dari variasi acak (p = {p})." |
+| INS-05 | Tren FR-02 berlabel Naik/Turun | "{produk} menunjukkan kecenderungan {naik/turun} dengan bukti {kuat/cukup} selama {n} minggu (perubahan sekitar {r}%)." |
+| INS-06 | Ringkasan asal data | "{n_normal} transaksi normal + {n_sim} transaksi simulasi = {total} transaksi berhasil." |
+
+Guardrail: setiap kalimat diturunkan dari angka yang tampil di layar dan punya tautan "Lihat sumber"; kata sebab ("karena", "disebabkan", "akibat", "penyebab") dilarang; rekomendasi tindakan dilarang (hanya daftar pemeriksaan tetap, mis. "Periksa harga, ketersediaan, dan catatan aktivitas"); setiap kalimat menyebut periode dan filter asal data; bila data belum cukup, kalimat diganti "belum cukup data untuk disimpulkan". Modul insight terpisah dari statistik inti, supaya bisa dimatikan tanpa merusak FR-01–FR-06. Diimplementasikan setelah output FR-01–FR-06 tersedia (M6/M7, bukan milestone tunggal).
 
 ## 11. Persyaratan Non-Fungsional (kendala dari AGENTS.md dan DESIGN.md)
 
@@ -638,7 +655,7 @@ Butir berikut **bukan fitur produk**; ini kendala mutu yang berlaku pada semua f
 | **M3c** | Payment simulator: panel HTTP, jejak, halaman hasil, struk, riwayat, akses admin, label | PAY-37 s.d. PAY-54 |
 | **M4** | Panel developer versi dasar | SIM-01 s.d. SIM-31, SIM-35 s.d. SIM-42 |
 | **M5** | Analitik P0 diuji dengan data simulasi | ANL-01 s.d. ANL-08, ANL-11 s.d. ANL-15, ANL-21 s.d. ANL-24, ANL-31 s.d. ANL-35 |
-| **M6** | Analitik P1 | ANL-41 s.d. ANL-46, ANL-51 s.d. ANL-55 |
+| **M6** | Analitik P1 | ANL-41 s.d. ANL-46, ANL-51 s.d. ANL-56 |
 | **M7** | Analitik P2 dan penyempurnaan simulator | ANL-61 s.d. ANL-65, SIM-32, SIM-33, SIM-34 |
 
 Setiap tahap hanya dianggap selesai bila fitur-fiturnya lulus kriteria terima dan verifikasi §13. Tahap analitik tidak dimulai di atas data kosong (`D§6.5`).
@@ -704,7 +721,7 @@ Setiap bagian sumber yang relevan dipetakan ke fitur; tidak ada fitur tanpa sumb
 | D§5 FR-02 | ANL-21..ANL-24 |
 | D§5 FR-03 | ANL-31..ANL-35 |
 | D§5 FR-04 | ANL-41..ANL-46 |
-| D§5 FR-05 | ANL-51..ANL-55 |
+| D§5 FR-05 | ANL-51..ANL-56 |
 | D§5 FR-06 | ANL-61..ANL-65 |
 | D§5 komponen lintas | ANL-01, ANL-02, ANL-03, ANL-04 |
 | D§6.1 (akun dan hak akses) | ACC-01..ACC-15 |
@@ -728,7 +745,7 @@ Setiap bagian sumber yang relevan dipetakan ke fitur; tidak ada fitur tanpa sumb
 | D§10 butir 8 (data simulasi vs normal) | ANL-02, U-07 |
 | D§11 Alur A | CAT-01, CAT-04, PRD-01, PRD-04, PRD-05 |
 | D§11 Alur B | ACC-01, ACC-02, SHP-02, CRT-01, ORD-02, ORD-07, ORD-08 |
-| D§11 Alur C | ANL-01 s.d. ANL-08, ANL-11 s.d. ANL-15, ANL-21 s.d. ANL-24, ANL-31 s.d. ANL-35, ANL-41 s.d. ANL-46, ANL-51 s.d. ANL-55, ANL-61 s.d. ANL-65 |
+| D§11 Alur C | ANL-01 s.d. ANL-08, ANL-11 s.d. ANL-15, ANL-21 s.d. ANL-24, ANL-31 s.d. ANL-35, ANL-41 s.d. ANL-46, ANL-51 s.d. ANL-56, ANL-61 s.d. ANL-65, INS-01 s.d. INS-06 |
 | D§11 Alur D | SIM-02, SIM-13, SIM-16, SIM-36..39 |
 | D§12 (arahan penyusun PRD) | §2.2, struktur fitur pada §10, §13 |
 | D§12b (Laravel dan Python) | ANL-06, U-01, U-19 |
