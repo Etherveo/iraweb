@@ -424,6 +424,11 @@ test('PAY-48 receipt redirects a non-paid payment to its result page and is owne
     $this->actingAs(m3cBuyer(), 'web');
     $this->get('/pembayaran/'.$payment->id.'/struk')->assertNotFound();
 
+    // Keluar dulu: tanpa ini sesi masih milik pembeli kedua di atas,
+    // jadi GET "tamu" berikut mengembalikan 404, bukan redirect ke
+    // login (kelas bug sesi yang sama dengan ACC-10/M2/M3a).
+    $this->post('/keluar');
+
     $this->get('/pembayaran/'.$payment->id.'/struk')->assertRedirect(route('masuk'));
 });
 
@@ -445,6 +450,13 @@ test('PAY-49 buyer payment history lists only own payments, filters by status, a
     $this->post('/pay/sim/'.$failed->payment_token.'/gagal')->assertOk();
 
     $otherOrder = m3cCheckout($this, $other, [['product' => m3cProduct(), 'qty' => 1]]);
+
+    // Konsumsi flash "Pesanan ... dibuat." dari checkout $other
+    // sebelum beralih ke $buyer: kalau tidak, nomor pesanan $other
+    // ikut tampil di halaman riwayat lewat flash (bukan lewat tabel)
+    // dan assertDontSee di bawah gagal — kelas bug yang sama dengan
+    // PRD-04 (M2).
+    $this->get('/pesanan')->assertOk();
 
     $this->actingAs($buyer, 'web');
     $this->get('/pembayaran')->assertOk()
@@ -484,6 +496,10 @@ test('PAY-50 payment detail is owner-only: another buyer gets 404, a guest is re
     $buyer = m3cBuyer();
     $order = m3cCheckout($this, $buyer, [['product' => m3cProduct(), 'qty' => 1]]);
     $payment = $order->payments()->first();
+
+    // m3cCheckout() sudah actingAs($buyer) di dalamnya, jadi "tamu"
+    // di sini belum tamu — keluar dulu sebelum asersi redirect login.
+    $this->post('/keluar');
 
     $this->get('/pembayaran/'.$payment->id)->assertRedirect(route('masuk'));
 
@@ -561,7 +577,9 @@ test('PAY-52 admin payment detail shows the buyer, the panel and the timeline, r
 });
 
 test('M3c guards: a buyer cannot open admin payment pages, a guest is redirected', function () {
-    $this->get('/admin/pembayaran')->assertRedirect(route('masuk'));
+    // Rute admin mengarahkan tamu ke form login dengan aktor
+    // admin_toko terpilih (ACC-08); rute pembeli ke /masuk biasa.
+    $this->get('/admin/pembayaran')->assertRedirect(route('masuk', ['aktor' => 'admin_toko']));
     $this->get('/pembayaran')->assertRedirect(route('masuk'));
 
     $buyer = m3cBuyer();
@@ -579,8 +597,11 @@ test('PAY-53 no admin or developer route can change a payment', function () {
     $this->actingAs($admin, 'web');
     $this->post('/admin/pembayaran/'.$payment->id.'/status', ['status' => 'paid'])->assertNotFound();
     $this->post('/admin/pembayaran/'.$payment->id.'/bayar')->assertNotFound();
-    $this->put('/admin/pembayaran/'.$payment->id, ['status' => 'paid'])->assertNotFound();
-    $this->delete('/admin/pembayaran/'.$payment->id)->assertNotFound();
+    // PUT/DELETE ke path GET yang ada → 405; PRD PAY-53 membolehkan
+    // 404 ATAU 405, jadi terima keduanya (sebelumnya tes ini hanya
+    // menerima 404 dan gagal dengan 405).
+    expect($this->put('/admin/pembayaran/'.$payment->id, ['status' => 'paid'])->status())->toBeIn([404, 405]);
+    expect($this->delete('/admin/pembayaran/'.$payment->id)->status())->toBeIn([404, 405]);
     $this->get('/admin/pembayaran/'.$payment->id.'/ubah')->assertNotFound();
 
     // Structural: no registered route under the admin/developer
