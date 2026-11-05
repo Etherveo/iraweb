@@ -4,7 +4,6 @@ use App\Models\Category;
 use App\Models\Product;
 use App\Models\StockMovement;
 use App\Models\User;
-use Illuminate\Support\Facades\Schema;
 
 // M2 CAT-01..04, PRD-01..07, SHP-01..04, STK-01.
 // No Python, no Figma images, no external HTTP, no events table in M2.
@@ -306,7 +305,7 @@ test('SHP-01 buyer catalog filters by category and shows an empty state', functi
         ->assertSee('Tidak ada produk');
 });
 
-test('SHP-02 product detail shows price, category, description and available stock, with an M3 cart placeholder and no cart route', function () {
+test('SHP-02 product detail shows price, category, description and available stock, with a functional add-to-cart form (M3a)', function () {
     $product = Product::factory()->create([
         'name' => 'Pulpen Detail', 'price_idr' => 1250000,
         'description' => 'Deskripsi contoh', 'stock_on_hand' => 7,
@@ -315,7 +314,8 @@ test('SHP-02 product detail shows price, category, description and available sto
     $this->actingAs(m2Buyer(), 'web');
     $this->get('/produk/'.$product->id)->assertOk()
         ->assertSee('Pulpen Detail')->assertSee('Rp 1.250.000')
-        ->assertSee('Deskripsi contoh')->assertSee('Keranjang — M3');
+        ->assertSee('Deskripsi contoh')->assertSee('Tambah ke Keranjang')
+        ->assertDontSee('Keranjang — M3');
 });
 
 test('SHP-04 inactive and missing products return the same 404 and never appear in list or search', function () {
@@ -354,14 +354,19 @@ test('SHP-03 search keyword shorter than 2 characters is rejected and empty resu
         ->assertSee('Tidak ada produk')->assertSee('Bersihkan pencarian');
 });
 
-test('SHP-03 search and detail view create no events table and no side effect in M2', function () {
+test('SHP-03 search creates no view event, detail view records exactly one (EVT-02, M3a)', function () {
     $product = Product::factory()->create(['name' => 'Pulpen Cari']);
 
     $this->actingAs(m2Buyer(), 'web');
     $this->get('/katalog?q=pulpen')->assertOk();
-    $this->get('/produk/'.$product->id)->assertOk();
+    $this->assertDatabaseCount('events', 0);
 
-    expect(Schema::hasTable('events'))->toBeFalse();
+    $this->get('/produk/'.$product->id)->assertOk();
+    $this->assertDatabaseHas('events', [
+        'event_type' => 'view',
+        'product_id' => $product->id,
+    ]);
+    $this->assertDatabaseCount('events', 1);
     $this->assertDatabaseCount('products', 1);
 });
 

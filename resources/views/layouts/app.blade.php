@@ -20,9 +20,12 @@
                 <a href="{{ route('admin.dashboard') }}">Dashboard Admin</a>
                 <a href="{{ route('admin.kategori.index') }}">Kategori</a>
                 <a href="{{ route('admin.produk.index') }}">Produk</a>
+                <a href="{{ route('admin.pesanan.index') }}">Pesanan</a>
                 <a href="{{ route('admin.akun-pembeli.index') }}">Akun Pembeli</a>
             @else
                 <a href="{{ route('katalog') }}">Katalog</a>
+                <a href="{{ route('keranjang.index') }}">Keranjang @if (($cartItemCount ?? 0) > 0) ({{ $cartItemCount }}) @endif</a>
+                <a href="{{ route('pesanan.index') }}">Pesanan</a>
             @endif
             <form method="POST" action="{{ route('keluar') }}" style="display:inline">
                 @csrf

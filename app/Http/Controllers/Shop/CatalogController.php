@@ -5,18 +5,19 @@ namespace App\Http\Controllers\Shop;
 use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\Product;
+use App\Services\ActivityRecorder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
-// SHP-01..04. Buyer catalog only: active products, never inactive ones.
-// EVT-02 is deliberately NOT implemented here: opening a product detail
-// does NOT record a view event in M2, because the events table is M3a.
-// (See the comment in show(); do not claim in the UI that views are
-// recorded.) There is no cart in M2: the detail button is a clearly
-// labelled M3 placeholder, with no POST cart route behind it.
+// SHP-01..04, EVT-02 (M3a). Buyer catalog only: active products,
+// never inactive ones. Opening a product detail records one 'view'
+// event per (account, product) per 30 minutes (ActivityRecorder);
+// the listing and search never record views, and Admin/Developer
+// never reach this controller (role:pembeli routes only).
 class CatalogController extends Controller
 {
+    public function __construct(private readonly ActivityRecorder $events) {}
     public function index(Request $request): View|RedirectResponse
     {
         // SHP-03: keyword 2-100 characters. Too short / too long is a
@@ -52,17 +53,25 @@ class CatalogController extends Controller
         ]);
     }
 
-    public function show(int $produk): View
+    public function show(int $produk, Request $request): View
     {
         // SHP-04: an inactive product and a missing product return the
         // SAME 404. Resolving inside the active scope is what makes
         // that true; route-model binding alone would leak inactive ones.
-        // EVT-02 (record a view event) is added in M3a, not here:
-        // there is no events table in M2 and this method writes nothing.
+        // EVT-02: opening an ACTIVE product detail as a buyer records a
+        // view event (dedup 30 minutes per account+product, inside
+        // ActivityRecorder). Inactive/missing products 404 before any
+        // event is written.
         $product = Product::query()
             ->with('category')
             ->where('is_active', true)
             ->findOrFail($produk);
+
+        $this->events->recordView(
+            $request->user('web'),
+            $product,
+            $request->session()->getId(),
+        );
 
         return view('shop.produk-detail', ['product' => $product]);
     }

@@ -20,4 +20,9 @@ return [
 
     // Payment expiry in minutes (M3b, U-09 proposal). Not used in M1.
     'payment_expiry_minutes' => (int) env('PAYMENT_EXPIRY_MINUTES', 30),
+
+    // View-event dedup window in minutes (EVT-02, U-17; blueprint §5).
+    // A buyer opening the same product detail twice inside this window
+    // records only one 'view' event.
+    'view_event_dedup_minutes' => (int) env('VIEW_EVENT_DEDUP_MINUTES', 30),
 ];

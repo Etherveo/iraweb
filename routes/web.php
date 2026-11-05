@@ -2,12 +2,16 @@
 
 use App\Http\Controllers\Admin\BuyerAccountController;
 use App\Http\Controllers\Admin\CategoryController;
+use App\Http\Controllers\Admin\OrderController as AdminOrderController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Auth\BuyerAuthController;
 use App\Http\Controllers\Auth\DeveloperAuthController;
 use App\Http\Controllers\Developer\SimulationAccountController;
 use App\Http\Controllers\PageController;
+use App\Http\Controllers\Shop\CartController;
 use App\Http\Controllers\Shop\CatalogController;
+use App\Http\Controllers\Shop\CheckoutController;
+use App\Http\Controllers\Shop\OrderController as ShopOrderController;
 use Illuminate\Support\Facades\Route;
 
 // M0+M1 route map (blueprint §12, PRD §12).
@@ -16,8 +20,9 @@ use Illuminate\Support\Facades\Route;
 // Every protected route declares its guard + role (ACC-08); the only
 // auth-only exceptions are the two logout routes, where any authenticated
 // user of that guard may log out (that is the point of logout).
-// No cart, order, payment, simulator, or analytics routes yet:
-// those are M3-M7. The catalog routes above are M2.
+// M3a adds the buyer cart/checkout/order routes and the admin order
+// routes below. No payment simulator, instruction page, webhook, or
+// analytics routes yet: those are M3b/M4-M7.
 
 Route::get('/', function () {
     return view('welcome');
@@ -46,13 +51,29 @@ Route::get('/developer/masuk', function () {
     return redirect()->route('masuk', ['aktor' => 'developer']);
 })->name('developer.masuk');
 
-// ---- Buyer surface (M2: real catalog, SHP-01..04) ----
-// /katalog/cari is an alias of the same listing (same controller, same
-// search via ?q=); it is not a separate search page.
+// ---- Buyer surface (M2: real catalog, SHP-01..04; M3a: cart,
+// checkout, orders — CRT/STK/ORD/EVT) ----
 Route::middleware(['auth:web', 'active', 'role:pembeli', 'no-cache'])->group(function () {
     Route::get('/katalog', [CatalogController::class, 'index'])->name('katalog');
     Route::get('/katalog/cari', [CatalogController::class, 'index'])->name('katalog.cari');
     Route::get('/produk/{produk}', [CatalogController::class, 'show'])->name('produk.show');
+
+    // M3a CRT-01..06: server-side cart, one per account.
+    Route::get('/keranjang', [CartController::class, 'index'])->name('keranjang.index');
+    Route::post('/keranjang/tambah', [CartController::class, 'store'])->name('keranjang.tambah');
+    Route::put('/keranjang/{item}', [CartController::class, 'update'])->name('keranjang.update');
+    Route::delete('/keranjang/{item}', [CartController::class, 'destroy'])->name('keranjang.destroy');
+
+    // M3a ORD-01/02: checkout summary + atomic order creation.
+    // Success redirects to the order detail page: the payment
+    // instruction page is M3b (PAY-11), not M3a.
+    Route::get('/checkout', [CheckoutController::class, 'show'])->name('checkout.show');
+    Route::post('/checkout', [CheckoutController::class, 'store'])->name('checkout.store');
+
+    // M3a ORD-07..09: buyer order history, detail, cancel.
+    Route::get('/pesanan', [ShopOrderController::class, 'index'])->name('pesanan.index');
+    Route::get('/pesanan/{order}', [ShopOrderController::class, 'show'])->name('pesanan.show');
+    Route::post('/pesanan/{order}/batal', [ShopOrderController::class, 'cancel'])->name('pesanan.batal');
 });
 
 // ---- Admin surface (ACC-11/12/13, M2 CAT/PRD; dashboard is an M5 placeholder) ----
@@ -76,6 +97,11 @@ Route::middleware(['auth:web', 'active', 'role:admin_toko', 'no-cache'])->group(
     Route::get('/admin/akun-pembeli', [BuyerAccountController::class, 'index'])->name('admin.akun-pembeli.index');
     Route::get('/admin/akun-pembeli/{account}', [BuyerAccountController::class, 'show'])->name('admin.akun-pembeli.show');
     Route::post('/admin/akun-pembeli/{account}/status', [BuyerAccountController::class, 'updateStatus'])->name('admin.akun-pembeli.status');
+    // M3a ORD-10..13: admin order list/detail + fulfillment only.
+    // No admin cancel action (ORD-13) and no payment writes (PAY-53).
+    Route::get('/admin/pesanan', [AdminOrderController::class, 'index'])->name('admin.pesanan.index');
+    Route::get('/admin/pesanan/{order}', [AdminOrderController::class, 'show'])->name('admin.pesanan.show');
+    Route::post('/admin/pesanan/{order}/status', [AdminOrderController::class, 'updateStatus'])->name('admin.pesanan.status');
 });
 
 // ---- Developer surface (ACC-14; full panel is M4) ----
