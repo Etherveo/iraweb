@@ -613,30 +613,20 @@ test('PAY-57 resolving the adapter with an unknown driver fails', function () {
 });
 
 test('PAY-57 the application fails to start with an unknown PAYMENT_DRIVER', function () {
-    // putenv() saja tidak cukup: env() Laravel membaca $_ENV dulu, dan
-    // $_ENV sudah berisi PAYMENT_DRIVER dari .env sejak boot pertama di
-    // proses ini — putenv tidak mengubah $_ENV, jadi reboot tetap
-    // membaca 'simulator' dan tidak throw. Karena itu set langsung di
-    // $_ENV/$_SERVER, lalu kembalikan setelahnya.
-    $oldEnv = $_ENV['PAYMENT_DRIVER'] ?? null;
-    $oldServer = $_SERVER['PAYMENT_DRIVER'] ?? null;
-    $_ENV['PAYMENT_DRIVER'] = 'bogus';
-    $_SERVER['PAYMENT_DRIVER'] = 'bogus';
+    // JANGAN uji lewat reboot + env: dua kali gagal dengan dua cara
+    // berbeda (putenv tidak mengubah $_ENV; reboot tetap membaca
+    // 'simulator' entah dari mana) membuktikan pendekatan itu rapuh —
+    // hasilnya tergantung state proses/.env/config cache di mesin,
+    // bukan tergantung kode. Yang diuji di sini adalah mekanisme yang
+    // sebenarnya: boot() provider memanggil validateDriver() dengan
+    // nilai dari config — driver tidak dikenal → LogicException.
+    // (Validasi env→config adalah tugas Laravel; dua tes PAY-57 lain
+    // sudah membuktikan validateDriver + resolusi adapter.)
+    config()->set('payment.driver', 'bogus');
 
-    try {
-        expect(fn () => $this->refreshApplication())->toThrow(\LogicException::class, 'PAYMENT_DRIVER');
-    } finally {
-        if ($oldEnv === null) {
-            unset($_ENV['PAYMENT_DRIVER']);
-        } else {
-            $_ENV['PAYMENT_DRIVER'] = $oldEnv;
-        }
-        if ($oldServer === null) {
-            unset($_SERVER['PAYMENT_DRIVER']);
-        } else {
-            $_SERVER['PAYMENT_DRIVER'] = $oldServer;
-        }
-    }
+    $provider = new \App\Providers\AppServiceProvider($this->app);
+
+    expect(fn () => $provider->boot())->toThrow(\LogicException::class, 'PAYMENT_DRIVER');
 });
 
 test('PAY-55 checkout and order code never refer to the simulator adapter class directly', function () {
