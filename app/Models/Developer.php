@@ -8,15 +8,22 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
 // ACC-04: separate table and guard from users (pembeli/admin_toko).
-// Blueprint §6.2 lists only id/name/email/password/timestamps for developers,
-// so there is deliberately NO is_active column here; ACC-07 inactive checks
+// Keputusan 2026-11-05: login disatukan — developers gain role 'dev' so
+// developer routes can declare role:dev like every other protected route
+// (ACC-08). Guards/tables stay separate; only the login FORM is unified.
+// There is deliberately NO is_active column here; ACC-07 inactive checks
 // apply to the users table. Developer deactivation is not an M1 feature.
 class Developer extends Authenticatable
 {
     /** @use HasFactory<DeveloperFactory> */
     use HasFactory, Notifiable;
 
-    protected $fillable = ['name', 'email', 'password'];
+    protected $fillable = ['name', 'email', 'password', 'role'];
+
+    public function isDeveloper(): bool
+    {
+        return $this->role === 'dev';
+    }
 
     protected $hidden = ['password', 'remember_token'];
 

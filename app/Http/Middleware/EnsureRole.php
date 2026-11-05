@@ -10,8 +10,10 @@ use Symfony\Component\HttpFoundation\Response;
 // Runs after auth middleware. Wrong role on a clearly-owned route => 403
 // (PRD §8: 403 or 404 per matrix; 403 is used here because the route
 // itself is not a per-user resource whose existence must be hidden).
-// Developer routes do not use this middleware: the developer guard alone
-// is the role check there (ACC-10).
+// Keputusan 2026-11-05: login disatukan — developer routes now declare
+// role:dev as well (developers.role = 'dev'), so this middleware works
+// for the developer guard too: Authenticate's shouldUse() makes
+// $request->user() resolve to the developer-guard user on those routes.
 class EnsureRole
 {
     public function handle(Request $request, Closure $next, string ...$roles): Response
@@ -22,7 +24,7 @@ class EnsureRole
             abort(403);
         }
 
-        // Developer model has no role column; it must never pass a web-role check.
+        // A user without a matching role must never pass, whatever guard.
         if (! isset($user->role) || ! in_array($user->role, $roles, true)) {
             abort(403);
         }

@@ -29,6 +29,7 @@ test('ACC-05 provision creates admin and developer accounts with hashed password
 
     $developer = Developer::where('email', 'dev@contoh.test')->first();
     expect($developer)->not->toBeNull();
+    expect($developer->role)->toBe('dev');
     expect(Hash::check('rahasia123', $developer->password))->toBeTrue();
 });
 

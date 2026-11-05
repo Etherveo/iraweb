@@ -36,7 +36,7 @@
 | Cara data masuk | Satu per satu lewat alur normal (daftar, cari, keranjang, beli/batal) | Massal dan backdate lewat aksi simulator (lihat Bagian 7) |
 | Kecepatan | Real-time sesuai pemakaian | Sekali request bisa menghasilkan banyak akun, aktivitas, dan transaksi |
 | Jejak data | Data pemakaian normal | Data bertanda simulator, bisa diaudit dan di-reset |
-| Akses | Login Admin Toko dan login/register Pembeli | Login Developer yang terpisah; tidak boleh dicampur dengan akun Admin Toko atau Pembeli |
+| Akses | Login Admin Toko dan login/register Pembeli | Login Developer yang terpisah; tidak boleh dicampur dengan akun Admin Toko atau Pembeli | **Diubah 2026-11-05: login disatukan** — satu formulir `/masuk` dengan sakelar aktor; guard/tabel developer tetap terpisah, hanya formulirnya yang disatukan. |
 
 Pemisahan ini penting karena dua alasan praktis:
 
@@ -108,7 +108,7 @@ Fitur analisis pada Bagian 5 tidak bisa dipakai kalau data sumbernya belum ada. 
 
 ### 6.1 Fondasi: akun dan hak akses
 
-- **Register dan login** untuk Pembeli, Admin Toko, dan Developer (login developer terpisah dari login admin/pembeli).
+- **Register dan login** untuk Pembeli, Admin Toko, dan Developer (login developer terpisah dari login admin/pembeli). **Diubah 2026-11-05: login disatukan** — satu formulir `/masuk` dengan sakelar aktor; guard/tabel tetap terpisah.
 - **Role-based access control (RBAC).** Setiap peran hanya bisa mengakses fitur dan datanya sendiri. Pemetaan akses spesifik per fitur ditetapkan pada tahap perancangan (PRD/blueprint), dengan acuan awal: Pemilik/manajer dan admin mengakses analitik, pembeli hanya mengakses belanjanya sendiri, developer hanya mengakses panel simulator.
 - **Manajemen akun dasar** oleh Admin Toko (melihat dan mengelola akun pembeli) dan oleh Developer (melihat akun simulasi yang ia buat).
 

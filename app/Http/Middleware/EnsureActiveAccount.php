@@ -24,8 +24,9 @@ class EnsureActiveAccount
             Auth::guard($guard)->logout();
             $request->session()->regenerate();
 
+            // Keputusan 2026-11-05: login disatukan — unified form, actor pre-selected.
             $login = $request->is('admin/*') || $request->is('admin')
-                ? route('admin.masuk')
+                ? route('masuk', ['aktor' => 'admin_toko'])
                 : route('masuk');
 
             return redirect($login)->withErrors([

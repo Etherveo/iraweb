@@ -30,7 +30,7 @@ Batas:
 | A-02 | Kalkulasi analitik: **servis Python terpisah**; Laravel mengirim data, Python menghitung dan mengembalikan hasil. | Diputuskan (`D§12b`); pembagian rinci = U-19 | numpy/pandas/scikit-learn dipakai apa adanya, tidak di-refactor ke PHP. |
 | A-03 | Basis data: **SQLite** (berkas tunggal). | **Diputuskan pemilik proyek 2026-11-02, menggantikan usulan PostgreSQL (U-01)** | Alasan: simpel, tanpa server basis data, cukup untuk tugas/simulator. Indeks parsial dan constraint `CHECK` tetap bisa dipakai di SQLite. Konversi zona waktu WITA dilakukan di lapisan aplikasi (`PeriodResolver`), bukan `AT TIME ZONE` di SQL. Penguncian bukan per baris: SQLite mengunci berkas basis data saat tulis (disarankan mode WAL); karena itu idiom `FOR UPDATE` / `SKIP LOCKED` pada §7 sudah diganti dengan transaksi tulis dan update bersyarat. |
 | A-04 | Antarmuka: **server-rendered Blade + Tailwind CSS + Alpine.js**; grafik Chart.js dibundel (tanpa CDN). | Usulan (U-01) | Muatan klien minimum (`AGENTS §5`); satu mekanisme gaya. `DESIGN` Appendix H (React/shadcn) hanya default bila stack tidak ditentukan. |
-| A-05 | Autentikasi memakai mekanisme bawaan framework: dua guard terpisah — `web` (tabel `users`, peran `pembeli` dan `admin_toko`) dan `developer` (tabel `developers`). | Usulan | Developer tidak boleh dicampur (`D§3`, ACC-04); tidak menulis autentikasi sendiri (`AGENTS §9`). |
+| A-05 | Autentikasi memakai mekanisme bawaan framework: dua guard terpisah — `web` (tabel `users`, peran `pembeli` dan `admin_toko`) dan `developer` (tabel `developers`, peran `dev`). **Keputusan 2026-11-05: login disatukan** — satu formulir di `/masuk` dengan sakelar aktor, guard/tabel tetap terpisah; hanya formulirnya yang disatukan, bukan autentikasinya. | Usulan | Developer tidak boleh dicampur (`D§3`, ACC-04); tidak menulis autentikasi sendiri (`AGENTS §9`). |
 | A-06 | Pembayaran lewat **adapter** (`PaymentAdapter`), driver dipilih `PAYMENT_DRIVER`; saat ini hanya `simulator`. | Diminta eksplisit (`P§7`) | Gateway riil kelak = adapter baru + konfigurasi. |
 | A-07 | Callback simulasi diproses lewat **sub-request internal** ke endpoint webhook berversi sendiri. | Usulan (U-18) | Request/response yang ditampilkan adalah kejadian nyata, bukan karangan (`P§4.2`). Risiko teknis: B-01. |
 | A-08 | Seluruh perubahan status pembayaran dan pesanan melewati **satu layanan domain** per agregat. | Usulan | Satu pintu untuk callback, job, pembatalan, dan generator developer (K-05). |
@@ -184,7 +184,7 @@ erDiagram
 | Tabel | Kolom penting | Constraint dan indeks | Fitur |
 | --- | --- | --- | --- |
 | `users` | `id`, `role` (`pembeli`/`admin_toko`), `name`, `email`, `password` (hash), `is_active`, `deactivated_at`, `deactivation_reason`, `origin`, `simulation_run_id` (null), timestamps | unik `lower(email)`; `CHECK role`, `CHECK origin`; indeks `(role, origin)` | ACC-01..15, SIM-07 |
-| `developers` | `id`, `name`, `email`, `password` (hash), timestamps | unik `lower(email)`; tabel dan guard terpisah dari `users` | ACC-04, ACC-05 |
+| `developers` | `id`, `name`, `email`, `password` (hash), `role` (`dev`), timestamps | unik `lower(email)`; `CHECK role = 'dev'` (ditambah migrasi aditif, bukan mengubah migrasi pembuatan tabel); tabel dan guard terpisah dari `users` | ACC-04, ACC-05 |
 | `categories` | `id`, `name`, `slug`, timestamps | unik `lower(name)`, unik `slug` | CAT-01..04 |
 | `products` | `id`, `category_id`, `name`, `description`, `price_idr`, `stock_on_hand`, `stock_reserved`, `is_active`, timestamps | FK `category_id` `RESTRICT`; unik `lower(name)`; `CHECK price_idr BETWEEN 1 AND 100000000`; `CHECK stock_on_hand >= 0`; `CHECK stock_reserved >= 0`; `CHECK stock_reserved <= stock_on_hand`; indeks `(category_id, is_active)` | PRD-01..06, STK-01 |
 | `stock_movements` | `id`, `product_id`, `type` (`penyesuaian`/`cadangkan`/`konfirmasi`/`lepas`), `delta_on_hand`, `delta_reserved`, `order_id` (null), `actor_type`, `actor_id`, `note`, `origin`, `simulation_run_id`, `created_at` | append-only; indeks `(product_id, created_at)` | PRD-07, STK-05 |
@@ -652,13 +652,12 @@ Kedua hasil digabung per `(d, product_id)` menjadi `facts`. Penelusuran (ANL-05)
 
 ## 12. Peta Rute dan Otorisasi
 
-Semua rute terproteksi dideklarasikan pada berkas rute dengan middleware guard + peran; rute tanpa deklarasi gagal pada uji daftar rute (ACC-08). Singkatan: **P** = Pembeli (guard `web`, peran `pembeli`), **A** = Admin Toko (`web`, `admin_toko`), **D** = guard `developer`, **T** = token pembayaran, **S** = signature, **I** = dispatch internal.
+Semua rute terproteksi dideklarasikan pada berkas rute dengan middleware guard + peran; rute tanpa deklarasi gagal pada uji daftar rute (ACC-08). Singkatan: **P** = Pembeli (guard `web`, peran `pembeli`), **A** = Admin Toko (`web`, `admin_toko`), **D** = guard `developer`, peran `dev` (**Keputusan 2026-11-05: login disatukan**), **T** = token pembayaran, **S** = signature, **I** = dispatch internal.
 
 | Kelompok | Rute (ringkas) | Akses | Fitur |
 | --- | --- | --- | --- |
 | Auth | `GET/POST /daftar`, `/masuk`; `POST /keluar` | publik / P | ACC-01, 02, 06 |
-| Auth admin | `GET/POST /admin/masuk` | publik | ACC-03 |
-| Auth developer | `GET/POST /developer/masuk` | publik | ACC-04 |
+| Auth (terpadu) | `GET/POST /masuk` (sakelar aktor: pembeli \| admin_toko \| developer); `GET /admin/masuk` dan `GET /developer/masuk` hanya mengalihkan ke `/masuk?aktor=…` (tidak ada POST login terpisah) | publik | ACC-02, ACC-03, ACC-04 |
 | Katalog | `/katalog`, `/katalog/cari`, `/produk/{produk}` | P | SHP-01..04, EVT-02 |
 | Keranjang | `/keranjang` (+ tambah/ubah/hapus) | P | CRT-01..06 |
 | Checkout & pesanan | `/checkout`, `POST /checkout`, `/pesanan`, `/pesanan/{nomor}`, `POST /pesanan/{nomor}/batal` | P (milik sendiri) | ORD-01..09 |
@@ -789,7 +788,7 @@ Chart.js dibundel; satu komponen pembungkus untuk semua FR (ANL-03): sumbu berla
 | --- | --- | --- |
 | Otorisasi di trusted layer | Middleware guard+peran, kebijakan per sumber daya, kueri selalu dibatasi `user_id` dari sesi; rute tanpa deklarasi gagal uji | ACC-08, ACC-09, NFR-01 |
 | Autentikasi | Guard dan tabel terpisah untuk Developer; hash modern bawaan framework; pesan galat generik; ID sesi diregenerasi saat login | ACC-02..04, NFR-03 |
-| Pembatasan laju | Login (tiga form), `/pay/sim/*`, webhook, aksi simulator; dijalankan sebelum hashing/pekerjaan mahal | NFR-04 |
+| Pembatasan laju | Login (satu formulir terpadu, tiga aktor), `/pay/sim/*`, webhook, aksi simulator; dijalankan sebelum hashing/pekerjaan mahal | NFR-04 |
 | Sesi | HTTP-only, SameSite, Secure bila HTTPS; umur terbatas; sesi diputus saat akun dinonaktifkan (`EnsureActiveAccount` pada setiap request terotentikasi) | ACC-07 |
 | CSRF | Aktif untuk semua POST ber-cookie, termasuk aksi halaman simulasi; dikecualikan **hanya** untuk webhook yang dilindungi signature | PAY-24, NFR-02 |
 | XSS | Blade `{{ }}` (escape) di mana-mana; JSON jejak dirender sebagai teks; kata kunci pencarian di-escape; tidak ada `{!! !!}` pada data pengguna | PAY-42, SHP-03 |

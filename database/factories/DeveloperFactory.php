@@ -20,6 +20,7 @@ class DeveloperFactory extends Factory
             'name' => fake()->name(),
             'email' => fake()->unique()->safeEmail(),
             'password' => static::$password ??= Hash::make('password'),
+            'role' => 'dev',
             'remember_token' => Str::random(10),
         ];
     }

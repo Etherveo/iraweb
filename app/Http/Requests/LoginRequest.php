@@ -4,7 +4,10 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-// Shared login validation for all three forms (ACC-02/03/04).
+// Keputusan 2026-11-05: login disatukan — one form, one POST, with an
+// aktor switch (pembeli | admin_toko | developer). Guard/role checks live
+// in the controller, not here, so a wrong-actor attempt always ends with
+// the same generic message as a wrong password.
 // Role/guard checks live in the controllers, not here, so a wrong-role
 // attempt always ends with the same generic message as a wrong password.
 class LoginRequest extends FormRequest
@@ -24,6 +27,7 @@ class LoginRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'aktor' => ['required', 'string', 'in:pembeli,admin_toko,developer'],
             'email' => ['required', 'string', 'email', 'max:190'],
             'password' => ['required', 'string'],
         ];

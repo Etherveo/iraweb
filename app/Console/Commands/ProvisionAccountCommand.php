@@ -83,7 +83,7 @@ class ProvisionAccountCommand extends Command
         if ($role === 'developer') {
             Developer::updateOrCreate(
                 ['email' => $email],
-                ['name' => $name, 'password' => $hashed],
+                ['name' => $name, 'password' => $hashed, 'role' => 'dev'],
             );
         } else {
             User::updateOrCreate(

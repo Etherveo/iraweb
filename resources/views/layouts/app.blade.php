@@ -37,10 +37,8 @@
         @endauth
         @guest('web')
             @guest('developer')
-                <a href="{{ route('masuk') }}">Masuk Pembeli</a>
+                <a href="{{ route('masuk') }}">Masuk</a>
                 <a href="{{ route('daftar') }}">Daftar Pembeli</a>
-                <a href="{{ route('admin.masuk') }}">Masuk Admin</a>
-                <a href="{{ route('developer.masuk') }}">Masuk Developer</a>
             @endguest
         @endguest
     </nav>

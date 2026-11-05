@@ -5,8 +5,9 @@ namespace App\Http\Middleware;
 use Illuminate\Auth\Middleware\Authenticate as BaseAuthenticate;
 use Illuminate\Http\Request;
 
-// M1 ACC-08: unauthenticated users are redirected to the login form that
-// matches the area they tried to open, not always to the buyer form.
+// M1 ACC-08, Keputusan 2026-11-05: login disatukan — unauthenticated
+// users are redirected to the ONE login form at /masuk, with the actor
+// pre-selected via ?aktor=, not to separate forms.
 class Authenticate extends BaseAuthenticate
 {
     protected function redirectTo(Request $request): ?string
@@ -16,11 +17,11 @@ class Authenticate extends BaseAuthenticate
         }
 
         if ($request->is('developer/*') || $request->is('developer')) {
-            return route('developer.masuk');
+            return route('masuk', ['aktor' => 'developer']);
         }
 
         if ($request->is('admin/*') || $request->is('admin')) {
-            return route('admin.masuk');
+            return route('masuk', ['aktor' => 'admin_toko']);
         }
 
         return route('masuk');

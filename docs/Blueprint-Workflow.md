@@ -34,16 +34,16 @@ Hanya ada tiga aktor. Tidak ada aktor lain pada tahap ini.
 
 | Aktor | Masuk lewat | Bisa melakukan | Tidak bisa melakukan |
 | --- | --- | --- | --- |
-| **Admin Toko** | Login admin | Mengelola kategori dan produk beserta stok, mengelola pesanan dan pembayaran (lihat saja untuk pembayaran), mengelola akun pembeli, membaca seluruh analitik | Membuka panel developer, membuat data simulasi massal, berbelanja sebagai pembeli lewat akun admin |
-| **Pembeli** | Register dan login pembeli | Melihat katalog, mencari produk, mengisi keranjang, membeli, membatalkan pesanan, melihat riwayat pesanannya sendiri, mensimulasikan pembayaran untuk pesanannya sendiri | Melihat analitik toko, membuka panel developer, melihat pesanan atau pembayaran pembeli lain |
-| **Developer** | Login developer yang terpisah | Membuka panel simulator, membuat banyak akun simulasi, membuat transaksi eksperimental (user-first dan period-first), melihat jejak simulasi, me-reset data simulasi saja | Mengelola toko sebagai admin, berbelanja sebagai pembeli normal, mengubah data pemakaian normal |
+| **Admin Toko** | Formulir masuk terpadu `/masuk`, aktor=admin_toko (**Keputusan 2026-11-05: login disatukan**) | Mengelola kategori dan produk beserta stok, mengelola pesanan dan pembayaran (lihat saja untuk pembayaran), mengelola akun pembeli, membaca seluruh analitik | Membuka panel developer, membuat data simulasi massal, berbelanja sebagai pembeli lewat akun admin |
+| **Pembeli** | Register dan formulir masuk terpadu `/masuk`, aktor=pembeli (**Keputusan 2026-11-05: login disatukan**) | Melihat katalog, mencari produk, mengisi keranjang, membeli, membatalkan pesanan, melihat riwayat pesanannya sendiri, mensimulasikan pembayaran untuk pesanannya sendiri | Melihat analitik toko, membuka panel developer, melihat pesanan atau pembayaran pembeli lain |
+| **Developer** | Formulir masuk terpadu `/masuk`, aktor=developer — guard/tabel tetap terpisah (**Keputusan 2026-11-05: login disatukan**) | Membuka panel simulator, membuat banyak akun simulasi, membuat transaksi eksperimental (user-first dan period-first), melihat jejak simulasi, me-reset data simulasi saja | Mengelola toko sebagai admin, berbelanja sebagai pembeli normal, mengubah data pemakaian normal |
 
 Aturan pemisahan yang wajib terlihat di antarmuka:
 
 - Panel developer selalu punya penanda permanen, misalnya bilah atas bertuliskan “SIMULATOR — data eksperimental”, warna sidebar yang berbeda dari admin, dan judul halaman yang diawali kata “Simulator”.
 - Admin tidak punya penanda simulasi, kecuali badge SIMULASI pada baris data yang memang berasal dari simulator.
 - Halaman simulasi pembayaran selalu punya label besar “SIMULASI PEMBAYARAN” di atas lipatan, karena halaman ini sering dibuka dari HP hasil pindai QR.
-- Satu orang tidak boleh merangkap peran dalam satu sesi: login admin, login pembeli, dan login developer adalah tiga pintu masuk yang terpisah.
+- Satu orang tidak boleh merangkap peran dalam satu sesi: guard/sesi admin, pembeli, dan developer tetap terpisah dan tidak saling menjadi sesi lain — **Keputusan 2026-11-05: login disatukan** mengubah hanya formulirnya (satu formulir, sakelar aktor), bukan pemisahan guard/sesi ini.
 
 ## 3. Objek Utama yang Dilihat Pengguna
 
@@ -207,7 +207,7 @@ Urutan baca yang disarankan, sesuai prioritas PRD:
 
 ### W8 — Developer membuat banyak akun simulasi
 
-1. Developer login ke panel developer (pintu masuk terpisah dari admin dan pembeli).
+1. Developer masuk lewat formulir terpadu `/masuk` dengan aktor=developer ke panel developer (guard/tabel tetap terpisah dari admin dan pembeli; **Keputusan 2026-11-05: login disatukan**).
 2. Developer membuka layar “Buat Akun Simulasi”.
 3. Developer menginput jumlah akun yang ingin dibuat. **Maksimal 100 akun per request.** Jumlah di atas itu harus dipecah menjadi beberapa request, dan sistem harus menolak angka di atas batas dengan pesan yang jelas, bukan diam-diam memotongnya.
 4. Developer memilih cara biodata dibuat: random atau deterministik (hasil yang sama bila diulang dengan benih yang sama). Format dan script biodata ditentukan di luar dokumen ini; layar ini hanya meminta jumlah dan cara, bukan mengarang biodata di tempat.
@@ -331,7 +331,7 @@ Tabel ini adalah inventaris layar untuk Figma Make. Satu baris = satu layar (ata
 
 | Layar | Tujuan dan elemen kunci | Keadaan yang wajib ada |
 | --- | --- | --- |
-| Masuk admin | Formulir login admin (pintu masuk terpisah dari pembeli dan developer) | Galat per field, tombol loading, akun nonaktif |
+| Masuk (semua aktor) | Formulir masuk terpadu `/masuk` dengan sakelar aktor; aktor=admin_toko di sini (**Keputusan 2026-11-05: login disatukan** — bukan lagi formulir admin terpisah) | Galat per field, tombol loading, akun nonaktif |
 | Dashboard analitik | Filter periode dan asal data di atas, kartu KPI, grafik tren, daftar terlaris/terendah | Kosong, galat, loading |
 | Tren | Kontrol filter di atas, grafik tren per produk, tabel alternatif, tautan “Lihat sumber” | Kosong, data belum cukup, galat |
 | Funnel | Grafik funnel empat tahap dengan jumlah dan persen, tabel alternatif | Kosong, data belum cukup, galat |
@@ -349,7 +349,7 @@ Tabel ini adalah inventaris layar untuk Figma Make. Satu baris = satu layar (ata
 
 | Layar | Tujuan dan elemen kunci | Keadaan yang wajib ada |
 | --- | --- | --- |
-| Masuk developer | Formulir login developer (pintu masuk terpisah, bilah SIMULATOR) | Galat per field, tombol loading, akun nonaktif |
+| Masuk developer | Formulir masuk terpadu `/masuk` dengan sakelar aktor; aktor=developer di sini, bilah SIMULATOR tetap di panel developer (**Keputusan 2026-11-05: login disatukan** — bukan lagi formulir developer terpisah) | Galat per field, tombol loading, akun nonaktif |
 | Beranda simulator | Ringkasan sesi terakhir, jalan pintas ke tiga aksi utama, penanda SIMULATOR permanen | Kosong (belum ada sesi) |
 | Buat akun simulasi | Input jumlah (maksimal 100 per request), pilihan random/deterministik, ringkasan hasil | Melebihi batas, jumlah tidak valid, gagal sebagian |
 | Transaksi per user (user-first) | Pilih akun, pilih periode, pilih produk dan pola, pratinjau, konfirmasi | Pratinjau, berhasil, gagal (rollback), batas terlampaui |
