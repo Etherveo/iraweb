@@ -18,6 +18,8 @@
         @auth('web')
             @if (auth('web')->user()->isAdmin())
                 <a href="{{ route('admin.dashboard') }}">Dashboard Admin</a>
+                <a href="{{ route('admin.kategori.index') }}">Kategori</a>
+                <a href="{{ route('admin.produk.index') }}">Produk</a>
                 <a href="{{ route('admin.akun-pembeli.index') }}">Akun Pembeli</a>
             @else
                 <a href="{{ route('katalog') }}">Katalog</a>

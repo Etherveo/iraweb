@@ -21,5 +21,9 @@ class DatabaseSeeder extends Seeder
             'name' => 'Test User',
             'email' => 'test@example.com',
         ]);
+
+        // M2: catalog example data (fictitious — see CatalogSeeder).
+        // The Test User above is intentionally kept, not replaced.
+        $this->call(CatalogSeeder::class);
     }
 }

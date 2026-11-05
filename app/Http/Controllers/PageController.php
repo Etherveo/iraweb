@@ -4,19 +4,12 @@ namespace App\Http\Controllers;
 
 use Illuminate\View\View;
 
-// M1 placeholders only. Each placeholder names the milestone that will
-// replace it, so no one mistakes a placeholder for a finished feature:
-// katalog -> M2, admin dashboard -> M5, developer panel -> M4.
+// M1 placeholders only, minus the katalog placeholder which M2
+// replaced with Shop\CatalogController. Each remaining placeholder
+// names the milestone that will replace it: admin dashboard -> M5,
+// developer panel -> M4.
 class PageController extends Controller
 {
-    public function katalog(): View
-    {
-        return view('placeholder', [
-            'title' => 'Katalog',
-            'note' => 'Placeholder M1. Katalog pembeli sesungguhnya dibangun di M2 (SHP-01..04).',
-        ]);
-    }
-
     public function adminDashboard(): View
     {
         return view('placeholder', [
