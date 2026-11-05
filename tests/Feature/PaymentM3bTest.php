@@ -613,12 +613,29 @@ test('PAY-57 resolving the adapter with an unknown driver fails', function () {
 });
 
 test('PAY-57 the application fails to start with an unknown PAYMENT_DRIVER', function () {
-    putenv('PAYMENT_DRIVER=bogus');
+    // putenv() saja tidak cukup: env() Laravel membaca $_ENV dulu, dan
+    // $_ENV sudah berisi PAYMENT_DRIVER dari .env sejak boot pertama di
+    // proses ini — putenv tidak mengubah $_ENV, jadi reboot tetap
+    // membaca 'simulator' dan tidak throw. Karena itu set langsung di
+    // $_ENV/$_SERVER, lalu kembalikan setelahnya.
+    $oldEnv = $_ENV['PAYMENT_DRIVER'] ?? null;
+    $oldServer = $_SERVER['PAYMENT_DRIVER'] ?? null;
+    $_ENV['PAYMENT_DRIVER'] = 'bogus';
+    $_SERVER['PAYMENT_DRIVER'] = 'bogus';
 
     try {
         expect(fn () => $this->refreshApplication())->toThrow(\LogicException::class, 'PAYMENT_DRIVER');
     } finally {
-        putenv('PAYMENT_DRIVER');
+        if ($oldEnv === null) {
+            unset($_ENV['PAYMENT_DRIVER']);
+        } else {
+            $_ENV['PAYMENT_DRIVER'] = $oldEnv;
+        }
+        if ($oldServer === null) {
+            unset($_SERVER['PAYMENT_DRIVER']);
+        } else {
+            $_SERVER['PAYMENT_DRIVER'] = $oldServer;
+        }
     }
 });
 
