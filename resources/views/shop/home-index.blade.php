@@ -33,7 +33,6 @@
                             <a class="product-card-link" href="{{ route('produk.show', $product) }}">
                                 <div class="product-art product-art-{{ $gradients[$product->category_id % 4] ?? 'lavender' }}" aria-hidden="true">
                                     <span class="product-art-tag">{{ $product->category?->name }}</span>
-                                    <span class="product-art-badge">{{ (int) $product->sold_quantity }} terjual</span>
                                     <span class="product-art-tile">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 21.73a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73z"/><path d="M12 22V12"/><path d="m3.3 7 8.7 5 8.7-5"/></svg>
                                     </span>

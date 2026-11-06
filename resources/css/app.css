@@ -374,7 +374,9 @@
     position: relative;
     display: grid;
     place-items: center;
+    box-sizing: border-box;
     min-height: 8.5rem;
+    padding: 2.25rem 0.75rem 0.75rem;
     border-radius: var(--radius-md);
 }
 .product-art-lavender { background: linear-gradient(135deg, #F0EEFF, #DCD9FF); }
@@ -382,9 +384,10 @@
 .product-art-purple { background: linear-gradient(135deg, #EDE6FF, #D9CCFF); }
 .product-art-cyan { background: linear-gradient(135deg, #E1F8F7, #C9F0EF); }
 .product-art-tag {
-    position: absolute; top: 0.625rem; left: 0.75rem;
+    position: absolute; top: 0.625rem; left: 0.75rem; right: 0.75rem;
     font-family: var(--font-heading); font-size: 0.6875rem; font-weight: 700;
-    letter-spacing: 0.05em; text-transform: uppercase; color: #39318F;
+    line-height: 1.25; letter-spacing: 0.05em; text-transform: uppercase;
+    color: #39318F; overflow-wrap: break-word;
 }
 .product-art-tile {
     display: grid; place-items: center; width: 4rem; height: 4rem;
@@ -502,18 +505,6 @@
 .shop-page .btn-secondary:hover { transform: translateY(-1px); background: var(--color-primary-soft); }
 .shop-page .btn-secondary:active { transform: scale(0.97); box-shadow: var(--shadow-inset); }
 .shop-page .btn-secondary:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 3px; }
-.product-art-badge {
-    position: absolute;
-    top: 0.5rem;
-    right: 0.5rem;
-    padding: 0.1875rem 0.5rem;
-    border-radius: var(--radius-sm);
-    background: var(--color-primary-light);
-    color: #39318F;
-    font-family: var(--font-heading);
-    font-size: 0.6875rem;
-    font-weight: 700;
-}
 
 
 /* ------------------------------------------------------------------
