@@ -573,31 +573,119 @@ body > header > nav button:focus-visible {
    drawer admin Tahap 5). Di desktop nav tampil inline seperti biasa. */
 .topbar-hamburger { display: none; }
 @media (max-width: 1023px) {
-    body > header { position: relative; }
+    body > header:not(.admin-mobile-bar) { position: relative; z-index: 40; }
     .topbar-hamburger {
-        display: inline-flex; align-items: center; justify-content: center;
-        width: 40px; height: 40px; padding: 0; border: 0;
-        border-radius: var(--radius-md); background: transparent;
-        color: var(--color-text-primary); font-size: 1.25rem; line-height: 1;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 42px;
+        height: 42px;
+        padding: 0;
+        border: 1px solid #D7DBED;
+        border-radius: var(--radius-md);
+        background: var(--color-surface-light);
+        box-shadow: var(--shadow-xs);
+        color: var(--color-text-primary);
+        font-size: 1.25rem;
+        line-height: 1;
         cursor: pointer;
+        transition: background-color 150ms var(--ease-standard), color 150ms var(--ease-standard), border-color 150ms var(--ease-standard);
     }
-    .topbar-hamburger:hover { background: var(--color-primary-soft); }
+    .topbar-hamburger:hover,
+    .topbar-hamburger[aria-expanded="true"] {
+        background: var(--color-primary-soft);
+        border-color: #B4ADFA;
+        color: var(--color-primary-active);
+    }
     .topbar-hamburger:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 2px; }
     body > header > nav {
-        position: absolute; top: calc(100% + 0.5rem); left: 1rem; right: 1rem;
-        display: none; flex-direction: column; align-items: stretch; gap: 0.25rem;
-        padding: 0.5rem; border-radius: var(--radius-lg);
-        background: var(--color-surface); box-shadow: var(--shadow-lg); z-index: 40;
+        position: absolute;
+        top: calc(100% + 0.5rem);
+        left: 0;
+        right: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.5rem;
+        padding: 0.75rem;
+        border: 1px solid #D7DBED;
+        border-radius: var(--radius-lg);
+        background: var(--color-surface);
+        box-shadow: var(--shadow-lg);
+        z-index: 40;
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+        transform: translateY(-8px) scale(0.98);
+        transform-origin: top right;
+        transition:
+            opacity 200ms var(--ease-standard),
+            transform 200ms var(--ease-standard),
+            visibility 200ms var(--ease-standard);
     }
-    body > header > nav.is-open { display: flex; }
+    body > header > nav.is-open {
+        opacity: 1;
+        visibility: visible;
+        pointer-events: auto;
+        transform: translateY(0) scale(1);
+    }
+    body > header > nav form {
+        display: block !important;
+        width: 100%;
+        margin: 0;
+    }
     body > header > nav a,
-    body > header > nav button { justify-content: flex-start; width: 100%; }
-    .topbar-backdrop { position: fixed; inset: 0; z-index: 35; background: rgba(20, 20, 60, 0.45); }
+    body > header > nav button {
+        box-sizing: border-box;
+        justify-content: flex-start;
+        width: 100%;
+        min-height: 44px;
+        padding: 0.625rem 0.875rem;
+        border: 1px solid #D7DBED;
+        border-radius: var(--radius-md);
+        background: var(--color-surface-light);
+        box-shadow: var(--shadow-xs);
+        color: var(--color-text-primary);
+        font-weight: 700;
+        transition:
+            background-color 150ms var(--ease-standard),
+            border-color 150ms var(--ease-standard),
+            color 150ms var(--ease-standard),
+            transform 150ms var(--ease-standard),
+            box-shadow 150ms var(--ease-standard);
+    }
+    body > header > nav a:hover,
+    body > header > nav button:hover {
+        background: var(--color-primary-soft);
+        border-color: #B4ADFA;
+        color: var(--color-primary-active);
+    }
+    body > header > nav a:active,
+    body > header > nav button:active {
+        background: var(--color-primary-light);
+        box-shadow: var(--shadow-inset);
+        transform: scale(0.99);
+    }
+    .topbar-backdrop {
+        position: fixed;
+        inset: 0;
+        z-index: 35;
+        background: transparent;
+    }
     .topbar-backdrop[hidden] { display: none; }
 }
 @media (min-width: 1024px) {
     .topbar-hamburger,
     .topbar-backdrop { display: none !important; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .topbar-hamburger,
+    body > header > nav,
+    body > header > nav a,
+    body > header > nav button {
+        transition-duration: 0.01ms !important;
+        animation-duration: 0.01ms !important;
+    }
 }
 
 body > main {
