@@ -17,6 +17,7 @@ use App\Http\Controllers\Shop\HomeController;
 use App\Http\Controllers\Shop\OrderController as ShopOrderController;
 use App\Http\Controllers\Shop\PaymentController as ShopPaymentController;
 use App\Http\Controllers\Shop\PaymentInstructionController;
+use App\Http\Controllers\Shop\ProfileController;
 use Illuminate\Support\Facades\Route;
 
 // M0+M1 route map (blueprint §12, PRD §12).
@@ -96,6 +97,12 @@ Route::middleware(['auth:web', 'active', 'role:pembeli', 'no-cache'])->group(fun
     Route::get('/pembayaran/{payment}/hasil', [ShopPaymentController::class, 'result'])->name('pembayaran.hasil');
     // M3c PAY-48: printable receipt, paid payments only.
     Route::get('/pembayaran/{payment}/struk', [ShopPaymentController::class, 'receipt'])->name('pembayaran.struk');
+
+    // Buyer profile & single-address CRUD (decision Ren 2026-11-06).
+    Route::get('/profil', [ProfileController::class, 'show'])->name('profil.show');
+    Route::get('/profil/ubah', [ProfileController::class, 'edit'])->name('profil.edit');
+    Route::put('/profil', [ProfileController::class, 'update'])->name('profil.update');
+    Route::put('/profil/alamat', [ProfileController::class, 'updateAddress'])->name('profil.alamat.update');
 });
 
 // ---- Simulator page (M3b PAY-15..23): public, no login — the

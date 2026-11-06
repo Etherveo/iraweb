@@ -133,6 +133,7 @@
                 <a href="{{ route('keranjang.index') }}">Keranjang{{ ($cartItemCount ?? 0) > 0 ? " ($cartItemCount)" : '' }}</a>
                 <a href="{{ route('pesanan.index') }}">Pesanan</a>
                 <a href="{{ route('pembayaran.index') }}">Pembayaran</a>
+                <a href="{{ route('profil.show') }}">Profil</a>
                 <form method="POST" action="{{ route('keluar') }}" style="display:inline">
                     @csrf
                     <button type="submit">Keluar</button>
