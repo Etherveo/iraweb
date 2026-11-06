@@ -13,6 +13,15 @@
             'expired' => 'status-chip-muted',
             'cancelled' => 'status-chip-muted',
         ];
+        $orderChips = [
+            'menunggu_pembayaran' => 'status-chip-warning',
+            'dibayar' => 'status-chip-success',
+            'diproses' => 'status-chip-info',
+            'dikirim' => 'status-chip-info',
+            'selesai' => 'status-chip-success',
+            'dibatalkan' => 'status-chip-danger',
+            'kedaluwarsa' => 'status-chip-muted',
+        ];
     @endphp
     <div class="admin-page admin-page-narrow">
         <nav class="admin-back-nav" aria-label="Breadcrumb">
@@ -41,67 +50,91 @@
 
         <div class="card admin-panel">
             <h2 class="admin-section-title">Ringkasan pembayaran</h2>
-            <div class="admin-kv-grid">
-                <div class="admin-kv-item">
-                    <span class="admin-kv-label">Pesanan</span>
-                    <strong class="admin-kv-value">
-                        <a class="admin-cell-link" href="{{ route('admin.pesanan.show', $order) }}">{{ $order->order_number }}</a>
-                    </strong>
-                </div>
-                <div class="admin-kv-item">
-                    <span class="admin-kv-label">Status pesanan</span>
-                    <span class="admin-kv-value">{{ $order->statusLabel() }}</span>
-                </div>
-                <div class="admin-kv-item">
-                    <span class="admin-kv-label">Pembeli</span>
-                    <span class="admin-kv-value">{{ $payment->user->name }} ({{ $payment->user->email }})</span>
-                </div>
-                <div class="admin-kv-item">
-                    <span class="admin-kv-label">Metode</span>
-                    <strong class="admin-kv-value">{{ $method['label'] ?? $payment->payment_method }}</strong>
-                </div>
-                <div class="admin-kv-item">
-                    <span class="admin-kv-label">Status pembayaran</span>
-                    <strong class="admin-kv-value">{{ $payment->statusLabel() }}</strong>
-                </div>
-                <div class="admin-kv-item">
-                    <span class="admin-kv-label">Nominal</span>
-                    <strong class="admin-kv-value admin-cell-price">{{ $payment->formattedAmount() }}</strong>
-                </div>
-                <div class="admin-kv-item">
-                    <span class="admin-kv-label">Kode referensi</span>
-                    <span class="admin-kv-value"><code class="admin-code">{{ $payment->reference_code }}</code></span>
-                </div>
-                <div class="admin-kv-item">
-                    <span class="admin-kv-label">Asal data</span>
-                    <span class="admin-kv-value">
-                        @if ($payment->origin === 'developer_simulation')
-                            <span class="badge-simulasi">SIMULASI (panel developer)</span>
-                        @else
-                            Normal
+            <div class="admin-kv-groups">
+                <section class="admin-kv-section" aria-labelledby="kv-group-pesanan">
+                    <h3 class="admin-kv-group-title" id="kv-group-pesanan">Pesanan</h3>
+                    <dl class="admin-kv-list">
+                        <div class="admin-kv-row">
+                            <dt class="admin-kv-row-label">Pesanan</dt>
+                            <dd class="admin-kv-row-val">
+                                <a class="admin-cell-link" href="{{ route('admin.pesanan.show', $order) }}">{{ $order->order_number }}</a>
+                            </dd>
+                        </div>
+                        <div class="admin-kv-row">
+                            <dt class="admin-kv-row-label">Pembeli</dt>
+                            <dd class="admin-kv-row-val">{{ $payment->user->name }} ({{ $payment->user->email }})</dd>
+                        </div>
+                        <div class="admin-kv-row">
+                            <dt class="admin-kv-row-label">Status pesanan</dt>
+                            <dd class="admin-kv-row-val">
+                                <span class="status-chip {{ $orderChips[$order->status] ?? 'status-chip-muted' }}">
+                                    <span>{{ $order->statusLabel() }}</span>
+                                </span>
+                            </dd>
+                        </div>
+                    </dl>
+                </section>
+
+                <section class="admin-kv-section" aria-labelledby="kv-group-pembayaran">
+                    <h3 class="admin-kv-group-title" id="kv-group-pembayaran">Pembayaran</h3>
+                    <dl class="admin-kv-list">
+                        <div class="admin-kv-row">
+                            <dt class="admin-kv-row-label">Metode</dt>
+                            <dd class="admin-kv-row-val"><strong>{{ $method['label'] ?? $payment->payment_method }}</strong></dd>
+                        </div>
+                        <div class="admin-kv-row">
+                            <dt class="admin-kv-row-label">Status pembayaran</dt>
+                            <dd class="admin-kv-row-val">
+                                <span class="status-chip {{ $paymentChips[$payment->status] ?? 'status-chip-muted' }}">
+                                    <span>{{ $payment->statusLabel() }}</span>
+                                </span>
+                            </dd>
+                        </div>
+                        <div class="admin-kv-row">
+                            <dt class="admin-kv-row-label">Nominal</dt>
+                            <dd class="admin-kv-row-val"><strong class="admin-cell-price">{{ $payment->formattedAmount() }}</strong></dd>
+                        </div>
+                        <div class="admin-kv-row">
+                            <dt class="admin-kv-row-label">Kode referensi</dt>
+                            <dd class="admin-kv-row-val"><code class="admin-code">{{ $payment->reference_code }}</code></dd>
+                        </div>
+                        <div class="admin-kv-row">
+                            <dt class="admin-kv-row-label">Asal data</dt>
+                            <dd class="admin-kv-row-val">
+                                @if ($payment->origin === 'developer_simulation')
+                                    <span class="badge-simulasi">SIMULASI (panel developer)</span>
+                                @else
+                                    Normal
+                                @endif
+                            </dd>
+                        </div>
+                    </dl>
+                </section>
+
+                <section class="admin-kv-section" aria-labelledby="kv-group-waktu">
+                    <h3 class="admin-kv-group-title" id="kv-group-waktu">Waktu (WITA)</h3>
+                    <dl class="admin-kv-list">
+                        <div class="admin-kv-row">
+                            <dt class="admin-kv-row-label">Dibuat</dt>
+                            <dd class="admin-kv-row-val">{{ $payment->created_at?->setTimezone(config('ira.reporting_timezone'))->format('d M Y H:i') }} WITA</dd>
+                        </div>
+                        <div class="admin-kv-row">
+                            <dt class="admin-kv-row-label">Kedaluwarsa</dt>
+                            <dd class="admin-kv-row-val">{{ $payment->expires_at?->setTimezone(config('ira.reporting_timezone'))->format('d M Y H:i') }} WITA</dd>
+                        </div>
+                        @if ($payment->paid_at)
+                            <div class="admin-kv-row">
+                                <dt class="admin-kv-row-label">Dibayar</dt>
+                                <dd class="admin-kv-row-val">{{ $payment->paid_at?->setTimezone(config('ira.reporting_timezone'))->format('d M Y H:i') }} WITA</dd>
+                            </div>
                         @endif
-                    </span>
-                </div>
-                <div class="admin-kv-item">
-                    <span class="admin-kv-label">Dibuat</span>
-                    <span class="admin-kv-value">{{ $payment->created_at?->setTimezone(config('ira.reporting_timezone'))->format('d M Y H:i') }} WITA</span>
-                </div>
-                <div class="admin-kv-item">
-                    <span class="admin-kv-label">Kedaluwarsa</span>
-                    <span class="admin-kv-value">{{ $payment->expires_at?->setTimezone(config('ira.reporting_timezone'))->format('d M Y H:i') }} WITA</span>
-                </div>
-                @if ($payment->paid_at)
-                    <div class="admin-kv-item">
-                        <span class="admin-kv-label">Dibayar</span>
-                        <span class="admin-kv-value">{{ $payment->paid_at?->setTimezone(config('ira.reporting_timezone'))->format('d M Y H:i') }} WITA</span>
-                    </div>
-                @endif
+                    </dl>
+                </section>
             </div>
 
             <div class="admin-form-actions">
                 <a class="btn-secondary" href="{{ route('admin.pembayaran.index') }}">Kembali ke daftar pembayaran</a>
                 <a class="btn-secondary" href="{{ route('admin.pesanan.show', $order) }}">Lihat pesanan</a>
-                <button type="button" class="btn-secondary" data-trace-reopen="admin-trace-popup" hidden>Lihat detail teknis</button>
             </div>
         </div>
 

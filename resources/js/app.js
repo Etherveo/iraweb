@@ -177,28 +177,13 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
-// Panel teknis pembayaran tersembunyi (halaman detail pembayaran admin, Tahap 4b):
+// Panel teknis pembayaran tersembunyi (halaman detail pembayaran admin, Tahap 4b/5):
 // ketuk/klik 5 kali dalam 3 detik pada elemen [data-trace-trigger="<id popup>"]
 // membuka popup kecil berisi tombol "Lihat detail teknis" + tombol tutup (×).
 // Menekan "Lihat detail teknis" mengganti isi popup menjadi panel teknis lengkap.
-// Flag disimpan di sessionStorage selama sesi tab/browser aktif.
+// Tanpa tombol permanen dan tanpa sessionStorage: setiap kali ingin membuka
+// kembali setelah ditutup, ketuk 5× lagi.
 document.addEventListener('DOMContentLoaded', () => {
-    const STORAGE_KEY = 'ira_trace_unlocked';
-    const isUnlocked = () => {
-        try {
-            return window.sessionStorage.getItem(STORAGE_KEY) === '1';
-        } catch (e) {
-            return false;
-        }
-    };
-    const setUnlocked = () => {
-        try {
-            window.sessionStorage.setItem(STORAGE_KEY, '1');
-        } catch (e) {
-            // Abaikan bila sessionStorage diblokir browser.
-        }
-    };
-
     document.querySelectorAll('[data-trace-trigger]').forEach((trigger) => {
         const popupId = trigger.getAttribute('data-trace-trigger');
         const popup = document.getElementById(popupId);
@@ -208,10 +193,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const gateStage = popup.querySelector('[data-trace-stage="gate"]');
         const panelStage = popup.querySelector('[data-trace-stage="panel"]');
         const expandBtn = popup.querySelector('[data-trace-expand]');
-        const reopenBtn = document.querySelector(`[data-trace-reopen="${popupId}"]`);
         if (!dialog || !gateStage || !panelStage || !expandBtn) return;
 
-        let lastReturnFocus = null;
         let taps = [];
 
         const visibleFocusables = () => Array.from(
@@ -228,9 +211,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const closePopup = () => {
             popup.hidden = true;
             document.removeEventListener('keydown', onKey);
-            if (lastReturnFocus && typeof lastReturnFocus.focus === 'function' && !lastReturnFocus.hidden) {
-                lastReturnFocus.focus();
-            }
         };
 
         const onKey = (e) => {
@@ -254,21 +234,12 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         };
 
-        const openPopup = (mode, returnEl) => {
-            lastReturnFocus = returnEl || reopenBtn || null;
-            setStage(mode);
+        const openPopup = () => {
+            setStage('gate');
             popup.hidden = false;
             document.addEventListener('keydown', onKey);
-            if (mode === 'gate') {
-                expandBtn.focus();
-            } else {
-                dialog.focus();
-            }
+            expandBtn.focus();
         };
-
-        if (isUnlocked() && reopenBtn) {
-            reopenBtn.hidden = false;
-        }
 
         trigger.addEventListener('click', () => {
             const now = Date.now();
@@ -276,9 +247,7 @@ document.addEventListener('DOMContentLoaded', () => {
             taps.push(now);
             if (taps.length >= 5) {
                 taps = [];
-                setUnlocked();
-                if (reopenBtn) reopenBtn.hidden = false;
-                openPopup('gate', reopenBtn);
+                openPopup();
             }
         });
 
@@ -287,14 +256,46 @@ document.addEventListener('DOMContentLoaded', () => {
             dialog.focus();
         });
 
-        if (reopenBtn) {
-            reopenBtn.addEventListener('click', () => {
-                openPopup('panel', reopenBtn);
-            });
-        }
-
         popup.querySelectorAll('[data-trace-close]').forEach((el) => {
             el.addEventListener('click', closePopup);
         });
     });
+
+    // Drawer sidebar admin untuk tampilan mobile (<1024px, Tahap 5).
+    const sidebar = document.getElementById('admin-sidebar');
+    const openBtn = document.querySelector('[data-admin-drawer-open]');
+    const backdrop = document.querySelector('.admin-sidebar-backdrop');
+    if (sidebar && openBtn) {
+        const closeDrawer = () => {
+            sidebar.classList.remove('is-open');
+            openBtn.setAttribute('aria-expanded', 'false');
+            if (backdrop) backdrop.hidden = true;
+            document.removeEventListener('keydown', onDrawerKey);
+            openBtn.focus();
+        };
+
+        const onDrawerKey = (e) => {
+            if (e.key === 'Escape') {
+                e.preventDefault();
+                closeDrawer();
+            }
+        };
+
+        openBtn.addEventListener('click', () => {
+            const isOpen = sidebar.classList.toggle('is-open');
+            openBtn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+            if (backdrop) backdrop.hidden = !isOpen;
+            if (isOpen) {
+                document.addEventListener('keydown', onDrawerKey);
+                const closeBtn = sidebar.querySelector('.admin-drawer-close');
+                if (closeBtn) closeBtn.focus();
+            } else {
+                document.removeEventListener('keydown', onDrawerKey);
+            }
+        });
+
+        document.querySelectorAll('[data-admin-drawer-close]').forEach((el) => {
+            el.addEventListener('click', closeDrawer);
+        });
+    }
 });
