@@ -177,7 +177,8 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
-// Panel teknis pembayaran tersembunyi (halaman detail pembayaran admin, Tahap 4b/5):
+// Panel teknis pembayaran tersembunyi (detail pembayaran admin di Tahap 4b/5
+// + detail pembayaran pembeli & halaman simulator di Tahap 7):
 // ketuk/klik 5 kali dalam 3 detik pada elemen [data-trace-trigger="<id popup>"]
 // membuka popup kecil berisi tombol "Lihat detail teknis" + tombol tutup (×).
 // Menekan "Lihat detail teknis" mengganti isi popup menjadi panel teknis lengkap.

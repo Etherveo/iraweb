@@ -1889,3 +1889,303 @@ a.admin-nav-item:focus-visible {
     padding-top: 0.5rem;
     border-top: 1px solid #DCE0F0;
 }
+
+
+/* ------------------------------------------------------------------
+   UI polish Tahap 7 — Halaman pembayaran pembeli: Instruksi (QR/VA),
+   Simulasi, Detail, Hasil (3 varian), Struk, dan Riwayat Pembayaran
+   (UI.md §9.3, §10, §16, Figma 3:104151, 3:104319, 3:105449, 3:105680,
+   3:105817, 3:105960, 3:105077, 3:106093).
+   ------------------------------------------------------------------ */
+.pay-method-banner {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #D7DBED;
+}
+
+.pay-sub-heading {
+    margin: 0 0 0.25rem;
+    font-family: var(--font-heading);
+    font-size: 0.9375rem;
+    font-weight: 700;
+    color: var(--color-text-primary);
+}
+.pay-sim-caption {
+    margin: 0 0 0.75rem;
+    font-size: 0.8125rem;
+    color: #8A4F0B;
+}
+
+.pay-va-box {
+    padding: 1.25rem;
+    border-radius: var(--radius-lg);
+    background: var(--color-surface-light);
+    border: 1px solid #DCE0F0;
+}
+.pay-va-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+}
+.va-number {
+    margin: 0;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 1.375rem;
+    letter-spacing: 0.06em;
+    color: var(--color-text-primary);
+}
+.va-number-inline {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    letter-spacing: 0.04em;
+}
+
+.pay-qr-section {
+    display: grid;
+    justify-items: center;
+    text-align: center;
+    gap: 0.5rem;
+    padding: 1rem 0;
+}
+.pay-qr-frame {
+    display: inline-grid;
+    place-items: center;
+    padding: 1rem;
+    border-radius: var(--radius-lg);
+    background: #fff;
+    border: 1px solid #DCE0F0;
+    box-shadow: var(--shadow-sm);
+}
+.pay-qr-frame img.qr-image {
+    display: block;
+    max-width: 100%;
+    height: auto;
+}
+.pay-qr-frame img.qr-image[hidden],
+.pay-qr-frame .qr-fallback[hidden] {
+    display: none !important;
+}
+.qr-small.pay-qr-frame img.qr-image {
+    width: 176px;
+    height: 176px;
+}
+.pay-url-fallback {
+    margin: 0.25rem 0 0;
+    font-size: 0.8125rem;
+    color: var(--color-text-secondary);
+    word-break: break-all;
+}
+
+.pay-cta-stack {
+    display: grid;
+    gap: 0.75rem;
+}
+
+.pay-loopback-box {
+    padding: 0.875rem 1rem;
+    border-radius: var(--radius-md);
+    background: #FFF0DA;
+    border: 1px solid #F2D09B;
+    color: #7D4608;
+    font-size: 0.8125rem;
+    line-height: 1.5;
+}
+.pay-loopback-box p {
+    margin: 0;
+}
+
+.pay-countdown-card {
+    display: grid;
+    gap: 0.25rem;
+    padding: 1rem 1.25rem;
+    border-radius: var(--radius-lg);
+    background: var(--color-primary-light);
+    border: 1px solid #CEC8FC;
+}
+.pay-countdown-label {
+    font-family: var(--font-heading);
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #39318F;
+}
+.pay-countdown-timer {
+    font-family: var(--font-heading);
+    font-size: 1.75rem;
+    font-weight: 800;
+    line-height: 1.2;
+    color: #261F69;
+    font-variant-numeric: tabular-nums;
+}
+
+/* Halaman Simulator (/pay/sim/{token}) */
+.pay-sim-alert {
+    padding: 0.875rem 1.25rem;
+    border-radius: var(--radius-md);
+    background: var(--color-primary-soft);
+    border: 1px solid #CEC8FC;
+    color: #39318F;
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+.pay-sim-items {
+    padding: 0.75rem 1.125rem;
+    border-radius: var(--radius-md);
+    background: var(--color-surface-light);
+    border: 1px solid #DCE0F0;
+}
+.pay-sim-actions {
+    display: grid;
+    gap: 0.75rem;
+}
+.pay-sim-actions form {
+    margin: 0;
+}
+.pay-sim-closed {
+    margin: 0;
+    padding: 0.875rem 1rem;
+    border-radius: var(--radius-md);
+    background: var(--color-surface-light);
+    border: 1px dashed #CBD0E3;
+    font-size: 0.875rem;
+    color: var(--color-text-secondary);
+    text-align: center;
+}
+
+/* Halaman Hasil Pembayaran (Berhasil / Gagal / Kedaluwarsa) */
+.pay-result-wrap {
+    max-width: 38rem;
+    margin: 0 auto;
+}
+.pay-result-card {
+    padding: 2rem;
+}
+.pay-result-top {
+    display: flex;
+    justify-content: flex-start;
+}
+.pay-result-icon {
+    display: grid;
+    place-items: center;
+    width: 3.75rem;
+    height: 3.75rem;
+    border-radius: var(--radius-lg);
+}
+.pay-result-icon.is-success {
+    background: #D9F5EC;
+    color: #146C54;
+}
+.pay-result-icon.is-danger {
+    background: #FCE4E9;
+    color: #B4324B;
+}
+.pay-result-icon.is-warning {
+    background: #FFF0DA;
+    color: #9A5B13;
+}
+.pay-result-title {
+    margin: 0;
+    font-family: var(--font-heading);
+    font-size: 1.625rem;
+    font-weight: 800;
+    line-height: 1.25;
+    color: var(--color-text-primary);
+}
+.pay-result-lead {
+    margin: -0.5rem 0 0;
+    font-size: 0.875rem;
+    color: #8A4F0B;
+}
+.pay-result-desc {
+    margin: -0.5rem 0 0;
+    font-size: 0.9375rem;
+    line-height: 1.6;
+    color: var(--color-text-secondary);
+}
+
+/* Halaman Struk Simulasi & aturan cetak (@media print) */
+.pay-receipt-wrap {
+    max-width: 40rem;
+    margin: 0 auto;
+}
+.receipt-sheet {
+    display: grid;
+    gap: 1.125rem;
+    padding: 2.25rem 2rem;
+    background: #fff;
+    border: 1px solid #D7DBED;
+}
+.receipt-top {
+    display: flex;
+    justify-content: flex-start;
+}
+.receipt-banner {
+    margin: 0;
+    font-family: var(--font-heading);
+    font-size: 1.375rem;
+    font-weight: 800;
+    line-height: 1.3;
+    color: var(--color-text-primary);
+}
+.receipt-store {
+    margin: -0.5rem 0 0;
+    font-size: 0.9375rem;
+    color: var(--color-text-primary);
+}
+.receipt-caption {
+    margin: -0.5rem 0 0;
+    font-size: 0.8125rem;
+    color: var(--color-text-secondary);
+}
+.receipt-items-title {
+    margin: 0.25rem 0 -0.25rem;
+}
+.receipt-items {
+    padding: 0.5rem 0;
+    border-top: 1px solid #DCE0F0;
+}
+.receipt-total {
+    padding-top: 0.25rem;
+}
+.receipt-foot {
+    display: grid;
+    gap: 0.5rem;
+    justify-items: start;
+    padding-top: 0.75rem;
+    border-top: 1px dashed #CBD0E3;
+}
+.receipt-disclaimer {
+    margin: 0;
+    font-size: 0.8125rem;
+    color: var(--color-text-secondary);
+}
+
+@media print {
+    body > header,
+    body > footer,
+    .admin-sidebar,
+    .admin-mobile-bar,
+    .no-print {
+        display: none !important;
+    }
+    body,
+    body.has-admin-sidebar {
+        padding: 0 !important;
+        background: #fff !important;
+    }
+    body > main {
+        max-width: none !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+    .receipt-sheet {
+        box-shadow: none !important;
+        border: 1px solid #999 !important;
+    }
+}
