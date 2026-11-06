@@ -176,3 +176,125 @@ document.addEventListener('DOMContentLoaded', () => {
         plus.addEventListener('click', () => step(1));
     });
 });
+
+// Panel teknis pembayaran tersembunyi (halaman detail pembayaran admin, Tahap 4b):
+// ketuk/klik 5 kali dalam 3 detik pada elemen [data-trace-trigger="<id popup>"]
+// membuka popup kecil berisi tombol "Lihat detail teknis" + tombol tutup (×).
+// Menekan "Lihat detail teknis" mengganti isi popup menjadi panel teknis lengkap.
+// Flag disimpan di sessionStorage selama sesi tab/browser aktif.
+document.addEventListener('DOMContentLoaded', () => {
+    const STORAGE_KEY = 'ira_trace_unlocked';
+    const isUnlocked = () => {
+        try {
+            return window.sessionStorage.getItem(STORAGE_KEY) === '1';
+        } catch (e) {
+            return false;
+        }
+    };
+    const setUnlocked = () => {
+        try {
+            window.sessionStorage.setItem(STORAGE_KEY, '1');
+        } catch (e) {
+            // Abaikan bila sessionStorage diblokir browser.
+        }
+    };
+
+    document.querySelectorAll('[data-trace-trigger]').forEach((trigger) => {
+        const popupId = trigger.getAttribute('data-trace-trigger');
+        const popup = document.getElementById(popupId);
+        if (!popup) return;
+
+        const dialog = popup.querySelector('[role="dialog"]');
+        const gateStage = popup.querySelector('[data-trace-stage="gate"]');
+        const panelStage = popup.querySelector('[data-trace-stage="panel"]');
+        const expandBtn = popup.querySelector('[data-trace-expand]');
+        const reopenBtn = document.querySelector(`[data-trace-reopen="${popupId}"]`);
+        if (!dialog || !gateStage || !panelStage || !expandBtn) return;
+
+        let lastReturnFocus = null;
+        let taps = [];
+
+        const visibleFocusables = () => Array.from(
+            dialog.querySelectorAll('button:not([disabled]), a[href], [tabindex]:not([tabindex="-1"])')
+        ).filter((el) => !el.hidden && el.offsetParent !== null);
+
+        const setStage = (mode) => {
+            const showPanel = mode === 'panel';
+            gateStage.hidden = showPanel;
+            panelStage.hidden = !showPanel;
+            dialog.classList.toggle('is-expanded', showPanel);
+        };
+
+        const closePopup = () => {
+            popup.hidden = true;
+            document.removeEventListener('keydown', onKey);
+            if (lastReturnFocus && typeof lastReturnFocus.focus === 'function' && !lastReturnFocus.hidden) {
+                lastReturnFocus.focus();
+            }
+        };
+
+        const onKey = (e) => {
+            if (e.key === 'Escape') {
+                e.preventDefault();
+                closePopup();
+                return;
+            }
+            if (e.key === 'Tab') {
+                const items = visibleFocusables();
+                if (items.length === 0) return;
+                const first = items[0];
+                const last = items[items.length - 1];
+                if (e.shiftKey && document.activeElement === first) {
+                    e.preventDefault();
+                    last.focus();
+                } else if (!e.shiftKey && document.activeElement === last) {
+                    e.preventDefault();
+                    first.focus();
+                }
+            }
+        };
+
+        const openPopup = (mode, returnEl) => {
+            lastReturnFocus = returnEl || reopenBtn || null;
+            setStage(mode);
+            popup.hidden = false;
+            document.addEventListener('keydown', onKey);
+            if (mode === 'gate') {
+                expandBtn.focus();
+            } else {
+                dialog.focus();
+            }
+        };
+
+        if (isUnlocked() && reopenBtn) {
+            reopenBtn.hidden = false;
+        }
+
+        trigger.addEventListener('click', () => {
+            const now = Date.now();
+            taps = taps.filter((t) => now - t <= 3000);
+            taps.push(now);
+            if (taps.length >= 5) {
+                taps = [];
+                setUnlocked();
+                if (reopenBtn) reopenBtn.hidden = false;
+                openPopup('gate', reopenBtn);
+            }
+        });
+
+        expandBtn.addEventListener('click', () => {
+            setStage('panel');
+            dialog.focus();
+        });
+
+        if (reopenBtn) {
+            reopenBtn.addEventListener('click', () => {
+                openPopup('panel', reopenBtn);
+            });
+        }
+
+        popup.querySelectorAll('[data-trace-close]').forEach((el) => {
+            el.addEventListener('click', closePopup);
+        });
+    });
+});
