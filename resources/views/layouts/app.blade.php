@@ -19,12 +19,12 @@
     <nav>
         @auth('web')
             @if (auth('web')->user()->isAdmin())
-                <a href="{{ route('admin.dashboard') }}">Dashboard Admin</a>
-                <a href="{{ route('admin.kategori.index') }}">Kategori</a>
-                <a href="{{ route('admin.produk.index') }}">Produk</a>
-                <a href="{{ route('admin.pesanan.index') }}">Pesanan</a>
-                <a href="{{ route('admin.pembayaran.index') }}">Pembayaran</a>
-                <a href="{{ route('admin.akun-pembeli.index') }}">Akun Pembeli</a>
+                <a href="{{ route('admin.dashboard') }}" @class(['is-active' => request()->routeIs('admin.dashboard')]) @if (request()->routeIs('admin.dashboard')) aria-current="page" @endif>Dashboard Admin</a>
+                <a href="{{ route('admin.kategori.index') }}" @class(['is-active' => request()->routeIs('admin.kategori.*')]) @if (request()->routeIs('admin.kategori.*')) aria-current="page" @endif>Kategori</a>
+                <a href="{{ route('admin.produk.index') }}" @class(['is-active' => request()->routeIs('admin.produk.*')]) @if (request()->routeIs('admin.produk.*')) aria-current="page" @endif>Produk</a>
+                <a href="{{ route('admin.pesanan.index') }}" @class(['is-active' => request()->routeIs('admin.pesanan.*')]) @if (request()->routeIs('admin.pesanan.*')) aria-current="page" @endif>Pesanan</a>
+                <a href="{{ route('admin.pembayaran.index') }}" @class(['is-active' => request()->routeIs('admin.pembayaran.*')]) @if (request()->routeIs('admin.pembayaran.*')) aria-current="page" @endif>Pembayaran</a>
+                <a href="{{ route('admin.akun-pembeli.index') }}" @class(['is-active' => request()->routeIs('admin.akun-pembeli.*')]) @if (request()->routeIs('admin.akun-pembeli.*')) aria-current="page" @endif>Akun Pembeli</a>
             @else
                 <a href="{{ route('katalog') }}">Katalog</a>
                 <a href="{{ route('keranjang.index') }}">Keranjang{{ ($cartItemCount ?? 0) > 0 ? " ($cartItemCount)" : '' }}</a>
