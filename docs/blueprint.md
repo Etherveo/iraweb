@@ -183,7 +183,8 @@ erDiagram
 
 | Tabel | Kolom penting | Constraint dan indeks | Fitur |
 | --- | --- | --- | --- |
-| `users` | `id`, `role` (`pembeli`/`admin_toko`), `name`, `email`, `password` (hash), `is_active`, `deactivated_at`, `deactivation_reason`, `origin`, `simulation_run_id` (null), timestamps | unik `lower(email)`; `CHECK role`, `CHECK origin`; indeks `(role, origin)` | ACC-01..15, SIM-07 |
+| `users` | `id`, `role` (`pembeli`/`admin_toko`), `name`, `email`, `password` (hash), `is_active`, `deactivated_at`, `deactivation_reason`, `origin`, `simulation_run_id` (null), `username`, `phone`, `gender`, `birthdate` (keempatnya nullable, diisi simulator — profil pembeli M4), timestamps | unik `lower(email)`; unik `username`; `CHECK gender IN ('laki-laki','perempuan')`; `CHECK role`, `CHECK origin`; indeks `(role, origin)` | ACC-01..15, SIM-07 |
+| `addresses` | `id`, `user_id`, `recipient_name`, `recipient_phone` (null), `province`, `city`, `district`, `village`, `postal_code`, `street_address`, `address_type` (default `'Rumah'`), timestamps | FK `user_id` → `users(id)` `ON DELETE CASCADE`; indeks `(user_id)`; `CHECK length(postal_code) = 5`; `CHECK address_type IN ('Rumah','Kantor','Lainnya')` | M4, Data_Pembeli §2 |
 | `developers` | `id`, `name`, `email`, `password` (hash), `role` (`dev`), timestamps | unik `lower(email)`; `CHECK role = 'dev'` (ditambah migrasi aditif, bukan mengubah migrasi pembuatan tabel); tabel dan guard terpisah dari `users` | ACC-04, ACC-05 |
 | `categories` | `id`, `name`, `slug`, timestamps | unik `lower(name)`, unik `slug` | CAT-01..04 |
 | `products` | `id`, `category_id`, `name`, `description`, `price_idr`, `stock_on_hand`, `stock_reserved`, `is_active`, timestamps | FK `category_id` `RESTRICT`; unik `lower(name)`; `CHECK price_idr BETWEEN 1 AND 100000000`; `CHECK stock_on_hand >= 0`; `CHECK stock_reserved >= 0`; `CHECK stock_reserved <= stock_on_hand`; indeks `(category_id, is_active)` | PRD-01..06, STK-01 |
