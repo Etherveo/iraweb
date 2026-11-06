@@ -13,6 +13,7 @@ use App\Http\Controllers\Payment\SimulationPageController;
 use App\Http\Controllers\Shop\CartController;
 use App\Http\Controllers\Shop\CatalogController;
 use App\Http\Controllers\Shop\CheckoutController;
+use App\Http\Controllers\Shop\HomeController;
 use App\Http\Controllers\Shop\OrderController as ShopOrderController;
 use App\Http\Controllers\Shop\PaymentController as ShopPaymentController;
 use App\Http\Controllers\Shop\PaymentInstructionController;
@@ -30,9 +31,7 @@ use Illuminate\Support\Facades\Route;
 // internal gateway API routes (routes/api.php). No analytics routes
 // yet: those are M4-M7.
 
-Route::get('/', function () {
-    return view('welcome');
-})->name('home');
+Route::get('/', [HomeController::class, 'index'])->name('home');
 
 // ---- Register (pembeli-only, ACC-01) ----
 Route::get('/daftar', [BuyerAuthController::class, 'showRegister'])->name('daftar');
@@ -57,12 +56,15 @@ Route::get('/developer/masuk', function () {
     return redirect()->route('masuk', ['aktor' => 'developer']);
 })->name('developer.masuk');
 
+// ---- Public catalog (UI polish Tahap 2): guests may browse; buying
+// stays behind the buyer group below (POST /keranjang/tambah is auth:web). ----
+Route::get('/katalog', [CatalogController::class, 'index'])->name('katalog');
+Route::get('/katalog/cari', [CatalogController::class, 'index'])->name('katalog.cari');
+Route::get('/produk/{produk}', [CatalogController::class, 'show'])->name('produk.show');
+
 // ---- Buyer surface (M2: real catalog, SHP-01..04; M3a: cart,
 // checkout, orders — CRT/STK/ORD/EVT) ----
 Route::middleware(['auth:web', 'active', 'role:pembeli', 'no-cache'])->group(function () {
-    Route::get('/katalog', [CatalogController::class, 'index'])->name('katalog');
-    Route::get('/katalog/cari', [CatalogController::class, 'index'])->name('katalog.cari');
-    Route::get('/produk/{produk}', [CatalogController::class, 'show'])->name('produk.show');
 
     // M3a CRT-01..06: server-side cart, one per account.
     Route::get('/keranjang', [CartController::class, 'index'])->name('keranjang.index');

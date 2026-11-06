@@ -183,15 +183,20 @@ test('ACC-07 inactive account cannot log in and an active session becomes invali
     $this->assertGuest('web');
 
     $user->update(['is_active' => true, 'deactivated_at' => null]);
+    // UI polish Tahap 2: /katalog is public now, so the session probe moves
+    // to /keranjang, which stays behind auth:web + active.
     $this->actingAs($user, 'web');
-    $this->get('/katalog')->assertOk();
+    $this->get('/keranjang')->assertOk();
 
     $user->update(['is_active' => false, 'deactivated_at' => now()]);
-    $this->get('/katalog')->assertRedirect('/masuk');
+    $this->get('/keranjang')->assertRedirect('/masuk');
 });
 
 test('ACC-08 unauthenticated users are redirected to the matching login form and wrong role gets 403', function () {
-    $this->get('/katalog')->assertRedirect('/masuk');
+    // UI polish Tahap 2: the catalog is public for guests; buyer-only
+    // routes such as the cart still redirect to the login form.
+    $this->get('/katalog')->assertOk();
+    $this->get('/keranjang')->assertRedirect('/masuk');
     $this->get('/admin/akun-pembeli')->assertRedirect('/masuk?aktor=admin_toko');
     $this->get('/developer/akun-simulasi')->assertRedirect('/masuk?aktor=developer');
 
@@ -236,7 +241,10 @@ test('ACC-10 developer cannot open admin routes and buyer flow', function () {
 
     $this->actingAs($developer, 'developer');
     $this->get('/admin')->assertRedirect('/masuk?aktor=admin_toko');
-    $this->get('/katalog')->assertRedirect('/masuk');
+    // The catalog is public (Tahap 2), so a developer session may read it;
+    // the buyer flow (cart) is still closed to a developer-only session.
+    $this->get('/katalog')->assertOk();
+    $this->get('/keranjang')->assertRedirect('/masuk');
 });
 
 test('ACC-10 admin cannot open developer routes', function () {

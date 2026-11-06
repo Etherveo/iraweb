@@ -87,3 +87,92 @@ document.addEventListener('DOMContentLoaded', () => {
             });
     });
 });
+
+// Eye toggle kata sandi (UI polish Tahap 1, halaman /masuk). Tombol membawa
+// [data-password-toggle="<id input>"] dan tersembunyi lewat atribut hidden
+// sampai script ini berjalan, jadi tanpa JS formulir tetap normal. Tidak
+// menyentuh nilai atau pengiriman field: hanya mengganti type password/text.
+document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('[data-password-toggle]').forEach((btn) => {
+        const input = document.getElementById(btn.getAttribute('data-password-toggle'));
+        if (!input) return;
+        const iconShow = btn.querySelector('[data-icon-show]');
+        const iconHide = btn.querySelector('[data-icon-hide]');
+        btn.hidden = false;
+        btn.addEventListener('click', () => {
+            const reveal = input.type === 'password';
+            input.type = reveal ? 'text' : 'password';
+            btn.setAttribute('aria-pressed', reveal ? 'true' : 'false');
+            btn.setAttribute('aria-label', reveal ? 'Sembunyikan kata sandi' : 'Tampilkan kata sandi');
+            if (iconShow) iconShow.hidden = reveal;
+            if (iconHide) iconHide.hidden = !reveal;
+        });
+    });
+});
+
+// Popup tamu di detail produk (UI polish Tahap 2). Tombol dengan
+// [data-guest-popup-open="<id popup>"] membuka popup; [data-guest-popup-close]
+// (tombol ×, backdrop) dan Esc menutupnya. Fokus pindah ke panel saat dibuka,
+// kembali ke tombol pemicu saat ditutup, dan Tab dijebak di dalam panel.
+// Tanpa JS, popup tetap tersembunyi (atribut hidden) dan tombol tidak
+// melakukan apa-apa; POST /keranjang/tambah tetap dikunci auth di server.
+document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('[data-guest-popup-open]').forEach((opener) => {
+        const popup = document.getElementById(opener.getAttribute('data-guest-popup-open'));
+        if (!popup) return;
+        const panel = popup.querySelector('[role="dialog"]');
+        const focusables = () => panel.querySelectorAll('a[href], button:not([disabled])');
+
+        const close = () => {
+            popup.hidden = true;
+            document.removeEventListener('keydown', onKey);
+            opener.focus();
+        };
+        const onKey = (e) => {
+            if (e.key === 'Escape') {
+                e.preventDefault();
+                close();
+                return;
+            }
+            if (e.key === 'Tab') {
+                const items = focusables();
+                if (items.length === 0) return;
+                const first = items[0];
+                const last = items[items.length - 1];
+                if (e.shiftKey && document.activeElement === first) {
+                    e.preventDefault();
+                    last.focus();
+                } else if (!e.shiftKey && document.activeElement === last) {
+                    e.preventDefault();
+                    first.focus();
+                }
+            }
+        };
+
+        opener.addEventListener('click', () => {
+            popup.hidden = false;
+            document.addEventListener('keydown', onKey);
+            panel.focus();
+        });
+        popup.querySelectorAll('[data-guest-popup-close]').forEach((el) => el.addEventListener('click', close));
+    });
+
+    // Stepper jumlah: tombol ± hanya muncul bila JS aktif; input angka tetap
+    // sumber nilai yang dikirim, dibatasi min/max milik input itu sendiri.
+    document.querySelectorAll('[data-stepper]').forEach((box) => {
+        const input = box.querySelector('input[type="number"]');
+        const minus = box.querySelector('[data-stepper-minus]');
+        const plus = box.querySelector('[data-stepper-plus]');
+        if (!input || !minus || !plus) return;
+        const step = (delta) => {
+            const min = Number(input.min) || 1;
+            const max = Number(input.max) || 99;
+            const next = Math.min(max, Math.max(min, (Number(input.value) || min) + delta));
+            input.value = String(next);
+        };
+        minus.hidden = false;
+        plus.hidden = false;
+        minus.addEventListener('click', () => step(-1));
+        plus.addEventListener('click', () => step(1));
+    });
+});

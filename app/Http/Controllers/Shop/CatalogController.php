@@ -67,11 +67,17 @@ class CatalogController extends Controller
             ->where('is_active', true)
             ->findOrFail($produk);
 
-        $this->events->recordView(
-            $request->user('web'),
-            $product,
-            $request->session()->getId(),
-        );
+        // Catalog is public (UI polish Tahap 2): guests, admins and
+        // deactivated buyers can read it, but only an active buyer's
+        // visit counts as activity, so analytics stay buyer-only.
+        $viewer = $request->user('web');
+        if ($viewer !== null && $viewer->isPembeli() && $viewer->is_active) {
+            $this->events->recordView(
+                $viewer,
+                $product,
+                $request->session()->getId(),
+            );
+        }
 
         return view('shop.produk-detail', ['product' => $product]);
     }

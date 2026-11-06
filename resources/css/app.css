@@ -8,3 +8,507 @@
     --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
 }
+
+/* ------------------------------------------------------------------
+   UI polish Tahap 1 — halaman masuk (UI.md §2–§4, §6.2–6.3, §9.1).
+   Semua nilai dari token di tokens.css; selektor dibatasi ke .auth-page
+   agar halaman lain tidak ikut berubah.
+   ------------------------------------------------------------------ */
+.auth-page {
+    display: grid;
+    gap: 2rem;
+    max-width: 72rem;
+    margin: 2rem auto;
+    padding: 0 1.25rem;
+    align-items: center;
+}
+@media (min-width: 1024px) {
+    .auth-page { grid-template-columns: 1.15fr 1fr; gap: 4rem; margin-top: 3rem; }
+}
+
+.auth-eyebrow {
+    margin: 0 0 0.75rem;
+    font-family: var(--font-heading);
+    font-size: 0.8125rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #39318F;
+}
+.auth-eyebrow-primary { color: var(--color-primary-active); font-size: 0.75rem; }
+
+.auth-brand {
+    border-radius: var(--radius-2xl);
+    padding: 2.5rem;
+    background: linear-gradient(135deg, #F0EEFF, #DCD9FF);
+    box-shadow: var(--shadow-md);
+}
+.auth-brand-title {
+    margin: 0 0 1rem;
+    font-family: var(--font-heading);
+    font-size: 2.5rem;
+    font-weight: 800;
+    line-height: 1.15;
+    color: var(--color-text-primary);
+}
+.auth-brand-text { margin: 0; font-size: 1rem; line-height: 1.6; color: var(--color-text-secondary); }
+.auth-brand-art { display: flex; justify-content: center; padding: 2.5rem 0; }
+.auth-brand-tile {
+    display: grid;
+    place-items: center;
+    width: 9rem;
+    height: 9rem;
+    border-radius: var(--radius-xl);
+    background: var(--color-surface);
+    box-shadow: var(--shadow-lg);
+    color: var(--color-primary);
+}
+.auth-brand-foot { margin: 0; font-size: 0.8125rem; color: var(--color-text-secondary); }
+@media (max-width: 1023px) {
+    /* Di ponsel/tablet panel merek diringkas agar formulir tetap di atas lipatan. */
+    .auth-page { grid-template-columns: 1fr; }
+    .auth-brand { order: 2; padding: 1.5rem; }
+    .auth-brand-title { font-size: 1.625rem; }
+    .auth-brand-art { display: none; }
+}
+
+.auth-card {
+    width: 100%;
+    max-width: 26rem;
+    justify-self: center;
+    border-radius: var(--radius-xl);
+    padding: 2rem;
+    background: var(--color-surface);
+    box-shadow: var(--shadow-md);
+}
+.auth-title {
+    margin: 0 0 0.5rem;
+    font-family: var(--font-heading);
+    font-size: 1.75rem;
+    font-weight: 800;
+    line-height: 1.2;
+    color: var(--color-text-primary);
+}
+.auth-subtitle { margin: 0 0 1.5rem; font-size: 0.875rem; line-height: 1.6; color: var(--color-text-secondary); }
+.auth-form { display: grid; gap: 1rem; }
+.auth-fieldset { margin: 0; padding: 0; border: 0; min-width: 0; }
+.auth-field { display: grid; gap: 0.5rem; }
+.auth-label {
+    display: block;
+    padding: 0;
+    margin-bottom: 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--color-text-primary);
+}
+.auth-field .auth-label { margin-bottom: 0; }
+
+/* Segmented control (UI.md §6.7): radio asli tetap ada & bisa difokus. */
+.segmented {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.25rem;
+    padding: 0.25rem;
+    border-radius: var(--radius-md);
+    background: var(--color-surface);
+    box-shadow: var(--shadow-inset);
+}
+.segmented-option { position: relative; display: block; }
+.segmented-option input {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    margin: 0;
+    cursor: pointer;
+}
+.segmented-option span {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
+    padding: 0 0.5rem;
+    border-radius: 11px;
+    font-family: var(--font-heading);
+    font-size: 0.8125rem;
+    font-weight: 700;
+    text-align: center;
+    color: var(--color-text-secondary);
+    border: 1px solid transparent;
+    transition: background-color 150ms var(--ease-standard), color 150ms var(--ease-standard);
+}
+.segmented-option:hover span { color: var(--color-text-primary); }
+.segmented-option input:checked + span {
+    background: var(--color-primary-light);
+    border-color: var(--color-primary);
+    color: #39318F;
+    box-shadow: var(--shadow-xs);
+}
+.segmented-option input:focus-visible + span { outline: 2px solid var(--color-primary); outline-offset: 2px; }
+
+.auth-page .input-icon { position: relative; }
+.auth-page .input-icon > svg {
+    position: absolute;
+    left: 0.875rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--color-text-secondary);
+    pointer-events: none;
+}
+.auth-page .input {
+    box-sizing: border-box;
+    min-height: 48px;
+    padding: 0.75rem 1rem 0.75rem 2.75rem;
+    border: 1px solid transparent;
+    border-radius: var(--radius-md);
+    background: var(--color-surface);
+    box-shadow: var(--shadow-inset);
+    font-family: var(--font-body);
+    font-size: 1rem;
+    color: var(--color-text-primary);
+}
+.auth-page .input:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 2px; }
+.auth-page .input[aria-invalid="true"] { border-color: var(--color-red); }
+.auth-page .input.input-has-toggle { padding-right: 3.25rem; }
+.input-toggle {
+    position: absolute;
+    right: 0.25rem;
+    top: 50%;
+    transform: translateY(-50%);
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    border: 0;
+    border-radius: var(--radius-md);
+    background: transparent;
+    color: var(--color-text-secondary);
+    cursor: pointer;
+}
+.input-toggle[hidden], .input-toggle svg[hidden] { display: none; }
+.input-toggle:hover { color: var(--color-primary-active); background: var(--color-primary-soft); }
+.input-toggle[aria-pressed="true"] { color: var(--color-primary-active); }
+.input-toggle:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 2px; }
+.field-error { margin: 0.25rem 0 0; font-size: 0.8125rem; color: #B4324B; }
+
+.auth-page .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    min-height: 48px;
+    padding: 0 1.25rem;
+    border-radius: var(--radius-md);
+    background: linear-gradient(135deg, #8172FF, #5946EF);
+    box-shadow: var(--shadow-sm);
+    font-family: var(--font-heading);
+    font-size: 0.875rem;
+    font-weight: 700;
+    transition: transform 150ms var(--ease-standard), box-shadow 150ms var(--ease-standard);
+}
+.auth-page .btn-primary:hover { background: linear-gradient(135deg, #7464F8, #4F3CE4); transform: translateY(-1px); }
+.auth-page .btn-primary:active { transform: scale(0.97); box-shadow: inset 3px 3px 6px #4938D4; }
+.auth-page .btn-primary:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 3px; }
+.btn-block { width: 100%; margin-top: 0.5rem; }
+
+.auth-foot { margin: 1.5rem 0 0.5rem; font-size: 0.875rem; color: var(--color-text-secondary); }
+.auth-foot a { color: var(--color-primary-active); font-weight: 600; }
+.auth-note { margin: 0; font-size: 0.8125rem; line-height: 1.5; color: var(--color-text-secondary); }
+
+@media (prefers-reduced-motion: reduce) {
+    .auth-page *, .auth-page *::before, .auth-page *::after { transition-duration: 0.01ms !important; }
+}
+
+
+/* ------------------------------------------------------------------
+   UI polish Tahap 2 — katalog publik, detail produk, popup tamu
+   (UI.md §6, §9.2). Selektor dibatasi ke .shop-page / .guest-popup.
+   ------------------------------------------------------------------ */
+.shop-page { max-width: 72rem; margin: 1.5rem auto 3rem; padding: 0 1.25rem; }
+.shop-eyebrow {
+    margin: 0 0 0.5rem;
+    font-family: var(--font-heading);
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #39318F;
+}
+.shop-hero {
+    margin-bottom: 1.5rem;
+    padding: 2rem;
+    border-radius: var(--radius-2xl);
+    background: linear-gradient(135deg, #F0EEFF, #DCD9FF);
+    box-shadow: var(--shadow-md);
+}
+.shop-title {
+    margin: 0 0 0.5rem;
+    font-family: var(--font-heading);
+    font-size: 2rem;
+    font-weight: 800;
+    line-height: 1.2;
+    color: var(--color-text-primary);
+}
+.shop-lead { margin: 0; color: var(--color-text-secondary); line-height: 1.6; }
+.shop-label { display: block; margin-bottom: 0.5rem; font-size: 0.875rem; font-weight: 600; color: var(--color-text-primary); }
+
+.shop-page .input-icon { position: relative; }
+.shop-page .input-icon > svg {
+    position: absolute; left: 0.875rem; top: 50%; transform: translateY(-50%);
+    color: var(--color-text-secondary); pointer-events: none;
+}
+.shop-page .input {
+    box-sizing: border-box;
+    min-height: 48px;
+    padding: 0.75rem 1rem 0.75rem 2.75rem;
+    border: 1px solid transparent;
+    border-radius: var(--radius-md);
+    background: var(--color-surface);
+    box-shadow: var(--shadow-inset);
+    font-family: var(--font-body);
+    font-size: 1rem;
+    color: var(--color-text-primary);
+}
+.shop-page .input:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 2px; }
+.shop-page .input[aria-invalid="true"] { border-color: var(--color-red); }
+
+.shop-search { margin-bottom: 1.5rem; }
+.shop-search-row { display: flex; gap: 0.75rem; }
+.shop-search-input { flex: 1; }
+.shop-clear { display: inline-block; margin-top: 0.75rem; font-size: 0.875rem; font-weight: 600; color: var(--color-primary-active); }
+
+/* Tombol (UI.md §6.2): primer gradien, sekunder permukaan. */
+.shop-page .btn-primary, .guest-popup .btn-primary, .guest-popup .btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 48px;
+    padding: 0 1.5rem;
+    border: 0;
+    border-radius: var(--radius-md);
+    font-family: var(--font-heading);
+    font-size: 0.875rem;
+    font-weight: 700;
+    text-decoration: none;
+    cursor: pointer;
+    transition: transform 150ms var(--ease-standard), box-shadow 150ms var(--ease-standard);
+}
+.shop-page .btn-primary, .guest-popup .btn-primary {
+    background: linear-gradient(135deg, #8172FF, #5946EF);
+    color: #fff;
+    box-shadow: var(--shadow-sm);
+}
+.guest-popup .btn-secondary {
+    background: var(--color-surface);
+    color: #39318F;
+    box-shadow: var(--shadow-sm);
+}
+.shop-page .btn-primary:hover, .guest-popup .btn-primary:hover, .guest-popup .btn-secondary:hover { transform: translateY(-1px); }
+.shop-page .btn-primary:active, .guest-popup .btn-primary:active, .guest-popup .btn-secondary:active { transform: scale(0.97); }
+.shop-page .btn-primary:focus-visible, .guest-popup a:focus-visible, .guest-popup button:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 3px; }
+.shop-page .btn-primary:disabled {
+    background: var(--color-surface-dark);
+    color: #5B6390;
+    box-shadow: none;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.shop-layout { display: grid; gap: 1.5rem; }
+@media (min-width: 900px) { .shop-layout { grid-template-columns: 14rem 1fr; align-items: start; } }
+
+.shop-categories {
+    padding: 1.25rem;
+    border-radius: var(--radius-lg);
+    background: var(--color-surface);
+    box-shadow: var(--shadow-md);
+}
+.shop-categories-title { margin: 0 0 0.75rem; font-family: var(--font-heading); font-size: 1.125rem; font-weight: 700; }
+.shop-categories ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 0.25rem; }
+.shop-category {
+    display: flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 0 0.75rem;
+    border-radius: var(--radius-md);
+    font-size: 0.875rem;
+    text-decoration: none;
+    color: var(--color-text-secondary);
+}
+.shop-category:hover { background: var(--color-surface-hover, #E4E7F6); }
+.shop-category.is-active { background: var(--color-primary-light); color: var(--color-text-primary); font-weight: 600; box-shadow: var(--shadow-xs); }
+.shop-category:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 2px; }
+
+.shop-result-note { margin: 0 0 1rem; font-size: 0.875rem; color: var(--color-text-secondary); }
+.shop-empty {
+    display: grid; justify-items: center; gap: 0.5rem;
+    padding: 2.5rem 1.5rem; text-align: center;
+    border-radius: var(--radius-lg); background: var(--color-surface); box-shadow: var(--shadow-inset);
+    color: var(--color-text-secondary);
+}
+.shop-empty p { margin: 0; }
+.shop-empty-title { font-family: var(--font-heading); font-weight: 700; color: var(--color-text-primary); }
+.shop-empty a { color: var(--color-primary-active); font-weight: 600; }
+.shop-pagination { margin-top: 1.5rem; }
+
+.product-grid { margin: 0; padding: 0; list-style: none; display: grid; gap: 1.25rem; grid-template-columns: repeat(auto-fill, minmax(13rem, 1fr)); }
+.product-card {
+    border-radius: var(--radius-lg);
+    background: var(--color-surface);
+    box-shadow: var(--shadow-md);
+    transition: transform 200ms var(--ease-standard), box-shadow 200ms var(--ease-standard);
+}
+@media (hover: hover) { .product-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); } }
+.product-card-link { display: block; padding: 1rem; border-radius: var(--radius-lg); text-decoration: none; color: inherit; }
+.product-card-link:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 2px; }
+.product-name { margin: 1rem 0 0.25rem; font-family: var(--font-heading); font-size: 1rem; font-weight: 700; color: var(--color-text-primary); }
+.product-category { margin: 0 0 0.5rem; font-size: 0.8125rem; color: var(--color-text-secondary); }
+.product-price { margin: 0 0 0.5rem; font-family: var(--font-heading); font-size: 1.125rem; font-weight: 800; color: #39318F; }
+.product-price-lg { font-size: 1.5rem; }
+.product-stock { display: flex; align-items: center; gap: 0.375rem; margin: 0; font-size: 0.8125rem; color: var(--color-text-secondary); }
+.product-stock.is-out { color: #B4324B; font-weight: 600; }
+
+/* Placeholder produk: ikon + gradien per kategori, tanpa foto (UI.md §9.2). */
+.product-art {
+    position: relative;
+    display: grid;
+    place-items: center;
+    min-height: 8.5rem;
+    border-radius: var(--radius-md);
+}
+.product-art-lavender { background: linear-gradient(135deg, #F0EEFF, #DCD9FF); }
+.product-art-blue { background: linear-gradient(135deg, #E8F1FF, #D5E5FF); }
+.product-art-purple { background: linear-gradient(135deg, #EDE6FF, #D9CCFF); }
+.product-art-cyan { background: linear-gradient(135deg, #E1F8F7, #C9F0EF); }
+.product-art-tag {
+    position: absolute; top: 0.625rem; left: 0.75rem;
+    font-family: var(--font-heading); font-size: 0.6875rem; font-weight: 700;
+    letter-spacing: 0.05em; text-transform: uppercase; color: #39318F;
+}
+.product-art-tile {
+    display: grid; place-items: center; width: 4rem; height: 4rem;
+    border-radius: var(--radius-lg); background: var(--color-surface);
+    box-shadow: var(--shadow-sm); color: var(--color-primary);
+}
+.product-art-tile-lg { width: 7rem; height: 7rem; border-radius: var(--radius-xl); }
+
+.shop-breadcrumb { display: flex; gap: 0.5rem; margin-bottom: 1rem; font-size: 0.8125rem; color: var(--color-text-secondary); }
+.shop-breadcrumb a { color: var(--color-primary-active); font-weight: 600; }
+.product-detail {
+    display: grid; gap: 2rem; padding: 1.5rem;
+    border-radius: var(--radius-xl); background: var(--color-surface); box-shadow: var(--shadow-md);
+}
+@media (min-width: 800px) { .product-detail { grid-template-columns: 1fr 1fr; padding: 2rem; } }
+.product-detail-art { min-height: 16rem; }
+.product-description { margin: 1rem 0; line-height: 1.6; color: var(--color-text-secondary); }
+.product-buy { display: grid; gap: 1rem; margin: 1.5rem 0; justify-items: start; }
+.product-out-note { margin: 0; font-size: 0.875rem; color: #B4324B; font-weight: 600; }
+.shop-back { color: var(--color-primary-active); font-weight: 600; }
+
+/* Stepper jumlah (UI.md §6.7): tombol ± dipasang oleh JS; tanpa JS tetap input angka. */
+.stepper { display: inline-flex; align-items: center; gap: 0.5rem; }
+.stepper-input { width: 5rem; padding: 0.75rem 0.5rem !important; text-align: center; }
+.stepper-btn {
+    width: 44px; height: 44px; border: 0; border-radius: var(--radius-md);
+    background: var(--color-surface); box-shadow: var(--shadow-sm);
+    font-family: var(--font-heading); font-size: 1.25rem; font-weight: 700; color: #39318F; cursor: pointer;
+}
+.stepper-btn[hidden] { display: none; }
+.stepper-btn:active { box-shadow: var(--shadow-inset); transform: scale(0.97); }
+.stepper-btn:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 2px; }
+
+/* Popup tamu (UI.md §6.4): overlay + panel 24px, Esc/×/backdrop menutup. */
+.guest-popup { position: fixed; inset: 0; z-index: 50; display: grid; place-items: center; padding: 1rem; }
+.guest-popup[hidden] { display: none; }
+.guest-popup-backdrop { position: absolute; inset: 0; background: rgba(23, 26, 54, 0.45); animation: guest-popup-fade 200ms var(--ease-standard); }
+.guest-popup-panel {
+    position: relative;
+    width: 100%;
+    max-width: 26rem;
+    padding: 2rem;
+    border-radius: var(--radius-xl);
+    background: var(--color-surface);
+    box-shadow: var(--shadow-lg);
+    animation: guest-popup-in 250ms var(--ease-standard);
+}
+.guest-popup-panel:focus { outline: none; }
+.guest-popup-x {
+    position: absolute; top: 0.5rem; right: 0.5rem;
+    display: grid; place-items: center; width: 44px; height: 44px;
+    border: 0; border-radius: var(--radius-md); background: transparent;
+    color: var(--color-text-secondary); cursor: pointer;
+}
+.guest-popup-x:hover { background: var(--color-primary-soft); color: var(--color-primary-active); }
+.guest-popup-title { margin: 0 2rem 0.75rem 0; font-family: var(--font-heading); font-size: 1.375rem; font-weight: 800; color: var(--color-text-primary); }
+.guest-popup-text { margin: 0 0 1.5rem; line-height: 1.6; color: var(--color-text-secondary); }
+.guest-popup-actions { display: flex; flex-wrap: wrap; gap: 0.75rem; }
+@keyframes guest-popup-fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes guest-popup-in { from { opacity: 0; transform: translateY(12px) scale(0.95); } to { opacity: 1; transform: none; } }
+
+@media (prefers-reduced-motion: reduce) {
+    .shop-page *, .guest-popup, .guest-popup * { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
+    .product-card:hover { transform: none; }
+}
+
+
+/* ------------------------------------------------------------------
+   UI polish Tahap 3 — halaman home (/) (UI.md §2–§4, §6, §9.2).
+   ------------------------------------------------------------------ */
+.home-hero {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+}
+.home-hero-actions { flex-shrink: 0; }
+.home-section { margin-top: 2.5rem; }
+.home-section-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+}
+.home-section-title {
+    margin: 0;
+    font-family: var(--font-heading);
+    font-size: 1.625rem;
+    font-weight: 800;
+    line-height: 1.25;
+    color: var(--color-text-primary);
+}
+.shop-page .btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    min-height: 44px;
+    padding: 0 1.25rem;
+    border: 0;
+    border-radius: var(--radius-md);
+    background: var(--color-surface);
+    color: #39318F;
+    box-shadow: var(--shadow-sm);
+    font-family: var(--font-heading);
+    font-size: 0.875rem;
+    font-weight: 700;
+    text-decoration: none;
+    cursor: pointer;
+    transition: transform 150ms var(--ease-standard), box-shadow 150ms var(--ease-standard);
+}
+.shop-page .btn-secondary:hover { transform: translateY(-1px); background: var(--color-primary-soft); }
+.shop-page .btn-secondary:active { transform: scale(0.97); box-shadow: var(--shadow-inset); }
+.shop-page .btn-secondary:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 3px; }
+.product-art-badge {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    padding: 0.1875rem 0.5rem;
+    border-radius: var(--radius-sm);
+    background: var(--color-primary-light);
+    color: #39318F;
+    font-family: var(--font-heading);
+    font-size: 0.6875rem;
+    font-weight: 700;
+}

@@ -378,7 +378,15 @@ test('SHP-03 search keyword is escaped in the UI (no raw HTML injection)', funct
 // ---- Guards ----
 
 test('M2 guards: guests are redirected to login, wrong-role web users get 403, developer users are redirected', function () {
-    $this->get('/katalog')->assertRedirect('/masuk');
+    // UI polish Tahap 2: the catalog is public. Guests can read the listing
+    // and an active product detail (no view event, no crash); buying and the
+    // rest of the buyer surface still redirect to login.
+    $this->get('/katalog')->assertOk();
+    $product = Product::factory()->create();
+    $this->get('/produk/'.$product->id)->assertOk();
+    expect(\App\Models\Event::where('event_type', 'view')->count())->toBe(0);
+    $this->get('/keranjang')->assertRedirect('/masuk');
+    $this->post('/keranjang/tambah', ['product_id' => $product->id, 'quantity' => 1])->assertRedirect('/masuk');
     $this->get('/admin/kategori')->assertRedirect('/masuk?aktor=admin_toko');
     $this->get('/admin/produk')->assertRedirect('/masuk?aktor=admin_toko');
 
@@ -388,10 +396,13 @@ test('M2 guards: guests are redirected to login, wrong-role web users get 403, d
     $this->get('/admin/produk')->assertForbidden();
 });
 
-test('M2 guards: admin cannot open the buyer catalog as a buyer', function () {
+test('M2 guards: admin can browse the public catalog but not the buyer-only routes', function () {
+    // UI polish Tahap 2 decision: product data is public and an admin may
+    // look at the buyer-facing view; the cart stays buyer-only (403).
     $admin = m2Admin();
     $this->actingAs($admin, 'web');
-    $this->get('/katalog')->assertForbidden();
+    $this->get('/katalog')->assertOk();
+    $this->get('/keranjang')->assertForbidden();
 });
 
 test('M2 guards: developer cannot open admin catalog routes', function () {
@@ -409,7 +420,15 @@ test('M2 guards: developer cannot open admin catalog routes', function () {
 test('M2 guards: every new protected route declares guard and role', function () {
     $routes = \Illuminate\Support\Facades\Route::getRoutes();
 
-    foreach (['/katalog', '/katalog/cari', '/produk/{produk}', '/admin/kategori', '/admin/produk'] as $uri) {
+    // UI polish Tahap 2: the three catalog routes are public ON PURPOSE —
+    // assert that explicitly instead of silently dropping them.
+    foreach (['/katalog', '/katalog/cari', '/produk/{produk}'] as $uri) {
+        $route = collect($routes)->first(fn ($r) => $r->uri() === ltrim($uri, '/'));
+        expect($route)->not->toBeNull('Route '.$uri.' must exist.');
+        expect(collect($route->gatherMiddleware())->contains(fn ($m) => str_starts_with((string) $m, 'auth:')))->toBeFalse();
+    }
+
+    foreach (['/admin/kategori', '/admin/produk'] as $uri) {
         $route = collect($routes)->first(fn ($r) => $r->uri() === ltrim($uri, '/'));
         expect($route)->not->toBeNull('Route '.$uri.' must exist.');
         $middleware = $route->gatherMiddleware();

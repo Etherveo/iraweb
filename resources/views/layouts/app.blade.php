@@ -9,6 +9,8 @@
          do not fail. Run `npm run build` after adding frontend packages. --}}
     @if (file_exists(public_path('build/manifest.json')) || file_exists(public_path('hot')))
         @vite(['resources/css/app.css', 'resources/js/app.js'])
+        {{-- Manrope + Inter (UI.md §3), dibundel lewat vite.config.js. --}}
+        @fonts
     @endif
 </head>
 <body>

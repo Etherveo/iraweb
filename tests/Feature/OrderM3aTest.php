@@ -792,7 +792,9 @@ test('EVT-02 no view is recorded from the listing, search, an inactive product, 
     expect(Event::where('event_type', 'view')->count())->toBe(0);
 
     $this->actingAs($admin, 'web');
-    $this->get('/produk/'.$product->id)->assertForbidden();
+    // UI polish Tahap 2: the catalog is public, so an admin may open the
+    // product page (200) — but only an active buyer's visit records a view.
+    $this->get('/produk/'.$product->id)->assertOk();
     expect(Event::where('event_type', 'view')->count())->toBe(0);
 
     // The buyer viewing the active product records exactly one.
