@@ -299,4 +299,41 @@ document.addEventListener('DOMContentLoaded', () => {
             el.addEventListener('click', closeDrawer);
         });
     }
+
+    // Menu hamburger top bar untuk tampilan mobile (<1024px). Pola yang sama
+    // dengan drawer admin: tombol membuka/menutup, backdrop dan Esc menutup.
+    const topbarNav = document.getElementById('topbar-nav');
+    const topbarOpenBtn = document.querySelector('[data-topbar-menu-open]');
+    const topbarBackdrop = document.querySelector('.topbar-backdrop');
+    if (topbarNav && topbarOpenBtn) {
+        const closeTopbarMenu = () => {
+            topbarNav.classList.remove('is-open');
+            topbarOpenBtn.setAttribute('aria-expanded', 'false');
+            if (topbarBackdrop) topbarBackdrop.hidden = true;
+            document.removeEventListener('keydown', onTopbarKey);
+            topbarOpenBtn.focus();
+        };
+
+        const onTopbarKey = (e) => {
+            if (e.key === 'Escape') {
+                e.preventDefault();
+                closeTopbarMenu();
+            }
+        };
+
+        topbarOpenBtn.addEventListener('click', () => {
+            const isOpen = topbarNav.classList.toggle('is-open');
+            topbarOpenBtn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+            if (topbarBackdrop) topbarBackdrop.hidden = !isOpen;
+            if (isOpen) {
+                document.addEventListener('keydown', onTopbarKey);
+            } else {
+                document.removeEventListener('keydown', onTopbarKey);
+            }
+        });
+
+        document.querySelectorAll('[data-topbar-menu-close]').forEach((el) => {
+            el.addEventListener('click', closeTopbarMenu);
+        });
+    }
 });

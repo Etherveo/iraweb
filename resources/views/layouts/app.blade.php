@@ -126,7 +126,8 @@
 @else
     <header>
         <strong>Ira Stationery</strong>
-        <nav>
+        <button type="button" class="topbar-hamburger" data-topbar-menu-open aria-expanded="false" aria-controls="topbar-nav" aria-label="Buka menu navigasi">☰</button>
+        <nav id="topbar-nav" aria-label="Menu utama">
             @auth('web')
                 <a href="{{ route('katalog') }}">Katalog</a>
                 <a href="{{ route('keranjang.index') }}">Keranjang{{ ($cartItemCount ?? 0) > 0 ? " ($cartItemCount)" : '' }}</a>
@@ -153,6 +154,7 @@
             @endguest
         </nav>
     </header>
+    <div class="topbar-backdrop" data-topbar-menu-close hidden></div>
 @endif
 <main>
     @if (session('status'))
