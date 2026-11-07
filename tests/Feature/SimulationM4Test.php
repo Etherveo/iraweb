@@ -449,6 +449,7 @@ test('SIM-19 akun simulasi nonaktif dilewati, bukan ditolak', function () {
 
     m4tProduct();
     m4tProduct();
+    m4tProduct();
 
     [$users] = m4tCreateAccounts($this, $developer, 2);
 
@@ -602,6 +603,7 @@ test('SIM-25 pratinjau ketiga aksi tidak menulis apa pun ke DB', function () {
 
     m4tProduct();
     m4tProduct();
+    m4tProduct();
 
     [$users] = m4tCreateAccounts($this, $developer, 2);
 
@@ -624,6 +626,7 @@ test('SIM-25 pratinjau ketiga aksi tidak menulis apa pun ke DB', function () {
 test('SIM-26 eksekusi ganda dengan kunci sama = satu run, tanpa duplikasi', function () {
     $developer = m4tDeveloper();
 
+    m4tProduct();
     m4tProduct();
     m4tProduct();
 
@@ -655,6 +658,7 @@ test('SIM-26 eksekusi ganda dengan kunci sama = satu run, tanpa duplikasi', func
 test('SIM-26 parameter berubah setelah pratinjau → wajib pratinjau ulang', function () {
     $developer = m4tDeveloper();
 
+    m4tProduct();
     m4tProduct();
     m4tProduct();
 
@@ -815,6 +819,7 @@ test('SIM-20/21/22/23 distribusi waktu/user/produk dan campuran status', functio
 
     $p1 = m4tProduct(['price_idr' => 10000]);
     $p2 = m4tProduct(['price_idr' => 20000]);
+    m4tProduct();
 
     [$users] = m4tCreateAccounts($this, $developer, 3);
 
@@ -1003,6 +1008,8 @@ test('SIM-35 run tercatat lengkap (developer, aksi, params, seed, periode, statu
     $developer = m4tDeveloper();
 
     m4tProduct();
+    m4tProduct();
+    m4tProduct();
 
     [$users, $accountRun] = m4tCreateAccounts($this, $developer, 2, ['seed' => 42]);
 
@@ -1036,6 +1043,8 @@ test('SIM-36 audit append-only: baris hasil run selamat dari reset', function ()
     $developer = m4tDeveloper();
 
     m4tProduct();
+    m4tProduct();
+    m4tProduct();
 
     [$users, $accountRun] = m4tCreateAccounts($this, $developer, 1);
 
@@ -1063,6 +1072,8 @@ test('SIM-36 audit append-only: baris hasil run selamat dari reset', function ()
 test('SIM-37 daftar run bisa difilter dan detail run menampilkan hasil', function () {
     $developer = m4tDeveloper();
 
+    m4tProduct();
+    m4tProduct();
     m4tProduct();
 
     [$users, $accountRun] = m4tCreateAccounts($this, $developer, 1);
@@ -1115,6 +1126,8 @@ test('SIM-37 daftar run bisa difilter dan detail run menampilkan hasil', functio
 test('SIM-38 reset run transaksi menghapus hanya data run itu', function () {
     $developer = m4tDeveloper();
 
+    m4tProduct();
+    m4tProduct();
     m4tProduct();
 
     [$users, $accountRun] = m4tCreateAccounts($this, $developer, 2);
@@ -1251,13 +1264,15 @@ test('SIM-39 reset semua: baris normal identik, data simulasi hilang, audit sela
     $normalUser = User::factory()->create();
     $admin = User::factory()->admin()->create();
     $product = m4tProduct();
+    m4tProduct();
+    m4tProduct();
     $normalOrder = Order::factory()->create(['user_id' => $normalUser->id]);
     $normalEvent = Event::factory()->create([
         'user_id' => $normalUser->id, 'product_id' => $product->id, 'origin' => 'normal',
     ]);
     $normalPayment = Payment::factory()->create([
         'order_id' => $normalOrder->id, 'user_id' => $normalUser->id,
-        'is_simulated' => false, 'origin' => 'normal',
+        'origin' => 'normal',
     ]);
     $normalAddress = Address::factory()->create(['user_id' => $normalUser->id]);
 
@@ -1336,6 +1351,8 @@ test('SIM-40/41 panel tidak mengubah data normal apa pun', function () {
 
     $developer = m4tDeveloper();
 
+    m4tProduct();
+    m4tProduct();
     m4tProduct();
 
     [$users] = m4tCreateAccounts($this, $developer, 1);

@@ -56,6 +56,41 @@ final class SimulationAccountService
         // SIM-08: refuse outright when the shared password is unset.
         $this->validator->validateAccountPassword();
 
+        // SIM-26: check for an existing run with this key BEFORE
+        // generating — generateBiodata() rejects on email collision,
+        // so a repeated submit would fail there and never reach the
+        // replay branch below. Only the user-controlled params are
+        // compared: in random mode the seed is picked by the
+        // generator, so it is not compared here.
+        $existing = SimulationRun::query()
+            ->where('developer_id', $developer->id)
+            ->where('idempotency_key', $idempotencyKey)
+            ->first();
+
+        if ($existing !== null) {
+            $seedMatches = $mode !== 'deterministic'
+                || ($seed !== null && (int) ($existing->params['seed'] ?? -1) === (int) $seed);
+
+            $paramsMatch = (int) ($existing->params['count'] ?? -1) === $count
+                && ($existing->params['mode'] ?? null) === $mode
+                && (int) ($existing->params['offset'] ?? -1) === $offset
+                && $seedMatches;
+
+            if (! $paramsMatch) {
+                throw ValidationException::withMessages([
+                    'idempotency_key' => 'Kunci ini sudah dipakai untuk parameter lain. Buat pratinjau baru.',
+                ]);
+            }
+
+            if ($existing->status === 'berhasil') {
+                return ['users' => $this->usersOfRun($existing), 'run' => $existing];
+            }
+
+            throw ValidationException::withMessages([
+                'idempotency_key' => 'Run dengan kunci ini sudah ada (status: '.$existing->status.'). Buat pratinjau baru untuk mengulang.',
+            ]);
+        }
+
         // Generate first — the run's seed comes from here (random mode:
         // the generator picks it; deterministic: it is the given one).
         $biodata = $this->generateBiodata($generator, $count, $offset, $seed, $mode);
@@ -89,13 +124,7 @@ final class SimulationAccountService
             }
 
             if ($run->status === 'berhasil') {
-                $users = User::query()
-                    ->where('simulation_run_id', $run->id)
-                    ->orderBy('id')
-                    ->get()
-                    ->all();
-
-                return ['users' => $users, 'run' => $run];
+                return ['users' => $this->usersOfRun($run), 'run' => $run];
             }
 
             throw ValidationException::withMessages([
@@ -121,6 +150,16 @@ final class SimulationAccountService
         $this->audit->recordRunFinish($run, ['accounts' => count($users)]);
 
         return ['users' => $users, 'run' => $run];
+    }
+
+    /** Users created by a run, oldest first (SIM-26 replay). */
+    private function usersOfRun(SimulationRun $run): array
+    {
+        return User::query()
+            ->where('simulation_run_id', $run->id)
+            ->orderBy('id')
+            ->get()
+            ->all();
     }
 
     /**
