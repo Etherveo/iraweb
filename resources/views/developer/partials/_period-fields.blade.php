@@ -13,14 +13,16 @@
     <div class="developer-field-grid">
         <div class="developer-field">
             <label class="developer-label" for="period_start">Tanggal mulai</label>
-            <input class="input" type="date" id="period_start" name="period_start" value="{{ old('period_start') }}" required>
+            <input class="input" type="date" id="period_start" name="period_start" value="{{ old('period_start') }}" required
+                   @if ($errors->has('period_start') || $errors->has('period')) aria-invalid="true" @endif>
             @error('period_start')
                 <p class="field-error">{{ $message }}</p>
             @enderror
         </div>
         <div class="developer-field">
             <label class="developer-label" for="period_end">Tanggal akhir</label>
-            <input class="input" type="date" id="period_end" name="period_end" value="{{ old('period_end') }}" required>
+            <input class="input" type="date" id="period_end" name="period_end" value="{{ old('period_end') }}" required
+                   @if ($errors->has('period_end') || $errors->has('period')) aria-invalid="true" @endif>
             @error('period_end')
                 <p class="field-error">{{ $message }}</p>
             @enderror

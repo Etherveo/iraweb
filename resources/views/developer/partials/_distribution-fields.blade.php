@@ -14,7 +14,8 @@
     </div>
     <div class="developer-field" data-single-point-field {{ old('time_distribution') === 'single' ? '' : 'hidden' }}>
         <label class="developer-label" for="single_point">Tanggal + jam (WITA)</label>
-        <input class="input" type="datetime-local" id="single_point" name="single_point" value="{{ old('single_point') }}">
+        <input class="input" type="datetime-local" id="single_point" name="single_point" value="{{ old('single_point') }}"
+               @error('single_point') aria-invalid="true" @enderror>
         <p class="developer-hint">Semua booking terjadi pada titik ini; jeda rantai funnel dikompresi bila titiknya dekat tepi periode (SIM-29).</p>
     </div>
     @error('time_distribution')

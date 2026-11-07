@@ -21,7 +21,8 @@
     </div>
     <div class="developer-field">
         <label class="developer-label" for="seed">Seed</label>
-        <input class="input" type="number" id="seed" name="seed" value="{{ old('seed', $defaultSeed) }}" step="1">
+        <input class="input" type="number" id="seed" name="seed" value="{{ old('seed', $defaultSeed) }}" step="1"
+               @error('seed') aria-invalid="true" @enderror>
         <p class="developer-hint">Seed yang sama + parameter yang sama = rencana yang sama (SIM-05). Kosongkan untuk seed acak baru (mode random) atau seed default (mode deterministik).</p>
         @error('seed')
             <p class="field-error">{{ $message }}</p>

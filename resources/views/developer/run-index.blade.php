@@ -2,15 +2,15 @@
 
 @section('content')
     <div class="developer-page">
-        <div class="developer-head">
+        <header class="developer-head">
             <div>
-                <p class="developer-eyebrow">Simulator</p>
+                <p class="developer-eyebrow">Simulator &bull; Data</p>
                 <h1 class="developer-title">Jejak &amp; Audit</h1>
                 <p class="developer-subtitle">Daftar run simulasi (SIM-37) — satu baris per aksi. Audit log bersifat append-only dan tidak bisa diubah atau dihapus, termasuk oleh reset (SIM-36).</p>
             </div>
-        </div>
+        </header>
 
-        <div class="card">
+        <div class="card developer-panel">
             <form class="developer-filters" method="GET" action="{{ route('developer.run.index') }}">
                 <div class="developer-filter-group">
                     <label class="developer-label" for="filter-action">Jenis aksi</label>
@@ -41,18 +41,35 @@
             </form>
 
             @if ($runs->isEmpty())
-                <p>Belum ada run yang cocok dengan filter.</p>
+                <div class="developer-empty">
+                    <p class="developer-empty-title">Belum ada run yang cocok dengan filter.</p>
+                    <p class="developer-hint">Ubah filter di atas atau jalankan aksi simulasi baru.</p>
+                </div>
             @else
                 <div class="developer-table-wrap">
                     <table class="developer-table">
-                        <thead><tr><th>Run</th><th>Aksi</th><th>Status</th><th>Seed</th><th>Periode</th><th>Mulai (WITA)</th><th>Hasil</th></tr></thead>
+                        <thead>
+                            <tr>
+                                <th>Run</th>
+                                <th>Aksi</th>
+                                <th>Status</th>
+                                <th>Seed</th>
+                                <th>Periode</th>
+                                <th>Mulai (WITA)</th>
+                                <th>Hasil</th>
+                            </tr>
+                        </thead>
                         <tbody>
                         @foreach ($runs as $run)
                             <tr>
-                                <td><a href="{{ route('developer.run.show', $run) }}">{{ substr($run->id, 0, 8) }}</a></td>
-                                <td>{{ $actionLabels[$run->action] ?? $run->action }}</td>
+                                <td>
+                                    <a class="developer-cell-link" href="{{ route('developer.run.show', $run) }}">
+                                        <code class="developer-code">{{ substr($run->id, 0, 8) }}</code>
+                                    </a>
+                                </td>
+                                <td class="developer-cell-primary">{{ $actionLabels[$run->action] ?? $run->action }}</td>
                                 <td>@include('developer.partials._status-chip', ['status' => $run->status])</td>
-                                <td>{{ $run->seed }}</td>
+                                <td><code class="developer-code">{{ $run->seed }}</code></td>
                                 <td class="developer-cell-nowrap">
                                     @if ($run->period_start && $run->period_end)
                                         {{ $run->period_start->format('d M Y') }} – {{ $run->period_end->format('d M Y') }}
@@ -67,7 +84,7 @@
                                     @elseif (! empty($run->counts))
                                         <small>
                                             @foreach ($run->counts as $key => $value)
-                                                {{ $key }}: {{ $value }}@if (! $loop->last), @endif
+                                                {{ $key }}: <strong>{{ $value }}</strong>@if (! $loop->last), @endif
                                             @endforeach
                                         </small>
                                     @else
@@ -79,7 +96,9 @@
                         </tbody>
                     </table>
                 </div>
-                {{ $runs->links() }}
+                <div class="developer-pagination">
+                    {{ $runs->links() }}
+                </div>
             @endif
         </div>
     </div>

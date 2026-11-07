@@ -2,13 +2,13 @@
 
 @section('content')
     <div class="developer-page">
-        <div class="developer-head">
+        <header class="developer-head">
             <div>
-                <p class="developer-eyebrow">Simulator</p>
+                <p class="developer-eyebrow">Simulator &bull; Data</p>
                 <h1 class="developer-title">Reset Data Simulasi</h1>
                 <p class="developer-subtitle">Hapus data simulasi tanpa menyentuh data toko asli (SIM-38/39/40). Setiap penghapusan dibatasi ke <code>origin=developer_simulation</code>; audit log tidak pernah dihapus (SIM-36).</p>
             </div>
-        </div>
+        </header>
 
         @if ($runningExists)
             <p class="developer-info-box developer-info-box--warn"><strong>Ada run yang masih berjalan</strong> — reset ditunda sampai run selesai, supaya data run yang sedang berjalan tidak terhapus di tengah jalan.</p>
@@ -16,16 +16,16 @@
 
         @if (session('reset_summary'))
             @php($summary = session('reset_summary'))
-            <div class="card">
-                <h2 class="developer-section-title">Hasil reset terakhir</h2>
+            <section class="card developer-panel" aria-labelledby="reset-summary-heading">
+                <h2 class="developer-section-title" id="reset-summary-heading">Hasil reset terakhir</h2>
                 <dl class="developer-kv">
                     <div class="developer-kv-row">
                         <dt>Cakupan</dt>
-                        <dd>{{ $summary['scope'] === 'all' ? 'Seluruh data simulasi' : 'Run '.$summary['run_id'] }}</dd>
+                        <dd><strong>{{ $summary['scope'] === 'all' ? 'Seluruh data simulasi' : 'Run '.$summary['run_id'] }}</strong></dd>
                     </div>
                     @foreach ($summary['deleted'] as $table => $count)
                         <div class="developer-kv-row">
-                            <dt>{{ $table }}</dt>
+                            <dt><code class="developer-code">{{ $table }}</code></dt>
                             <dd>{{ $count }} baris dihapus</dd>
                         </div>
                     @endforeach
@@ -47,7 +47,7 @@
                         </dd>
                     </div>
                 </dl>
-            </div>
+            </section>
         @endif
 
         <div class="developer-stat-grid">
@@ -69,15 +69,16 @@
             </div>
         </div>
 
-        <div class="card">
-            <h2 class="developer-section-title">Reset seluruh data simulasi</h2>
-            <p>Menghapus <strong>semua</strong> data simulasi: akun, pesanan, item, pembayaran, event, dan riwayatnya. Jumlah baris data normal (origin <code>normal</code>) identik sebelum dan sesudah reset — diuji di SimulationM4Test (SIM-39). Audit log tetap ada.</p>
-            <form method="POST" action="{{ route('developer.reset.all') }}" data-reset-form>
+        <section class="card developer-panel developer-card-danger" aria-labelledby="reset-all-heading">
+            <h2 class="developer-section-title" id="reset-all-heading">Reset seluruh data simulasi</h2>
+            <p class="developer-subtitle" style="margin:0;">Menghapus <strong>semua</strong> data simulasi: akun, pesanan, item, pembayaran, event, dan riwayatnya. Jumlah baris data normal (origin <code>normal</code>) identik sebelum dan sesudah reset — diuji di SimulationM4Test (SIM-39). Audit log tetap ada.</p>
+            <form class="developer-form" method="POST" action="{{ route('developer.reset.all') }}" data-reset-form>
                 @csrf
                 <div class="developer-field">
                     <label class="developer-label" for="phrase-all">Ketik frasa konfirmasi</label>
-                    <input class="input" type="text" id="phrase-all" name="phrase" placeholder="HAPUS SEMUA SIMULASI" autocomplete="off" data-reset-phrase="HAPUS SEMUA SIMULASI" {{ $runningExists ? 'disabled' : '' }}>
-                    <p class="developer-hint">Tombol aktif hanya bila frasa diketik persis.</p>
+                    <input class="input" type="text" id="phrase-all" name="phrase" placeholder="HAPUS SEMUA SIMULASI" autocomplete="off" data-reset-phrase="HAPUS SEMUA SIMULASI" {{ $runningExists ? 'disabled' : '' }}
+                           @error('phrase') aria-invalid="true" @enderror>
+                    <p class="developer-hint">Tombol aktif hanya bila frasa <code>HAPUS SEMUA SIMULASI</code> diketik persis.</p>
                     @error('phrase')
                         <p class="field-error">{{ $message }}</p>
                     @enderror
@@ -86,28 +87,43 @@
                     <button class="btn-danger" type="submit" data-reset-submit {{ $runningExists ? 'disabled' : '' }}>Hapus semua data simulasi</button>
                 </div>
             </form>
-        </div>
+        </section>
 
-        <div class="card">
-            <h2 class="developer-section-title">Reset per run</h2>
-            <p>Hanya run berstatus <em>berhasil</em> yang bisa direset. Akun dari run itu dihapus hanya bila tidak punya data di luar run ini; bila masih punya, akun dinonaktifkan dan dilaporkan (SIM-38).</p>
+        <section class="card developer-panel" aria-labelledby="reset-per-run-heading">
+            <h2 class="developer-section-title" id="reset-per-run-heading">Reset per run</h2>
+            <p class="developer-subtitle" style="margin:0;">Hanya run berstatus <em>berhasil</em> yang bisa direset. Akun dari run itu dihapus hanya bila tidak punya data di luar run ini; bila masih punya, akun dinonaktifkan dan dilaporkan (SIM-38).</p>
             @if ($resettableRuns->isEmpty())
-                <p>Tidak ada run yang bisa direset.</p>
+                <div class="developer-empty">
+                    <p class="developer-empty-title">Tidak ada run yang bisa direset.</p>
+                    <p class="developer-hint">Run yang berstatus berhasil akan muncul di daftar ini.</p>
+                </div>
             @else
                 <div class="developer-table-wrap">
                     <table class="developer-table">
-                        <thead><tr><th>Run</th><th>Aksi</th><th>Mulai (WITA)</th><th>Hasil</th><th>Konfirmasi</th></tr></thead>
+                        <thead>
+                            <tr>
+                                <th>Run</th>
+                                <th>Aksi</th>
+                                <th>Mulai (WITA)</th>
+                                <th>Hasil</th>
+                                <th>Konfirmasi</th>
+                            </tr>
+                        </thead>
                         <tbody>
                         @foreach ($resettableRuns as $run)
                             <tr>
-                                <td><a href="{{ route('developer.run.show', $run) }}">{{ substr($run->id, 0, 8) }}</a></td>
-                                <td>@include('developer.partials._action-label', ['action' => $run->action])</td>
+                                <td>
+                                    <a class="developer-cell-link" href="{{ route('developer.run.show', $run) }}">
+                                        <code class="developer-code">{{ substr($run->id, 0, 8) }}</code>
+                                    </a>
+                                </td>
+                                <td class="developer-cell-primary">@include('developer.partials._action-label', ['action' => $run->action])</td>
                                 <td class="developer-cell-nowrap">{{ $run->started_at->setTimezone(config('ira.reporting_timezone'))->format('d M Y H:i') }}</td>
                                 <td>
                                     @if (! empty($run->counts))
                                         <small>
                                             @foreach ($run->counts as $key => $value)
-                                                {{ $key }}: {{ $value }}@if (! $loop->last), @endif
+                                                {{ $key }}: <strong>{{ $value }}</strong>@if (! $loop->last), @endif
                                             @endforeach
                                         </small>
                                     @else
@@ -115,7 +131,7 @@
                                     @endif
                                 </td>
                                 <td>
-                                    <form method="POST" action="{{ route('developer.reset.run', $run) }}" data-reset-form>
+                                    <form class="developer-inline-reset" method="POST" action="{{ route('developer.reset.run', $run) }}" data-reset-form>
                                         @csrf
                                         <input class="input" type="text" name="phrase" placeholder="HAPUS RUN" autocomplete="off" aria-label="Frasa konfirmasi reset run {{ substr($run->id, 0, 8) }}" data-reset-phrase="HAPUS RUN" {{ $runningExists ? 'disabled' : '' }}>
                                         <button class="btn-danger" type="submit" data-reset-submit {{ $runningExists ? 'disabled' : '' }}>Reset run ini</button>
@@ -126,8 +142,10 @@
                         </tbody>
                     </table>
                 </div>
-                {{ $resettableRuns->links() }}
+                <div class="developer-pagination">
+                    {{ $resettableRuns->links() }}
+                </div>
             @endif
-        </div>
+        </section>
     </div>
 @endsection

@@ -1,24 +1,42 @@
 @extends('layouts.app')
 
 @section('content')
+    @php
+        $orderStatusChips = [
+            'selesai' => 'status-chip-success',
+            'dibatalkan' => 'status-chip-danger',
+            'kedaluwarsa' => 'status-chip-muted',
+        ];
+        $outcomeChips = [
+            'berhasil' => 'status-chip-success',
+            'gagal' => 'status-chip-danger',
+        ];
+    @endphp
     <div class="developer-page">
-        <div class="developer-head">
+        <nav class="developer-back-nav" aria-label="Breadcrumb">
+            <a class="developer-back-link" href="{{ route('developer.run.index') }}">
+                <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>
+                <span>Kembali ke Jejak &amp; Audit</span>
+            </a>
+        </nav>
+
+        <header class="developer-head">
             <div>
-                <p class="developer-eyebrow">Simulator</p>
+                <p class="developer-eyebrow">Simulator &bull; Detail Run</p>
                 <h1 class="developer-title">Detail Run</h1>
-                <p class="developer-subtitle">{{ $actionLabels[$run->action] ?? $run->action }} · ID <code>{{ $run->id }}</code></p>
+                <p class="developer-subtitle">{{ $actionLabels[$run->action] ?? $run->action }} · ID <code class="developer-code">{{ $run->id }}</code></p>
             </div>
-            <div>
+            <div class="developer-head-actions">
                 @include('developer.partials._status-chip', ['status' => $run->status])
             </div>
-        </div>
+        </header>
 
-        <div class="card">
-            <h2 class="developer-section-title">Ringkasan</h2>
+        <section class="card developer-panel" aria-labelledby="run-summary-heading">
+            <h2 class="developer-section-title" id="run-summary-heading">Ringkasan</h2>
             <dl class="developer-kv">
                 <div class="developer-kv-row">
                     <dt>Aksi</dt>
-                    <dd>{{ $actionLabels[$run->action] ?? $run->action }}</dd>
+                    <dd><strong>{{ $actionLabels[$run->action] ?? $run->action }}</strong></dd>
                 </div>
                 <div class="developer-kv-row">
                     <dt>Status</dt>
@@ -26,7 +44,7 @@
                 </div>
                 <div class="developer-kv-row">
                     <dt>Seed</dt>
-                    <dd>{{ $run->seed }}</dd>
+                    <dd><code class="developer-code">{{ $run->seed }}</code></dd>
                 </div>
                 <div class="developer-kv-row">
                     <dt>Periode</dt>
@@ -56,7 +74,7 @@
                 @endif
                 <div class="developer-kv-row">
                     <dt>Kunci idempotensi</dt>
-                    <dd><code>{{ $run->idempotency_key }}</code></dd>
+                    <dd><code class="developer-code">{{ $run->idempotency_key }}</code></dd>
                 </div>
                 @if ($run->error_message)
                     <div class="developer-kv-row">
@@ -65,91 +83,132 @@
                     </div>
                 @endif
             </dl>
-        </div>
+        </section>
 
-        <div class="card">
-            <h2 class="developer-section-title">Jumlah baris</h2>
+        <section class="card developer-panel" aria-labelledby="run-counts-heading">
+            <h2 class="developer-section-title" id="run-counts-heading">Jumlah baris</h2>
             @if (! empty($run->counts))
                 <dl class="developer-kv">
                     @foreach ($run->counts as $key => $value)
                         <div class="developer-kv-row">
                             <dt>{{ $key }}</dt>
-                            <dd>{{ $value }}</dd>
+                            <dd><strong>{{ $value }}</strong></dd>
                         </div>
                     @endforeach
                 </dl>
             @else
-                <p>Run ini belum mencatat jumlah baris.</p>
+                <div class="developer-empty">
+                    <p class="developer-empty-title">Run ini belum mencatat jumlah baris.</p>
+                </div>
             @endif
             <p class="developer-hint">Jumlah baris terverifikasi: event {{ $eventCount }} · pembayaran {{ $paymentCount }}.</p>
-        </div>
+        </section>
 
-        <div class="card">
-            <h2 class="developer-section-title">Parameter</h2>
-            <details>
+        <section class="card developer-panel" aria-labelledby="run-params-heading">
+            <h2 class="developer-section-title" id="run-params-heading">Parameter</h2>
+            <details class="developer-details">
                 <summary>Lihat parameter lengkap (JSON)</summary>
                 <pre class="developer-json">{{ json_encode($run->params, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) }}</pre>
             </details>
-        </div>
+        </section>
 
         @if ($accounts->isNotEmpty())
-            <div class="card">
-                <h2 class="developer-section-title">Akun yang dibuat ({{ $accounts->count() }})</h2>
-                <p><a href="{{ route('developer.akun-simulasi.index', ['run' => $run->id]) }}">Lihat di daftar Akun Simulasi</a></p>
+            <section class="card developer-panel" aria-labelledby="run-accounts-heading">
+                <h2 class="developer-section-title" id="run-accounts-heading">Akun yang dibuat ({{ $accounts->count() }})</h2>
+                <div>
+                    <a class="developer-action-link" href="{{ route('developer.akun-simulasi.index', ['run' => $run->id]) }}">Lihat di daftar Akun Simulasi &rarr;</a>
+                </div>
                 <div class="developer-table-wrap">
                     <table class="developer-table">
-                        <thead><tr><th>Nama</th><th>Email</th><th>Status</th></tr></thead>
+                        <thead>
+                            <tr>
+                                <th>Nama</th>
+                                <th>Email</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
                         <tbody>
                         @foreach ($accounts as $account)
                             <tr>
                                 <td class="developer-cell-primary">{{ $account->name }}</td>
-                                <td>{{ $account->email }}</td>
-                                <td>{{ $account->is_active ? 'Aktif' : 'Nonaktif' }}</td>
+                                <td><code class="developer-code">{{ $account->email }}</code></td>
+                                <td>
+                                    <span class="status-chip {{ $account->is_active ? 'status-chip-success' : 'status-chip-muted' }}">
+                                        <span>{{ $account->is_active ? 'Aktif' : 'Nonaktif' }}</span>
+                                    </span>
+                                </td>
                             </tr>
                         @endforeach
                         </tbody>
                     </table>
                 </div>
-            </div>
+            </section>
         @endif
 
         @if ($orders->total() > 0)
-            <div class="card">
-                <h2 class="developer-section-title">Pesanan yang dibuat ({{ $orders->total() }})</h2>
+            <section class="card developer-panel" aria-labelledby="run-orders-heading">
+                <h2 class="developer-section-title" id="run-orders-heading">Pesanan yang dibuat ({{ $orders->total() }})</h2>
                 <div class="developer-table-wrap">
                     <table class="developer-table">
-                        <thead><tr><th>Nomor pesanan</th><th>Pembeli</th><th>Total</th><th>Status</th><th>Dibuat (WITA)</th></tr></thead>
+                        <thead>
+                            <tr>
+                                <th>Nomor pesanan</th>
+                                <th>Pembeli</th>
+                                <th>Total</th>
+                                <th>Status</th>
+                                <th>Dibuat (WITA)</th>
+                            </tr>
+                        </thead>
                         <tbody>
                         @foreach ($orders as $order)
                             <tr>
-                                <td class="developer-cell-nowrap">{{ $order->order_number }}</td>
-                                <td>{{ $order->user?->name ?? ('Akun #'.$order->user_id) }}</td>
+                                <td class="developer-cell-nowrap"><code class="developer-code">{{ $order->order_number }}</code></td>
+                                <td class="developer-cell-primary">{{ $order->user?->name ?? ('Akun #'.$order->user_id) }}</td>
                                 <td class="developer-cell-price">Rp{{ number_format($order->total_idr, 0, ',', '.') }}</td>
-                                <td>{{ $order->status }}</td>
+                                <td>
+                                    <span class="status-chip {{ $orderStatusChips[$order->status] ?? 'status-chip-muted' }}">
+                                        <span>{{ $order->status }}</span>
+                                    </span>
+                                </td>
                                 <td class="developer-cell-nowrap">{{ $order->created_at->setTimezone(config('ira.reporting_timezone'))->format('d M Y H:i') }}</td>
                             </tr>
                         @endforeach
                         </tbody>
                     </table>
                 </div>
-                {{ $orders->links() }}
-            </div>
+                <div class="developer-pagination">
+                    {{ $orders->links() }}
+                </div>
+            </section>
         @endif
 
-        <div class="card">
-            <h2 class="developer-section-title">Jejak audit</h2>
+        <section class="card developer-panel" aria-labelledby="run-audit-heading">
+            <h2 class="developer-section-title" id="run-audit-heading">Jejak audit</h2>
             @if ($run->auditLogs->isEmpty())
-                <p>Belum ada baris audit untuk run ini.</p>
+                <div class="developer-empty">
+                    <p class="developer-empty-title">Belum ada baris audit untuk run ini.</p>
+                </div>
             @else
                 <div class="developer-table-wrap">
                     <table class="developer-table">
-                        <thead><tr><th>Waktu (WITA)</th><th>Aksi</th><th>Hasil</th><th>Ringkasan</th></tr></thead>
+                        <thead>
+                            <tr>
+                                <th>Waktu (WITA)</th>
+                                <th>Aksi</th>
+                                <th>Hasil</th>
+                                <th>Ringkasan</th>
+                            </tr>
+                        </thead>
                         <tbody>
                         @foreach ($run->auditLogs as $log)
                             <tr>
                                 <td class="developer-cell-nowrap">{{ $log->occurred_at->setTimezone(config('ira.reporting_timezone'))->format('d M Y H:i') }}</td>
-                                <td>{{ $log->action }}</td>
-                                <td>{{ $log->outcome }}</td>
+                                <td><code class="developer-code">{{ $log->action }}</code></td>
+                                <td>
+                                    <span class="status-chip {{ $outcomeChips[$log->outcome] ?? 'status-chip-muted' }}">
+                                        <span>{{ $log->outcome }}</span>
+                                    </span>
+                                </td>
                                 <td><small>{{ json_encode($log->summary, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) }}</small></td>
                             </tr>
                         @endforeach
@@ -157,7 +216,7 @@
                     </table>
                 </div>
             @endif
-        </div>
+        </section>
 
         @if ($run->status === 'berhasil')
             <div class="developer-form-actions">
