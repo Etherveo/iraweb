@@ -18,7 +18,7 @@
             <div>
                 <p class="admin-eyebrow">Transaksi &bull; Pesanan</p>
                 <h1 class="admin-title">Pesanan</h1>
-                <p class="admin-subtitle">Daftar pesanan masuk dari pembeli dan simulator, lengkap dengan filter status, asal data, dan rentang tanggal.</p>
+                <p class="admin-subtitle">Daftar pesanan masuk dari pembeli, lengkap dengan filter status dan rentang tanggal.</p>
             </div>
         </header>
 
@@ -38,14 +38,6 @@
                     </select>
                 </div>
                 <div class="admin-filter-group">
-                    <label for="filter-asal" class="admin-label">Asal data</label>
-                    <select class="input" id="filter-asal" name="asal">
-                        <option value="">Semua asal data</option>
-                        <option value="normal" @selected(request('asal') === 'normal')>Normal</option>
-                        <option value="developer_simulation" @selected(request('asal') === 'developer_simulation')>Simulasi</option>
-                    </select>
-                </div>
-                <div class="admin-filter-group">
                     <label for="dari" class="admin-label">Dari tanggal</label>
                     <input class="input" type="date" id="dari" name="dari" value="{{ request('dari') }}">
                 </div>
@@ -55,7 +47,7 @@
                 </div>
                 <div class="admin-filter-actions">
                     <button class="btn-primary" type="submit">Cari</button>
-                    @if (request()->filled('q') || request()->filled('status') || request()->filled('asal') || request()->filled('dari') || request()->filled('sampai'))
+                    @if (request()->filled('q') || request()->filled('status') || request()->filled('dari') || request()->filled('sampai'))
                         <a class="btn-secondary" href="{{ route('admin.pesanan.index') }}">Reset</a>
                     @endif
                 </div>
@@ -64,7 +56,7 @@
             @if ($orders->isEmpty())
                 <div class="admin-empty">
                     <p class="admin-empty-title">Belum ada pesanan.</p>
-                    <p class="admin-empty-text">Pesanan yang dibuat pembeli atau simulator pada filter ini akan tampil di sini.</p>
+                    <p class="admin-empty-text">Pesanan yang dibuat pembeli pada filter ini akan tampil di sini.</p>
                 </div>
             @else
                 <div class="admin-table-wrap">
@@ -76,7 +68,6 @@
                                 <th>Tanggal (WITA)</th>
                                 <th>Total</th>
                                 <th>Status</th>
-                                <th>Asal data</th>
                                 <th>Aksi</th>
                             </tr>
                         </thead>
@@ -102,13 +93,6 @@
                                     <span class="status-chip {{ $statusChips[$order->status] ?? 'status-chip-muted' }}">
                                         <span>{{ $order->statusLabel() }}</span>
                                     </span>
-                                </td>
-                                <td data-label="Asal data">
-                                    @if ($order->origin === 'developer_simulation')
-                                        <span class="badge-simulasi">SIMULASI</span>
-                                    @else
-                                        <span>Normal</span>
-                                    @endif
                                 </td>
                                 <td data-label="Aksi">
                                     <a class="admin-action-link" href="{{ route('admin.pesanan.show', $order) }}">Detail</a>

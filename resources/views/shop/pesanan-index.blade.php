@@ -59,7 +59,6 @@
                                 <th>Tanggal (WITA)</th>
                                 <th>Total</th>
                                 <th>Status</th>
-                                <th>Asal data</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -76,13 +75,6 @@
                                     <span class="status-chip {{ $statusChips[$order->status] ?? 'status-chip-muted' }}">
                                         <span>{{ $order->statusLabel() }}</span>
                                     </span>
-                                </td>
-                                <td data-label="Asal data">
-                                    @if ($order->origin === 'developer_simulation')
-                                        <span class="badge-simulasi">SIMULASI</span>
-                                    @else
-                                        Normal
-                                    @endif
                                 </td>
                             </tr>
                         @endforeach

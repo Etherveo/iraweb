@@ -354,9 +354,10 @@ test('ORD-01 checkout summary shows items, server total and the six simulation m
 
     $this->get('/checkout')->assertOk()
         ->assertSee('Pulpen Ringkas')->assertSee('Rp 14.000')
-        ->assertSee('QRIS (Simulasi)')->assertSee('Dana (Simulasi)')
-        ->assertSee('GoPay (Simulasi)')->assertSee('VA BRI (Simulasi)')
-        ->assertSee('VA BCA (Simulasi)')->assertSee('VA BNI (Simulasi)')
+        ->assertSee('QRIS')->assertSee('Dana')
+        ->assertSee('GoPay')->assertSee('VA BRI')
+        ->assertSee('VA BCA')->assertSee('VA BNI')
+        ->assertDontSee('SIMULASI')
         ->assertSee('checkout_key', false);
 
     // An unknown method is rejected by the server.
@@ -675,8 +676,9 @@ test('ORD-09 buyer order detail shows items, total, payment summary, timeline an
     $this->get('/pesanan/'.$order->id)->assertOk()
         ->assertSee($order->order_number)
         ->assertSee('Pulpen Detail Pesanan')->assertSee('Rp 8.000')->assertSee('Rp 16.000')
-        ->assertSee('Menunggu Pembayaran')->assertSee('QRIS (Simulasi)')
-        ->assertSee('Lanjutkan Pembayaran (Simulasi)')->assertSee('Batalkan Pesanan')
+        ->assertSee('Menunggu Pembayaran')->assertSee('QRIS')
+        ->assertSee('Lanjutkan Pembayaran')->assertSee('Batalkan Pesanan')
+        ->assertDontSee('SIMULASI')
         ->assertSee('menunggu_pembayaran');
 });
 

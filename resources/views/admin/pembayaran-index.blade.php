@@ -17,17 +17,13 @@
         <header class="admin-head">
             <div>
                 <p class="admin-eyebrow">Transaksi &bull; Pembayaran</p>
-                <h1 class="admin-title">Daftar Pembayaran — SIMULASI</h1>
-                <p class="admin-subtitle">Seluruh rekaman pembayaran di daftar ini bersifat simulasi dan hanya-baca.</p>
+                <h1 class="admin-title">Daftar Pembayaran</h1>
+                <p class="admin-subtitle">Seluruh rekaman pembayaran di daftar ini bersifat hanya-baca.</p>
             </div>
             <div class="admin-head-actions">
                 <a class="btn-secondary" href="{{ route('admin.pesanan.index') }}">Kembali ke daftar pesanan</a>
             </div>
         </header>
-
-        <div class="admin-sim-banner">
-            <strong>⚠ SIMULASI — bukan pembayaran riil.</strong> Daftar ini hanya-baca: admin tidak dapat mengubah status pembayaran.
-        </div>
 
         <div class="card admin-panel">
             <form method="GET" action="{{ route('admin.pembayaran.index') }}" class="admin-filters">
@@ -68,7 +64,7 @@
             @if ($payments->isEmpty())
                 <div class="admin-empty">
                     <p class="admin-empty-title">Belum ada pembayaran.</p>
-                    <p class="admin-empty-text">Pembayaran simulasi yang dibuat untuk pesanan akan tampil di sini.</p>
+                    <p class="admin-empty-text">Pembayaran yang dibuat untuk pesanan akan tampil di sini.</p>
                 </div>
             @else
                 <div class="admin-table-wrap">
@@ -81,7 +77,6 @@
                                 <th>Nominal</th>
                                 <th>Status</th>
                                 <th>Waktu</th>
-                                <th>Asal data</th>
                                 <th>Aksi</th>
                             </tr>
                         </thead>
@@ -105,13 +100,6 @@
                                 </td>
                                 <td data-label="Waktu">
                                     <span class="admin-cell-nowrap">{{ $payment->created_at?->setTimezone(config('ira.reporting_timezone'))->format('d M Y H:i') }} WITA</span>
-                                </td>
-                                <td data-label="Asal data">
-                                    @if ($payment->origin === 'developer_simulation')
-                                        <span class="badge-simulasi">SIMULASI</span>
-                                    @else
-                                        <span>Normal</span>
-                                    @endif
                                 </td>
                                 <td data-label="Aksi">
                                     <a class="admin-action-link" href="{{ route('admin.pembayaran.show', $payment) }}">Detail &amp; jejak</a>

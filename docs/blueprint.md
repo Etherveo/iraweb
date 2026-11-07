@@ -273,6 +273,8 @@ Kunci pesanan; tabel transisi hanya mengizinkan `dibayar → diproses` dan `dipr
 
 ## 8. Modul Payment Gateway Simulator
 
+> **Keputusan 2026-11-08 (Ren):** label SIMULASI dihapus dari UI pembeli dan admin — UI tidak lagi membedakan data simulasi dan data normal. Pembedanya hanya metadata (origin / is_simulated / simulation_run_id di database) dan panel developer. Persyaratan lama di bawah ini diganti dengan keputusan ini (termasuk label metode pembayaran di `config/payment.php` §8.2 yang kini tampil tanpa akhiran `(Simulasi)`: `QRIS`, `Dana`, `GoPay`, `VA BRI`, `VA BCA`, `VA BNI`, serta penghapusan kolom/filter `Asal data` dan lencana `SIMULASI` pada ACC-11, ORD-10/11/13, PAY-51, dan PAY-54).
+
 Semua yang tampil kepada pengguna berlabel **SIMULASI** (PAY-54). Modul ini hanya mensimulasikan; tidak ada koneksi ke QRIS, Dana, GoPay, BRI, BCA, atau BNI (PAY-61).
 
 ### 8.1 Interface adapter (PAY-55)
@@ -426,6 +428,8 @@ Tidak ada gateway riil yang dibangun atau diklaim terhubung. Susunan berikut han
 Yang **tidak** berubah: `CheckoutService`, `OrderStateMachine`, `PaymentStateMachine`, `PaymentCallbackHandler` (aturan stok/event), skema pesanan/event, dan seluruh analitik. Yang **tidak boleh** dilakukan sebelum ada persetujuan perubahan scope: menambah provider riil, logo/branding pihak bank atau e-wallet, atau klaim bahwa pembayaran diproses oleh mereka (`D§9`, `P§10`).
 
 ## 9. Engine Simulator Data (Panel Developer)
+
+> **Keputusan 2026-11-08 (Ren):** label SIMULASI dihapus dari UI pembeli dan admin — UI tidak lagi membedakan data simulasi dan data normal. Pembedanya hanya metadata (origin / is_simulated / simulation_run_id di database) dan panel developer. Persyaratan lama di bawah ini diganti dengan keputusan ini (penanda SIMULATOR tetap khusus di Panel Developer SIM-01, sedangkan UI pembeli dan admin bersih dari label SIMULASI).
 
 Engine dipakai hanya oleh guard `developer` (ACC-10) dan hanya menulis baris `origin=developer_simulation` (SIM-40). Ia memakai layanan domain yang sama dengan Sistem Asli (state machine, pencatat event) agar aturan tidak ganda (SIM-14).
 
@@ -725,6 +729,8 @@ Token disimpan sebagai variabel CSS pada `resources/css/tokens.css` dan dipetaka
 Skala tipografi dan ukuran kontrol mengikuti Appendix C (body 16, 14 pada tabel padat; target sentuh 44 px di ponsel). Penanda **SIMULASI** memakai pasangan `--warning` pada `--warning-bg` (sudah diperiksa pada Appendix C) disertai ikon dan teks.
 
 ### 13.3 Empat permukaan, dijaga berbeda
+
+> **Keputusan 2026-11-08 (Ren):** label SIMULASI dihapus dari UI pembeli dan admin — UI tidak lagi membedakan data simulasi dan data normal. Pembedanya hanya metadata (origin / is_simulated / simulation_run_id di database) dan panel developer. Persyaratan lama di bawah ini diganti dengan keputusan ini (berlaku untuk §13.3, §13.4, §13.6, §13.7, dan §18).
 
 | Permukaan | Pengguna | Karakter | Pembeda wajib |
 | --- | --- | --- | --- |

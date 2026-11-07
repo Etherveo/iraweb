@@ -26,7 +26,7 @@
             <div>
                 <p class="admin-eyebrow">Transaksi &bull; Pesanan</p>
                 <h1 class="admin-title">Pesanan {{ $order->order_number }}</h1>
-                <p class="admin-subtitle">Rincian item pesanan, linimasa status, pembayaran simulasi, dan pemenuhan pesanan.</p>
+                <p class="admin-subtitle">Rincian item pesanan, linimasa status, pembayaran, dan pemenuhan pesanan.</p>
             </div>
             <div class="admin-head-actions">
                 <span class="status-chip {{ $statusChips[$order->status] ?? 'status-chip-muted' }}">
@@ -41,19 +41,6 @@
                 <div class="admin-kv-item">
                     <span class="admin-kv-label">Pembeli</span>
                     <span class="admin-kv-value">{{ $order->user?->name }} ({{ $order->user?->email }})</span>
-                </div>
-                <div class="admin-kv-item">
-                    <span class="admin-kv-label">Asal data</span>
-                    <span class="admin-kv-value">
-                        @if ($order->origin === 'developer_simulation')
-                            <span class="badge-simulasi">SIMULASI</span>
-                        @else
-                            Normal
-                        @endif
-                        @if ($order->simulation_run_id)
-                            — run: <code class="admin-code">{{ $order->simulation_run_id }}</code>
-                        @endif
-                    </span>
                 </div>
                 <div class="admin-kv-item">
                     <span class="admin-kv-label">Dibuat</span>
@@ -105,7 +92,7 @@
 
         <div class="admin-detail-cols">
             <div class="card admin-panel">
-                <h2 class="admin-section-title">Pembayaran (Simulasi)</h2>
+                <h2 class="admin-section-title">Pembayaran</h2>
                 @if ($order->payments->isEmpty())
                     <p class="admin-hint">Belum ada pembayaran.</p>
                 @else

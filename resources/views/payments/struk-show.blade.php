@@ -8,8 +8,8 @@
         <header class="admin-head no-print">
             <div>
                 <p class="admin-eyebrow">Toko Ira &bull; Pembayaran</p>
-                <h1 class="admin-title">Struk — SIMULASI</h1>
-                <p class="admin-subtitle">Pratinjau dokumen cetak. Label SIMULASI menjadi bagian dari isi struk.</p>
+                <h1 class="admin-title">Struk Pembayaran</h1>
+                <p class="admin-subtitle">Pratinjau dokumen cetak struk pembayaran pesanan.</p>
             </div>
             <div class="admin-head-actions">
                 <button type="button" class="btn-primary" onclick="window.print()">Cetak Struk</button>
@@ -17,14 +17,9 @@
             </div>
         </header>
 
-        <article class="card receipt-sheet" aria-label="Struk pembayaran simulasi">
-            <div class="receipt-top">
-                <span class="badge-simulasi">SIMULASI</span>
-            </div>
-
-            <p class="receipt-banner"><strong>STRUK SIMULASI — bukan bukti pembayaran sah.</strong></p>
+        <article class="card receipt-sheet" aria-label="Struk pembayaran">
             <p class="receipt-store"><strong>Ira Stationery — Gorontalo</strong></p>
-            <p class="receipt-caption">Dokumen simulasi untuk demonstrasi aplikasi. Tidak ada uang riil yang berpindah.</p>
+            <p class="receipt-caption">Bukti pembayaran pesanan toko.</p>
 
             <dl class="admin-kv-list receipt-meta">
                 <div class="admin-kv-row">
@@ -61,8 +56,7 @@
             </p>
 
             <div class="receipt-foot">
-                <span class="status-chip status-chip-success"><span>Berhasil &bull; SIMULASI</span></span>
-                <p class="receipt-disclaimer"><strong>STRUK SIMULASI — bukan bukti pembayaran sah.</strong></p>
+                <span class="status-chip status-chip-success"><span>Berhasil</span></span>
             </div>
         </article>
     </div>

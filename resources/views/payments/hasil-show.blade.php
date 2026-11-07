@@ -8,23 +8,18 @@
         <header class="admin-head">
             <div>
                 <p class="admin-eyebrow">Toko Ira &bull; Pembayaran</p>
-                <p class="admin-subtitle">Hasil pembayaran simulasi &bull; Bukan transaksi riil.</p>
+                <p class="admin-subtitle">Status hasil transaksi pembayaran pesananmu.</p>
             </div>
         </header>
 
         <div class="card admin-panel pay-result-card">
-            <div class="pay-result-top">
-                <span class="badge-simulasi">SIMULASI</span>
-            </div>
-
             @if ($payment->status === 'paid')
                 <div class="pay-result-icon is-success" aria-hidden="true">
                     <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
                 </div>
 
-                <h1 class="pay-result-title">⚠ Pembayaran Berhasil — SIMULASI</h1>
-                <p class="pay-result-lead"><strong>SIMULASI — bukan pembayaran riil.</strong> Tidak ada uang yang berpindah.</p>
-                <p class="pay-result-desc">Pesanan <strong>{{ $order->order_number }}</strong> sudah dibayar (simulasi).</p>
+                <h1 class="pay-result-title">Pembayaran Berhasil</h1>
+                <p class="pay-result-desc">Pesanan <strong>{{ $order->order_number }}</strong> sudah dibayar.</p>
 
                 <dl class="admin-kv-list">
                     <div class="admin-kv-row">
@@ -65,8 +60,7 @@
                     <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg>
                 </div>
 
-                <h1 class="pay-result-title">⚠ Pembayaran Gagal — SIMULASI</h1>
-                <p class="pay-result-lead"><strong>SIMULASI — bukan pembayaran riil.</strong> Tidak ada uang yang berpindah; pembayaran simulasi ini gagal.</p>
+                <h1 class="pay-result-title">Pembayaran Gagal</h1>
                 <p class="pay-result-desc">Pesanan <strong>{{ $order->order_number }}</strong> masih menunggu pembayaran.</p>
 
                 <dl class="admin-kv-list">
@@ -98,7 +92,7 @@
                     <form method="POST" action="{{ route('pesanan.bayar-ulang', $order) }}" class="buyer-repay-form">
                         @csrf
                         <fieldset class="buyer-method-fieldset">
-                            <legend class="admin-section-title">Pilih metode lain / bayar ulang (Simulasi)</legend>
+                            <legend class="admin-section-title">Pilih metode lain / bayar ulang</legend>
                             <p class="admin-hint">Pembayaran sebelumnya gagal; pembayaran baru memakai token dan referensi baru, batas waktu bayar tidak diperpanjang.</p>
                             <div class="buyer-method-grid">
                                 @foreach ($methods as $m)
@@ -106,9 +100,6 @@
                                         <input type="radio" id="hasil-{{ $m['code'] }}" name="payment_method" value="{{ $m['code'] }}" @checked($loop->first)>
                                         <span class="buyer-method-body">
                                             <span class="buyer-method-title">{{ $m['label'] }}</span>
-                                            <span class="buyer-method-meta">
-                                                <span class="badge-simulasi">SIMULASI</span>
-                                            </span>
                                         </span>
                                     </label>
                                 @endforeach
@@ -134,8 +125,7 @@
                     <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
                 </div>
 
-                <h1 class="pay-result-title">⚠ Pembayaran Kedaluwarsa — SIMULASI</h1>
-                <p class="pay-result-lead"><strong>SIMULASI — bukan pembayaran riil.</strong></p>
+                <h1 class="pay-result-title">Pembayaran Kedaluwarsa</h1>
                 <p class="pay-result-desc">Pembayaran untuk pesanan <strong>{{ $order->order_number }}</strong> sudah melewati batas waktu bayar; pesanan berstatus <strong>{{ $order->statusLabel() }}</strong>.</p>
 
                 <dl class="admin-kv-list">

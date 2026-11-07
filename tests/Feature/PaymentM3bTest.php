@@ -114,15 +114,16 @@ test('PAY-11 instruction page shows the sim labels, reference, total, countdown 
 
     $this->actingAs($buyer, 'web');
     $this->get('/pesanan/'.$order->id.'/bayar')->assertOk()
-        ->assertSee('SIMULASI')
+        ->assertSee('Pembayaran')
+        ->assertDontSee('SIMULASI')
         ->assertSee($order->order_number)
         ->assertSee('Rp 14.000')
-        ->assertSee('QRIS (Simulasi)')
+        ->assertSee('QRIS')
         ->assertSee($payment->reference_code)
         ->assertSee('QR belum tersedia')
         ->assertSee('data-qr-url', false)
         ->assertSee('/pay/sim/'.$payment->payment_token, false)
-        ->assertSee('Buka Halaman Simulasi Pembayaran')
+        ->assertSee('Buka Halaman Pembayaran')
         ->assertSee('loopback')
         ->assertSee($payment->expires_at->toIso8601String(), false)
         ->assertDontSee($buyer->name);
@@ -150,8 +151,9 @@ test('PAY-09 VA instruction shows the 16-digit VA number grouped, a copy button,
 
     $this->actingAs($buyer, 'web');
     $this->get('/pesanan/'.$order->id.'/bayar')->assertOk()
-        ->assertSee('VA BRI (Simulasi)')
-        ->assertSee('Nomor VA SIMULASI')
+        ->assertSee('VA BRI')
+        ->assertSee('Nomor VA — bukan nomor rekening.')
+        ->assertDontSee('SIMULASI')
         ->assertSee($payment->formattedReference())
         ->assertSee('Salin')
         ->assertSee('QR belum tersedia')
@@ -216,13 +218,13 @@ test('PAY-15 sim page shows the order without any buyer personal data', function
     $payment = $order->payments()->first();
 
     $this->get('/pay/sim/'.$payment->payment_token)->assertOk()
-        ->assertSee('SIMULASI PEMBAYARAN')
+        ->assertSee('Halaman Pembayaran')
         ->assertSee($order->order_number)
         ->assertSee('Buku Sim')->assertSee('Rp 10.000')
-        ->assertSee('QRIS (Simulasi)')
+        ->assertSee('QRIS')
         ->assertSee($payment->reference_code)
-        ->assertSee('Bayar Sekarang (Simulasi)')
-        ->assertSee('Simulasikan Gagal')
+        ->assertSee('Bayar Sekarang')
+        ->assertSee('Gagalkan Pembayaran')
         ->assertSee('Kembali ke Pesanan')
         ->assertDontSee($buyer->name)
         ->assertDontSee($buyer->email);
@@ -295,7 +297,7 @@ test('PAY-20 expired token shows expired and rejects actions', function () {
 
     $this->get('/pay/sim/'.$payment->payment_token)->assertOk()
         ->assertSee('Kedaluwarsa')
-        ->assertDontSee('Bayar Sekarang (Simulasi)');
+        ->assertDontSee('Bayar Sekarang');
 
     expect($payment->fresh()->status)->toBe('expired');
     expect($order->fresh()->status)->toBe('kedaluwarsa');
@@ -319,7 +321,7 @@ test('PAY-21 final token shows the final status and rejects actions without chan
 
     $this->get('/pay/sim/'.$payment->payment_token)->assertOk()
         ->assertSee('Terbayar')
-        ->assertDontSee('Bayar Sekarang (Simulasi)');
+        ->assertDontSee('Bayar Sekarang');
 
     $this->post('/pay/sim/'.$payment->payment_token.'/gagal')->assertOk()
         ->assertSee('sudah berstatus');

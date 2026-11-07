@@ -46,15 +46,6 @@
                     </span>
                 </div>
                 <div class="admin-kv-item">
-                    <span class="admin-kv-label">Asal data</span>
-                    <span class="admin-kv-value">
-                        {{ $account->origin }}
-                        @if ($account->isSimulationAccount())
-                            <span class="badge-simulasi">SIMULASI</span>
-                        @endif
-                    </span>
-                </div>
-                <div class="admin-kv-item">
                     <span class="admin-kv-label">Jumlah pesanan</span>
                     <strong class="admin-kv-value">{{ $orderCount }}</strong>
                 </div>

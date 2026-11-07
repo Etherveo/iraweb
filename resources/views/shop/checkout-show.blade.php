@@ -16,7 +16,7 @@
             <div>
                 <p class="admin-eyebrow">Toko Ira &bull; Checkout</p>
                 <h1 class="admin-title">Checkout</h1>
-                <p class="admin-subtitle">Periksa barang pesananmu, lalu pilih satu metode pembayaran simulasi.</p>
+                <p class="admin-subtitle">Periksa barang pesananmu, lalu pilih satu metode pembayaran.</p>
             </div>
         </header>
 
@@ -60,26 +60,19 @@
 
                     <div class="card admin-panel">
                         <fieldset class="buyer-method-fieldset">
-                            <legend class="admin-section-title">Pilih metode pembayaran (Simulasi)</legend>
-                            <p class="admin-hint">Semua metode berlabel SIMULASI: tidak ada pembayaran riil di tahap ini.</p>
+                            <legend class="admin-section-title">Pilih metode pembayaran</legend>
+                            <p class="admin-hint">Batas waktu bayar setelah pesanan dibuat: {{ $expiry_minutes }} menit.</p>
                             <div class="buyer-method-grid">
                                 @foreach ($methods as $method)
                                     <label class="buyer-method-card" for="metode-{{ $method['code'] }}">
                                         <input type="radio" id="metode-{{ $method['code'] }}" name="payment_method" value="{{ $method['code'] }}" @checked($loop->first)>
                                         <span class="buyer-method-body">
                                             <span class="buyer-method-title">{{ $method['label'] }}</span>
-                                            <span class="buyer-method-meta">
-                                                <span class="badge-simulasi">SIMULASI</span>
-                                            </span>
                                         </span>
                                     </label>
                                 @endforeach
                             </div>
                         </fieldset>
-                    </div>
-
-                    <div class="admin-sim-banner">
-                        <strong>⚠ Pembayaran hanya SIMULASI.</strong> Batas waktu bayar setelah pesanan dibuat: {{ $expiry_minutes }} menit.
                     </div>
                 </div>
 

@@ -1,7 +1,7 @@
 <?php
 
 // M3a/M3b PAY-01/PAY-02/PAY-55/PAY-57/PAY-60: the payment-method
-// catalog, defined ONCE here. Code, label ("... (Simulasi)"), display
+// catalog, defined ONCE here. Code, label, display
 // kind (QR or VA), VA bank code, active flag. Adding or disabling a
 // method only needs a config change, never a change to the checkout
 // flow. No real gateway, no provider branding (PAY-61): labels are
@@ -23,42 +23,42 @@ return [
     'methods' => [
         'qris' => [
             'code' => 'qris',
-            'label' => 'QRIS (Simulasi)',
+            'label' => 'QRIS',
             'kind' => 'qr',
             'bank_code' => null,
             'active' => true,
         ],
         'dana' => [
             'code' => 'dana',
-            'label' => 'Dana (Simulasi)',
+            'label' => 'Dana',
             'kind' => 'qr',
             'bank_code' => null,
             'active' => true,
         ],
         'gopay' => [
             'code' => 'gopay',
-            'label' => 'GoPay (Simulasi)',
+            'label' => 'GoPay',
             'kind' => 'qr',
             'bank_code' => null,
             'active' => true,
         ],
         'va_bri' => [
             'code' => 'va_bri',
-            'label' => 'VA BRI (Simulasi)',
+            'label' => 'VA BRI',
             'kind' => 'va',
             'bank_code' => '01',
             'active' => true,
         ],
         'va_bca' => [
             'code' => 'va_bca',
-            'label' => 'VA BCA (Simulasi)',
+            'label' => 'VA BCA',
             'kind' => 'va',
             'bank_code' => '02',
             'active' => true,
         ],
         'va_bni' => [
             'code' => 'va_bni',
-            'label' => 'VA BNI (Simulasi)',
+            'label' => 'VA BNI',
             'kind' => 'va',
             'bank_code' => '03',
             'active' => true,

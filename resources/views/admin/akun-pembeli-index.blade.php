@@ -8,7 +8,7 @@
             <div>
                 <p class="admin-eyebrow">Akun &bull; Akun pembeli</p>
                 <h1 class="admin-title">Akun Pembeli</h1>
-                <p class="admin-subtitle">Kelola status akun pembeli dan pantau asal data pendaftaran (normal atau simulasi).</p>
+                <p class="admin-subtitle">Kelola daftar dan status aktif akun pembeli.</p>
             </div>
         </header>
 
@@ -26,17 +26,9 @@
                         <option value="nonaktif" @selected(request('status') === 'nonaktif')>Nonaktif</option>
                     </select>
                 </div>
-                <div class="admin-filter-group">
-                    <label for="filter-asal" class="admin-label">Asal data</label>
-                    <select class="input" id="filter-asal" name="asal">
-                        <option value="">Semua asal data</option>
-                        <option value="normal" @selected(request('asal') === 'normal')>Normal</option>
-                        <option value="developer_simulation" @selected(request('asal') === 'developer_simulation')>Simulasi</option>
-                    </select>
-                </div>
                 <div class="admin-filter-actions">
                     <button class="btn-primary" type="submit">Cari</button>
-                    @if (request()->filled('cari') || request()->filled('status') || request()->filled('asal'))
+                    @if (request()->filled('cari') || request()->filled('status'))
                         <a class="btn-secondary" href="{{ route('admin.akun-pembeli.index') }}">Reset</a>
                     @endif
                 </div>
@@ -45,7 +37,7 @@
             @if ($accounts->isEmpty())
                 <div class="admin-empty">
                     <p class="admin-empty-title">Belum ada akun pembeli.</p>
-                    <p class="admin-empty-text">Akun pembeli yang mendaftar atau dibuat lewat simulator akan tampil di sini.</p>
+                    <p class="admin-empty-text">Akun pembeli yang mendaftar akan tampil di sini.</p>
                 </div>
             @else
                 <div class="admin-table-wrap">
@@ -55,7 +47,6 @@
                                 <th>Nama</th>
                                 <th>Email</th>
                                 <th>Status</th>
-                                <th>Asal data</th>
                                 <th>Tanggal daftar (WITA)</th>
                                 <th>Aksi</th>
                             </tr>
@@ -78,13 +69,6 @@
                                             <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 12h8"/></svg>
                                             <span>Nonaktif</span>
                                         </span>
-                                    @endif
-                                </td>
-                                <td data-label="Asal data">
-                                    @if ($account->isSimulationAccount())
-                                        <span class="badge-simulasi">SIMULASI</span>
-                                    @else
-                                        <span>Normal</span>
                                     @endif
                                 </td>
                                 <td data-label="Tanggal daftar (WITA)">

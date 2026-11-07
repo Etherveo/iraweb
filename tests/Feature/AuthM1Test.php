@@ -269,7 +269,7 @@ test('ACC-11/12 admin buyer list filters, searches, shows SIMULASI badge, and de
         ->assertOk()
         ->assertSee('Nara Normal')
         ->assertSee('Sim Satu')
-        ->assertSee('SIMULASI');
+        ->assertDontSee('SIMULASI');
 
     $this->get('/admin/akun-pembeli?asal=developer_simulation')
         ->assertOk()

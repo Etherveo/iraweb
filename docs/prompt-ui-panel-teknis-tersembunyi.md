@@ -1,5 +1,7 @@
 # Prompt — Panel teknis pembayaran jadi tersembunyi (UI polish, untuk Claude)
 
+> **Keputusan 2026-11-08 (Ren):** label SIMULASI dihapus dari UI pembeli dan admin — UI tidak lagi membedakan data simulasi dan data normal. Pembedanya hanya metadata (origin / is_simulated / simulation_run_id di database) dan panel developer. Persyaratan lama di bawah ini diganti dengan keputusan ini. Sejak penghapusan lencana/banner SIMULASI, pemicu kombinasi rahasia 5 ketukan (`[data-trace-trigger]`) dipindahkan ke teks **"Status pesanan"** (`<dt class="admin-kv-row-label" data-trace-trigger="...">Status pesanan</dt>`) di bagian Ringkasan pembayaran pada `resources/views/payments/show.blade.php` dan `resources/views/admin/pembayaran-detail.blade.php`, serta ke teks **"Status pembayaran"** (`<dt class="admin-kv-row-label" data-trace-trigger="sim-trace-popup">Status pembayaran</dt>`) di bagian Rincian tagihan pada `resources/views/payments/sim-show.blade.php`.
+
 > Prompt ini dipakai NANTI saat meminta Claude (via Antigravity) memoles UI.
 > Jangan kerjakan tugas di bawah ini sebelum Ren memintanya secara eksplisit.
 > Konteks: repo `iraweb`, Laravel + Blade + Tailwind + Alpine, milestone M3c sudah
@@ -38,11 +40,9 @@ Sembunyikan panel teknis di balik kombinasi rahasia + popup dua tahap:
 1. **Keadaan normal:** TIDAK ADA perubahan yang terlihat. Tidak ada tombol baru,
    tidak ada petunjuk, tidak ada teks "detail teknis" di mana pun. Halaman persis
    seperti sekarang, hanya saja panel teknisnya tidak tampil.
-2. **Kombinasi rahasia — ketuk/klik 5 kali pada lencana "⚠ SIMULASI"** yang ada di
-   halaman tersebut, dalam waktu 3 detik. Harus jalan dengan sentuhan (HP) maupun
+2. **Kombinasi rahasia — ketuk/klik 5 kali pada teks pemicu (`[data-trace-trigger]`)** dalam waktu 3 detik (teks **"Status pesanan"** di bagian Ringkasan pembayaran pada `payments/show.blade.php` dan `admin/pembayaran-detail.blade.php`, serta teks **"Status pembayaran"** di bagian Rincian tagihan pada `payments/sim-show.blade.php`; menggantikan pemicu lama pada lencana "⚠ SIMULASI" sesuai Keputusan 2026-11-08). Harus jalan dengan sentuhan (HP) maupun
    mouse. Kombinasi ini TIDAK BOLEH tertulis di UI mana pun — hanya ada di prompt
-   ini dan di dokumentasi. (Tambahkan hook diam-diam, mis. atribut data, pada
-   elemen lencana di ketiga halaman di atas; logikanya di `app.js`.)
+   ini dan di dokumentasi. (Atribut data dipasang tanpa gaya mencolok seperti garis bawah atau `cursor: pointer`; logikanya di `app.js`.)
 3. **Setelah kombinasi berhasil:** muncul popup kecil di tengah layar yang isinya
    hanya tombol **"Lihat detail teknis"** dan tombol tutup (×). Tidak ada yang lain.
 4. **Saat tombol "Lihat detail teknis" ditekan:** isi popup yang sama BERGANTI
@@ -63,9 +63,7 @@ Sembunyikan panel teknis di balik kombinasi rahasia + popup dua tahap:
   ADA di DOM (tersembunyi, bukan dihapus) supaya tes Pest yang ada
   (PAY-37..42, PAY-50, PAY-52, PAY-54 — total 153 tes) tetap hijau TANPA diubah.
   Kalau satu tes gagal karena perubahanmu, perbaiki implementasimu, bukan tesnya.
-- JANGAN ubah label SIMULASI (PAY-54) dan JANGAN hapus satu pun label/teks
-  SIMULASI yang sudah ada. Lencana "⚠ SIMULASI" tetap tampil seperti biasa —
-  yang berubah hanya: ia jadi pemicu rahasia.
+- *(Diperbarui 2026-11-08)* Label SIMULASI (PAY-54) pada tampilan utama halaman pembeli dan admin telah dihapus sesuai keputusan Ren 2026-11-08; hanya isi di dalam partial panel teknis tersembunyi (`payments/_panel.blade.php`) yang tetap utuh apa adanya.
 - JANGAN tampilkan secret/kunci apa pun. Signature yang tampil tetap HMAC hasil
   hitungan server seperti sekarang, bukan secret-nya.
 - Mobile-first: popup harus nyaman dipakai dari HP (lebar penuh dengan margin,

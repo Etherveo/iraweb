@@ -47,7 +47,6 @@
                                 <th>Perubahan dicadangkan</th>
                                 <th>Referensi pesanan</th>
                                 <th>Pelaku</th>
-                                <th>Asal data</th>
                                 <th>Catatan</th>
                             </tr>
                         </thead>
@@ -68,14 +67,6 @@
                                 </td>
                                 <td data-label="Referensi pesanan">{{ $movement->order_id ?? '-' }}</td>
                                 <td data-label="Pelaku">{{ $movement->actor_type }}{{ $movement->actor_id ? ' #'.$movement->actor_id : '' }}</td>
-                                <td data-label="Asal data">
-                                    @if ($movement->origin === 'developer_simulation')
-                                        <span class="badge-simulasi">SIMULASI</span>
-                                        <span class="sr-only">{{ $movement->origin }}</span>
-                                    @else
-                                        <span>{{ $movement->origin }}</span>
-                                    @endif
-                                </td>
                                 <td data-label="Catatan">{{ $movement->note ?: '-' }}</td>
                             </tr>
                         @endforeach

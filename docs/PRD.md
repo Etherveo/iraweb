@@ -208,6 +208,8 @@ Semua butir berikut **belum diputuskan** pada kedua file sumber. Nilai di bawah 
 
 ### 9.1 Status pembayaran (`P§5.1`)
 
+> **Keputusan 2026-11-08 (Ren):** label SIMULASI dihapus dari UI pembeli dan admin — UI tidak lagi membedakan data simulasi dan data normal. Pembedanya hanya metadata (origin / is_simulated / simulation_run_id di database) dan panel developer. Persyaratan lama di bawah ini diganti dengan keputusan ini (termasuk label metode pembayaran di `config/payment.php` yang kini tampil tanpa akhiran `(Simulasi)`: `QRIS`, `Dana`, `GoPay`, `VA BRI`, `VA BCA`, `VA BNI`).
+
 `pending → paid`, `pending → failed`, `pending → expired`, `pending → cancelled`. Tidak ada transisi lain. Status `paid`, `failed`, `expired`, `cancelled` bersifat final.
 
 ### 9.2 Status pesanan (U-04) dan pemetaan (`P§5.2`)
@@ -250,6 +252,8 @@ Setiap produk memiliki `stok_fisik` dan `stok_dicadangkan`; `stok_tersedia = sto
 Format tiap baris: **ID | Fitur | Aktor | Sumber | Kriteria terima | Uji**. Seluruh validasi dilakukan di server (trusted layer); validasi sisi klien hanya untuk kenyamanan (`AGENTS §9`). Pesan galat tidak membocorkan detail internal (`AGENTS §10`). Setiap tampilan memiliki keadaan loading, kosong, galat, dan sukses yang sesuai (`AGENTS §7`).
 
 ### 10.1 ACC — Akun, Autentikasi, dan Hak Akses (tahap M1)
+
+> **Keputusan 2026-11-08 (Ren):** label SIMULASI dihapus dari UI pembeli dan admin — UI tidak lagi membedakan data simulasi dan data normal. Pembedanya hanya metadata (origin / is_simulated / simulation_run_id di database) dan panel developer. Persyaratan lama di bawah ini diganti dengan keputusan ini (pada ACC-11 dan ACC-12, kolom/baris `Asal data`, lencana `SIMULASI`, dan filter `asal` tidak lagi ditampilkan di UI admin).
 
 | ID | Fitur | Aktor | Sumber | Kriteria terima | Uji |
 | --- | --- | --- | --- | --- | --- |
@@ -320,6 +324,8 @@ Format tiap baris: **ID | Fitur | Aktor | Sumber | Kriteria terima | Uji**. Selu
 
 #### ORD — Checkout, Pesanan, Pembatalan, dan Manajemen Pesanan
 
+> **Keputusan 2026-11-08 (Ren):** label SIMULASI dihapus dari UI pembeli dan admin — UI tidak lagi membedakan data simulasi dan data normal. Pembedanya hanya metadata (origin / is_simulated / simulation_run_id di database) dan panel developer. Persyaratan lama di bawah ini diganti dengan keputusan ini (pada ORD-08, ORD-09, ORD-10, ORD-11, dan ORD-13, kolom/baris `Asal data`, filter `asal`, dan lencana `SIMULASI` dihapus dari tampilan UI pembeli maupun admin).
+
 | ID | Fitur | Aktor | Sumber | Kriteria terima | Uji |
 | --- | --- | --- | --- | --- | --- |
 | ORD-01 | Ringkasan checkout | Pembeli | D§6.3, P§3.1 | Halaman menampilkan item, harga, total (dihitung server), dan pilihan metode (PAY-02) sebelum pesanan dibuat. Keranjang kosong atau item bermasalah (CRT-05) mencegah lanjut. | BB |
@@ -352,6 +358,8 @@ Format tiap baris: **ID | Fitur | Aktor | Sumber | Kriteria terima | Uji**. Selu
 | EVT-09 | Penanda asal data | Sistem | D§2 butir 2, D§7.5 | Akun, pesanan, item, event, pembayaran, dan riwayat status membawa `origin` (`normal` atau `developer_simulation`) dan `simulation_run_id` bila dari panel developer. Nilai tidak dapat diubah lewat antarmuka. | WB |
 
 ### 10.5 PAY — Payment Gateway Simulator (tahap M3, dipakai Pembeli lewat checkout)
+
+> **Keputusan 2026-11-08 (Ren):** label SIMULASI dihapus dari UI pembeli dan admin — UI tidak lagi membedakan data simulasi dan data normal. Pembedanya hanya metadata (origin / is_simulated / simulation_run_id di database) dan panel developer. Persyaratan lama di bawah ini diganti dengan keputusan ini (berlaku untuk PAY-01, PAY-02, PAY-07, PAY-08, PAY-11, PAY-14, PAY-15, PAY-16, PAY-17, PAY-45..PAY-52, dan PAY-54; hanya isi partial panel teknis tersembunyi `payments/_panel.blade.php` yang tetap mempertahankan teks aslinya).
 
 Semua tampilan modul ini menyandang label **SIMULASI** (PAY-54). Tidak ada koneksi riil, tidak ada logo/branding bank atau e-wallet (PAY-61).
 
@@ -421,6 +429,8 @@ Semua tampilan modul ini menyandang label **SIMULASI** (PAY-54). Tidak ada konek
 
 #### Halaman hasil, struk, riwayat, dan akses admin
 
+> **Keputusan 2026-11-08 (Ren):** label SIMULASI dihapus dari UI pembeli dan admin — UI tidak lagi membedakan data simulasi dan data normal. Pembedanya hanya metadata (origin / is_simulated / simulation_run_id di database) dan panel developer. Persyaratan lama di bawah ini diganti dengan keputusan ini (khususnya PAY-48 struk pembayaran, PAY-51 kolom asal data di daftar pembayaran admin, dan PAY-54 label SIMULASI di tampilan pembayaran).
+
 | ID | Fitur | Aktor | Sumber | Kriteria terima | Uji |
 | --- | --- | --- | --- | --- | --- |
 | PAY-45 | Halaman hasil berhasil | Pembeli | P§3.2 butir 6, P§9 butir 10 | Menampilkan ringkasan pesanan, status terbaru, ringkasan pembayaran simulasi, tautan ke jejak HTTP (PAY-50) dan struk (PAY-48), label SIMULASI. | BB |
@@ -449,6 +459,8 @@ Semua tampilan modul ini menyandang label **SIMULASI** (PAY-54). Tidak ada konek
 | PAY-63 | Satu pembayaran `pending` per pesanan | Sistem | P§3.1 butir 4, P§3.3 | Klik ganda atau dua tab tidak membuat dua pembayaran `pending` untuk satu pesanan; dijamin oleh constraint basis data dan penguncian. | WB |
 
 ### 10.6 SIM — Panel Developer (Sistem Simulator data) (tahap M4, penyempurnaan M7)
+
+> **Keputusan 2026-11-08 (Ren):** label SIMULASI dihapus dari UI pembeli dan admin — UI tidak lagi membedakan data simulasi dan data normal. Pembedanya hanya metadata (origin / is_simulated / simulation_run_id di database) dan panel developer. Persyaratan lama di bawah ini diganti dengan keputusan ini (penanda SIMULATOR tetap khusus di Panel Developer SIM-01, sedangkan UI pembeli dan admin bersih dari label SIMULASI).
 
 Panel ini **bukan** payment simulator (§4.2). Developer tidak mengubah pembayaran individual (`P§8`); pembayaran yang menyertai transaksi buatannya dibuat otomatis (SIM-30).
 

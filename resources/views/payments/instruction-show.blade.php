@@ -15,8 +15,8 @@
         <header class="admin-head">
             <div>
                 <p class="admin-eyebrow">Toko Ira &bull; Pembayaran</p>
-                <h1 class="admin-title">Pembayaran — SIMULASI</h1>
-                <p class="admin-subtitle">Ikuti instruksi di bawah ini untuk menyelesaikan simulasi pembayaran pesananmu.</p>
+                <h1 class="admin-title">Pembayaran</h1>
+                <p class="admin-subtitle">Ikuti instruksi di bawah ini untuk menyelesaikan pembayaran pesananmu.</p>
             </div>
             <div class="admin-head-actions">
                 <span class="status-chip status-chip-warning">
@@ -25,10 +25,6 @@
             </div>
         </header>
 
-        <div class="admin-sim-banner">
-            <strong>⚠ SIMULASI — bukan pembayaran riil.</strong> Tidak ada uang yang berpindah dan tidak ada koneksi ke bank atau e-wallet; ini hanya simulasi untuk keperluan analitik toko.
-        </div>
-
         <div class="buyer-split-layout">
             <div class="card admin-panel">
                 <div class="pay-method-banner">
@@ -36,13 +32,12 @@
                         <p class="admin-eyebrow">Metode Pembayaran</p>
                         <h2 class="admin-section-title" style="margin:0">{{ $method['label'] ?? $payment->payment_method }}</h2>
                     </div>
-                    <span class="badge-simulasi">SIMULASI</span>
                 </div>
 
                 @if (($method['kind'] ?? 'qr') === 'va')
                     <div class="pay-va-box">
-                        <h3 class="pay-sub-heading">Nomor VA (Simulasi)</h3>
-                        <p class="pay-sim-caption"><strong>Nomor VA SIMULASI — bukan nomor rekening.</strong></p>
+                        <h3 class="pay-sub-heading">Nomor VA</h3>
+                        <p class="pay-sim-caption"><strong>Nomor VA — bukan nomor rekening.</strong></p>
                         <div class="pay-va-row">
                             <p class="va-number"><strong>{{ $payment->formattedReference() }}</strong></p>
                             <button type="button" class="btn-secondary" onclick="navigator.clipboard.writeText('{{ $payment->reference_code }}').then(() => { this.textContent = 'Tersalin'; });">Salin</button>
@@ -51,18 +46,17 @@
 
                     <div class="pay-qr-section">
                         <h3 class="pay-sub-heading">Kode QR pendamping</h3>
-                        <p class="admin-hint">Pindai untuk membuka halaman simulasi:</p>
+                        <p class="admin-hint">Pindai untuk membuka halaman pembayaran:</p>
                         <div class="qr-small pay-qr-frame" data-qr-url="{{ $payment->qr_url }}">
-                            <img class="qr-image" alt="Kode QR pendamping pembayaran simulasi" hidden>
+                            <img class="qr-image" alt="Kode QR pendamping pembayaran" hidden>
                             {!! $qrHtml !!}
                         </div>
                     </div>
                 @else
                     <div class="pay-qr-section">
-                        <h3 class="pay-sub-heading">Kode QR (Simulasi)</h3>
-                        <p class="pay-sim-caption"><strong>SIMULASI — bukan QR pembayaran riil.</strong></p>
+                        <h3 class="pay-sub-heading">Kode QR</h3>
                         <div class="qr-large pay-qr-frame" data-qr-url="{{ $payment->qr_url }}">
-                            <img class="qr-image" alt="Kode QR pembayaran simulasi" width="240" height="240" hidden>
+                            <img class="qr-image" alt="Kode QR pembayaran" width="240" height="240" hidden>
                             {!! $qrHtml !!}
                         </div>
                         <p class="pay-url-fallback">Atau buka tautan ini: <a class="admin-cell-link" href="{{ $payment->qr_url }}">{{ $payment->qr_url }}</a></p>
@@ -70,7 +64,7 @@
                 @endif
 
                 <div class="pay-cta-stack">
-                    <a class="btn-primary buyer-cta-block" href="{{ $payment->qr_url }}" target="_blank" rel="noopener">Buka Halaman Simulasi Pembayaran</a>
+                    <a class="btn-primary buyer-cta-block" href="{{ $payment->qr_url }}" target="_blank" rel="noopener">Buka Halaman Pembayaran</a>
                     <a class="btn-secondary buyer-cta-block" href="{{ route('pesanan.show', $order) }}">Kembali ke detail pesanan</a>
                 </div>
 
@@ -79,8 +73,6 @@
                         <p><strong>Perhatian:</strong> alamat aplikasi ini adalah loopback (localhost), jadi QR tidak dapat dibuka dari perangkat lain. Gunakan tombol di atas dari perangkat ini.</p>
                     </div>
                 @endif
-
-                <p class="buyer-summary-note">Catatan: signature webhook pada simulasi ini adalah dummy, bukan signature gateway riil.</p>
             </div>
 
             <aside class="card admin-panel buyer-summary-card" aria-label="Ringkasan pembayaran">

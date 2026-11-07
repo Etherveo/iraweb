@@ -34,7 +34,7 @@
             <div>
                 <p class="admin-eyebrow">Toko Ira &bull; Pesanan</p>
                 <h1 class="admin-title">Pesanan {{ $order->order_number }}</h1>
-                <p class="admin-subtitle">Rincian barang pesanan, pembayaran simulasi, dan linimasa status.</p>
+                <p class="admin-subtitle">Rincian barang pesanan, pembayaran, dan linimasa status.</p>
             </div>
             <div class="admin-head-actions">
                 <span class="status-chip {{ $orderChips[$order->status] ?? 'status-chip-muted' }}">
@@ -96,7 +96,7 @@
                 </div>
 
                 <div class="card admin-panel">
-                    <h2 class="admin-section-title">Pembayaran (Simulasi)</h2>
+                    <h2 class="admin-section-title">Pembayaran</h2>
                     @if ($order->payments->isEmpty())
                         <div class="admin-empty">
                             <p class="admin-empty-title">Belum ada pembayaran.</p>
@@ -108,7 +108,6 @@
                                     <div class="buyer-payment-head">
                                         <div>
                                             <strong class="admin-cell-primary">{{ config('payment.methods.'.$payment->payment_method.'.label', $payment->payment_method) }}</strong>
-                                            <span class="badge-simulasi">SIMULASI</span>
                                         </div>
                                         <span class="status-chip {{ $paymentChips[$payment->status] ?? 'status-chip-muted' }}">
                                             <span>{{ $payment->statusLabel() }}</span>
@@ -143,13 +142,13 @@
                         @endphp
                         @if ($pendingPayment)
                             <div class="buyer-order-actions">
-                                <a class="btn-primary buyer-cta-block" href="{{ route('pesanan.bayar', $order) }}">Lanjutkan Pembayaran (Simulasi)</a>
+                                <a class="btn-primary buyer-cta-block" href="{{ route('pesanan.bayar', $order) }}">Lanjutkan Pembayaran</a>
                             </div>
                         @elseif ($failedPayment && now()->lessThan($order->payment_deadline_at))
                             <form method="POST" action="{{ route('pesanan.bayar-ulang', $order) }}" class="buyer-repay-form">
                                 @csrf
                                 <fieldset class="buyer-method-fieldset">
-                                    <legend class="admin-section-title">Bayar ulang / pilih metode lain (Simulasi)</legend>
+                                    <legend class="admin-section-title">Bayar ulang / pilih metode lain</legend>
                                     <p class="admin-hint">Pembayaran sebelumnya gagal; pembayaran baru memakai token dan referensi baru, batas waktu bayar tidak diperpanjang.</p>
                                     <div class="buyer-method-grid">
                                         @foreach ($methods as $method)
@@ -157,9 +156,6 @@
                                                 <input type="radio" id="ulang-{{ $method['code'] }}" name="payment_method" value="{{ $method['code'] }}" @checked($loop->first)>
                                                 <span class="buyer-method-body">
                                                     <span class="buyer-method-title">{{ $method['label'] }}</span>
-                                                    <span class="buyer-method-meta">
-                                                        <span class="badge-simulasi">SIMULASI</span>
-                                                    </span>
                                                 </span>
                                             </label>
                                         @endforeach

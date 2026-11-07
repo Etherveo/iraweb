@@ -280,7 +280,7 @@ test('PAY-45 result page for a paid payment shows the summary and links to trace
     $this->actingAs($buyer, 'web');
     $this->get('/pembayaran/'.$payment->id.'/hasil')->assertOk()
         ->assertSee('Pembayaran Berhasil')
-        ->assertSee('SIMULASI')
+        ->assertDontSee('SIMULASI')
         ->assertSee($order->order_number)
         ->assertSee($order->formattedTotal())
         ->assertSee('Lihat jejak HTTP')
@@ -296,7 +296,7 @@ test('PAY-46 failed result page offers repay with another method and cancel whil
     $this->actingAs($buyer, 'web');
     $this->get('/pembayaran/'.$payment->id.'/hasil')->assertOk()
         ->assertSee('Pembayaran Gagal')
-        ->assertSee('SIMULASI')
+        ->assertDontSee('SIMULASI')
         ->assertSee($order->order_number)
         ->assertSee('Buat Pembayaran Baru')
         ->assertSee('Batalkan Pesanan')
@@ -333,7 +333,7 @@ test('PAY-47 expired result page has no pay action and links to order history an
         $this->actingAs($buyer, 'web');
         $this->get('/pembayaran/'.$payment->id.'/hasil')->assertOk()
             ->assertSee('Pembayaran Kedaluwarsa')
-            ->assertSee('SIMULASI')
+            ->assertDontSee('SIMULASI')
             ->assertSee($order->order_number)
             ->assertDontSee('Buat Pembayaran Baru')
             ->assertSee('Lihat riwayat pesanan')
@@ -405,12 +405,13 @@ test('PAY-48 receipt for a paid payment shows items, total, method, paid time an
 
     $this->actingAs($buyer, 'web');
     $this->get('/pembayaran/'.$payment->id.'/struk')->assertOk()
-        ->assertSee('STRUK SIMULASI — bukan bukti pembayaran sah')
+        ->assertSee('Struk Pembayaran')
+        ->assertDontSee('SIMULASI')
         ->assertSee('Cetak Struk')
         ->assertSee($order->order_number)
         ->assertSee('Pulpen Struk')
         ->assertSee($order->formattedTotal())
-        ->assertSee('QRIS (Simulasi)');
+        ->assertSee('QRIS');
 });
 
 test('PAY-48 receipt redirects a non-paid payment to its result page and is owner-only', function () {
@@ -540,7 +541,7 @@ test('PAY-51 admin payment list filters by status, method and date and shows the
     $this->get('/admin/pembayaran')->assertOk()
         ->assertSee($order->order_number)
         ->assertSee($order2->order_number)
-        ->assertSee('Normal');
+        ->assertDontSee('Asal data');
 
     $this->get('/admin/pembayaran?status=paid')->assertOk()
         ->assertSee($order->order_number)
@@ -636,9 +637,9 @@ test('M3c guards: every new protected route declares guard and role', function (
     $this->assertTrue(true);
 });
 
-// ---- PAY-54: SIMULASI label on every payment view ----
+// ---- PAY-54 (updated 2026-11-08): SIMULASI removed from visible buyer/admin UI; hidden trace panel & trigger remain ----
 
-test('PAY-54 label SIMULASI appears on every payment view', function () {
+test('PAY-54 visible payment views omit SIMULASI while detail/sim views keep the hidden panel trigger', function () {
     $buyer = m3cBuyer();
     $admin = m3cAdmin();
 
@@ -646,32 +647,38 @@ test('PAY-54 label SIMULASI appears on every payment view', function () {
     $paid = $order->payments()->first();
 
     $this->actingAs($buyer, 'web');
-    $this->get('/pesanan/'.$order->id.'/bayar')->assertOk()->assertSee('SIMULASI');
-    $this->get('/pay/sim/'.$paid->payment_token)->assertOk()->assertSee('SIMULASI');
+    $this->get('/pesanan/'.$order->id.'/bayar')->assertOk()->assertDontSee('SIMULASI');
+    $this->get('/pay/sim/'.$paid->payment_token)->assertOk()
+        ->assertDontSee('admin-sim-banner', false)
+        ->assertSee('data-trace-trigger="sim-trace-popup">Status pembayaran</dt>', false);
 
     $this->post('/pay/sim/'.$paid->payment_token.'/bayar')->assertOk();
-    $this->get('/pembayaran/'.$paid->id.'/hasil')->assertOk()->assertSee('SIMULASI');
-    $this->get('/pembayaran/'.$paid->id.'/struk')->assertOk()->assertSee('SIMULASI');
-    $this->get('/pembayaran')->assertOk()->assertSee('SIMULASI');
-    $this->get('/pembayaran/'.$paid->id)->assertOk()->assertSee('SIMULASI');
+    $this->get('/pembayaran/'.$paid->id.'/hasil')->assertOk()->assertDontSee('SIMULASI');
+    $this->get('/pembayaran/'.$paid->id.'/struk')->assertOk()->assertDontSee('SIMULASI');
+    $this->get('/pembayaran')->assertOk()->assertDontSee('SIMULASI');
+    $this->get('/pembayaran/'.$paid->id)->assertOk()
+        ->assertDontSee('admin-sim-banner', false)
+        ->assertSee('data-trace-trigger="buyer-trace-popup">Status pesanan</dt>', false);
 
     $this->actingAs($admin, 'web');
-    $this->get('/admin/pembayaran')->assertOk()->assertSee('SIMULASI');
-    $this->get('/admin/pembayaran/'.$paid->id)->assertOk()->assertSee('SIMULASI');
+    $this->get('/admin/pembayaran')->assertOk()->assertDontSee('SIMULASI');
+    $this->get('/admin/pembayaran/'.$paid->id)->assertOk()
+        ->assertDontSee('admin-sim-banner', false)
+        ->assertSee('data-trace-trigger="admin-trace-popup">Status pesanan</dt>', false);
 
     $order2 = m3cCheckout($this, $buyer, [['product' => m3cProduct(), 'qty' => 1]]);
     $failed = $order2->payments()->first();
     $this->post('/pay/sim/'.$failed->payment_token.'/gagal')->assertOk();
 
     $this->actingAs($buyer, 'web');
-    $this->get('/pembayaran/'.$failed->id.'/hasil')->assertOk()->assertSee('SIMULASI');
+    $this->get('/pembayaran/'.$failed->id.'/hasil')->assertOk()->assertDontSee('SIMULASI');
 
     $order3 = m3cCheckout($this, $buyer, [['product' => m3cProduct(), 'qty' => 1]]);
     $expired = $order3->payments()->first();
 
     try {
         Carbon::setTestNow(now()->addMinutes(31));
-        $this->get('/pembayaran/'.$expired->id.'/hasil')->assertOk()->assertSee('SIMULASI');
+        $this->get('/pembayaran/'.$expired->id.'/hasil')->assertOk()->assertDontSee('SIMULASI');
     } finally {
         Carbon::setTestNow();
     }

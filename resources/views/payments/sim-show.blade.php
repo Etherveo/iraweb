@@ -3,7 +3,7 @@
 @section('content')
     {{-- UI polish Tahap 7 (UI.md §9.3, §10, §16 + panel teknis tersembunyi).
          Tanpa data pribadi pembeli (PAY-15). Panel (_panel.blade.php) tetap di DOM
-         di dalam #sim-trace-popup[hidden], dibuka lewat ketuk 5x pada .admin-sim-banner. --}}
+         di dalam #sim-trace-popup[hidden], dibuka lewat ketuk 5x pada teks "Status pembayaran". --}}
     @php
         $paymentChips = [
             'pending' => 'status-chip-warning',
@@ -16,9 +16,9 @@
     <div class="admin-page admin-page-narrow">
         <header class="admin-head">
             <div>
-                <p class="admin-eyebrow">Gateway Simulator &bull; Token Pembayaran</p>
-                <h1 class="admin-title">SIMULASI PEMBAYARAN</h1>
-                <p class="admin-subtitle">Halaman simulasi pemegang token untuk memicu pembayaran atau kegagalan.</p>
+                <p class="admin-eyebrow">Gateway Pembayaran &bull; Token Pembayaran</p>
+                <h1 class="admin-title">Halaman Pembayaran</h1>
+                <p class="admin-subtitle">Konfirmasi penyelesaian pembayaran untuk pesanan ini.</p>
             </div>
             <div class="admin-head-actions">
                 <span class="status-chip {{ $paymentChips[$payment->status] ?? 'status-chip-muted' }}">
@@ -27,16 +27,12 @@
             </div>
         </header>
 
-        <div class="admin-sim-banner" data-trace-trigger="sim-trace-popup">
-            <strong>⚠ SIMULASI — bukan pembayaran riil.</strong> Tidak ada uang yang berpindah dan tidak ada koneksi ke bank atau e-wallet.
-        </div>
-
         @if ($message)
             <div class="alert pay-sim-alert">{{ $message }}</div>
         @endif
 
         <div class="card admin-panel">
-            <h2 class="admin-section-title">Rincian tagihan simulasi</h2>
+            <h2 class="admin-section-title">Rincian tagihan</h2>
             <dl class="admin-kv-list">
                 <div class="admin-kv-row">
                     <dt class="admin-kv-row-label">Nomor pesanan</dt>
@@ -56,7 +52,7 @@
                 </div>
                 @if ($isVa)
                     <div class="admin-kv-row">
-                        <dt class="admin-kv-row-label">Nomor VA (Simulasi)</dt>
+                        <dt class="admin-kv-row-label">Nomor VA</dt>
                         <dd class="admin-kv-row-val"><strong class="va-number-inline">{{ $payment->formattedReference() }}</strong></dd>
                     </div>
                 @endif
@@ -69,7 +65,7 @@
                     <dd class="admin-kv-row-val">{{ $payment->expires_at?->setTimezone(config('ira.reporting_timezone'))->format('d M Y H:i') }} WITA</dd>
                 </div>
                 <div class="admin-kv-row">
-                    <dt class="admin-kv-row-label">Status pembayaran</dt>
+                    <dt class="admin-kv-row-label" data-trace-trigger="sim-trace-popup">Status pembayaran</dt>
                     <dd class="admin-kv-row-val"><strong>{{ $payment->statusLabel() }}</strong></dd>
                 </div>
             </dl>
@@ -94,11 +90,11 @@
                 <div class="pay-sim-actions">
                     <form method="POST" action="{{ route('pay.sim.bayar', $payment->payment_token) }}" onsubmit="this.querySelector('button[type=submit]').disabled = true;">
                         @csrf
-                        <button class="btn-primary buyer-cta-block" type="submit">Bayar Sekarang (Simulasi)</button>
+                        <button class="btn-primary buyer-cta-block" type="submit">Bayar Sekarang</button>
                     </form>
                     <form method="POST" action="{{ route('pay.sim.gagal', $payment->payment_token) }}" onsubmit="this.querySelector('button[type=submit]').disabled = true;">
                         @csrf
-                        <button class="btn-danger-ghost buyer-cta-block" type="submit">Simulasikan Gagal</button>
+                        <button class="btn-danger-ghost buyer-cta-block" type="submit">Gagalkan Pembayaran</button>
                     </form>
                 </div>
             @else
@@ -112,13 +108,11 @@
                     <a class="btn-secondary" href="{{ route('masuk') }}">Kembali ke Pesanan</a>
                 @endauth
             </div>
-
-            <p class="buyer-summary-note">Catatan: signature webhook pada simulasi ini adalah dummy, bukan signature gateway riil.</p>
         </div>
 
         <div class="trace-popup" id="sim-trace-popup" hidden>
             <div class="trace-popup-backdrop" data-trace-close></div>
-            <div class="trace-popup-dialog" role="dialog" aria-modal="true" aria-label="Detail teknis pembayaran simulasi" tabindex="-1">
+            <div class="trace-popup-dialog" role="dialog" aria-modal="true" aria-label="Detail teknis pembayaran" tabindex="-1">
                 <button type="button" class="trace-popup-x" data-trace-close aria-label="Tutup">×</button>
 
                 <div class="trace-popup-gate" data-trace-stage="gate">

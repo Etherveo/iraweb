@@ -33,8 +33,8 @@
         <header class="admin-head">
             <div>
                 <p class="admin-eyebrow">Toko Ira &bull; Pembayaran</p>
-                <h1 class="admin-title">Detail Pembayaran — SIMULASI</h1>
-                <p class="admin-subtitle">Ringkasan pembayaran simulasi dan status pesanan terkait.</p>
+                <h1 class="admin-title">Detail Pembayaran</h1>
+                <p class="admin-subtitle">Ringkasan pembayaran dan status pesanan terkait.</p>
             </div>
             <div class="admin-head-actions">
                 <span class="status-chip {{ $paymentChips[$payment->status] ?? 'status-chip-muted' }}">
@@ -42,10 +42,6 @@
                 </span>
             </div>
         </header>
-
-        <div class="admin-sim-banner" data-trace-trigger="buyer-trace-popup">
-            <strong>⚠ SIMULASI — bukan pembayaran riil.</strong> Tidak ada uang yang berpindah.
-        </div>
 
         <div class="card admin-panel">
             <h2 class="admin-section-title">Ringkasan pembayaran</h2>
@@ -60,7 +56,7 @@
                             </dd>
                         </div>
                         <div class="admin-kv-row">
-                            <dt class="admin-kv-row-label">Status pesanan</dt>
+                            <dt class="admin-kv-row-label" data-trace-trigger="buyer-trace-popup">Status pesanan</dt>
                             <dd class="admin-kv-row-val">
                                 <span class="status-chip {{ $orderChips[$order->status] ?? 'status-chip-muted' }}">
                                     <span>{{ $order->statusLabel() }}</span>
@@ -93,16 +89,6 @@
                             <dt class="admin-kv-row-label">Kode referensi</dt>
                             <dd class="admin-kv-row-val"><code class="admin-code">{{ $payment->reference_code }}</code></dd>
                         </div>
-                        <div class="admin-kv-row">
-                            <dt class="admin-kv-row-label">Asal data</dt>
-                            <dd class="admin-kv-row-val">
-                                @if ($payment->origin === 'developer_simulation')
-                                    <span class="badge-simulasi">SIMULASI (panel developer)</span>
-                                @else
-                                    Normal
-                                @endif
-                            </dd>
-                        </div>
                     </dl>
                 </section>
 
@@ -131,7 +117,7 @@
                 @if ($payment->isFinal())
                     <a class="btn-primary" href="{{ route('pembayaran.hasil', $payment) }}">Lihat halaman hasil</a>
                 @else
-                    <a class="btn-primary" href="{{ route('pesanan.bayar', $order) }}">Lanjutkan pembayaran (Simulasi)</a>
+                    <a class="btn-primary" href="{{ route('pesanan.bayar', $order) }}">Lanjutkan pembayaran</a>
                 @endif
                 @if ($payment->status === 'paid')
                     <a class="btn-secondary" href="{{ route('pembayaran.struk', $payment) }}">Lihat struk</a>
@@ -143,7 +129,7 @@
 
         <div class="trace-popup" id="buyer-trace-popup" hidden>
             <div class="trace-popup-backdrop" data-trace-close></div>
-            <div class="trace-popup-dialog" role="dialog" aria-modal="true" aria-label="Detail teknis pembayaran simulasi" tabindex="-1">
+            <div class="trace-popup-dialog" role="dialog" aria-modal="true" aria-label="Detail teknis pembayaran" tabindex="-1">
                 <button type="button" class="trace-popup-x" data-trace-close aria-label="Tutup">×</button>
 
                 <div class="trace-popup-gate" data-trace-stage="gate">

@@ -16,17 +16,13 @@
         <header class="admin-head">
             <div>
                 <p class="admin-eyebrow">Toko Ira &bull; Pembayaran</p>
-                <h1 class="admin-title">Riwayat Pembayaran — SIMULASI</h1>
-                <p class="admin-subtitle">Semua pembayaran simulasi milikmu. Status hanya dapat dilihat, bukan diedit.</p>
+                <h1 class="admin-title">Riwayat Pembayaran</h1>
+                <p class="admin-subtitle">Semua pembayaran milikmu. Status hanya dapat dilihat, bukan diedit.</p>
             </div>
             <div class="admin-head-actions">
                 <a class="btn-secondary" href="{{ route('pesanan.index') }}">Kembali ke daftar pesanan</a>
             </div>
         </header>
-
-        <div class="admin-sim-banner">
-            <strong>⚠ SIMULASI — bukan pembayaran riil.</strong> Tidak ada uang yang berpindah; semua baris di bawah ini adalah pembayaran simulasi.
-        </div>
 
         <div class="card admin-panel">
             <form method="GET" action="{{ route('pembayaran.index') }}" class="admin-filters">
@@ -73,7 +69,6 @@
                                 </td>
                                 <td data-label="Metode">
                                     <strong>{{ config('payment.methods.'.$payment->payment_method.'.label', $payment->payment_method) }}</strong>
-                                    <div class="admin-cell-sub"><span class="badge-simulasi">SIMULASI</span></div>
                                 </td>
                                 <td data-label="Nominal" class="admin-cell-price">{{ $payment->formattedAmount() }}</td>
                                 <td data-label="Status">
