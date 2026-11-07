@@ -5,6 +5,11 @@
 // gagal, fallback teks server (TextQrRenderer) tetap tampil.
 import { toDataURL } from 'qrcode';
 
+// Grafik analitik (M5 FR-01/FR-03, Chart.js dibundel lewat Vite — tanpa
+// CDN, sesuai AGENTS.md). `chart.js/auto` mendaftarkan semua komponen
+// yang dipakai halaman analitik (line + bar).
+import Chart from 'chart.js/auto';
+
 // Salin dari panel jejak HTTP (M3c PAY-40/41). Tombol membawa
 // [data-copy-target="<id elemen <pre>"] dan [data-copy-label="<label
 // awal>"]; teks yang disalin adalah isi persis elemen target
@@ -465,5 +470,39 @@ document.addEventListener('DOMContentLoaded', () => {
                 btn.disabled = true;
             });
         });
+    });
+
+    // Grafik analitik (M5 FR-01/FR-03): canvas membawa [data-chart] dan
+    // konfigurasi JSON di [data-chart-config] (dibangun server-side,
+    // hanya data + opsi aman-JSON). Sumbu/tooltip Rp diaktifkan lewat
+    // [data-chart-rupiah] — callback tidak bisa lewat JSON, jadi
+    // ditambahkan di sini.
+    document.querySelectorAll('[data-chart]').forEach((canvas) => {
+        let config;
+        try {
+            config = JSON.parse(canvas.dataset.chartConfig || '{}');
+        } catch {
+            return;
+        }
+        if (!config.type || !config.data) return;
+
+        if (canvas.hasAttribute('data-chart-rupiah')) {
+            const rupiah = (value) => 'Rp ' + Number(value).toLocaleString('id-ID');
+            config.options = config.options || {};
+            config.options.plugins = config.options.plugins || {};
+            config.options.plugins.tooltip = {
+                ...(config.options.plugins.tooltip || {}),
+                callbacks: {
+                    label: (ctx) => ' ' + rupiah(ctx.parsed.y ?? ctx.parsed.x ?? 0),
+                },
+            };
+            config.options.scales = config.options.scales || {};
+            config.options.scales.y = {
+                ...(config.options.scales.y || {}),
+                ticks: { callback: (value) => rupiah(value) },
+            };
+        }
+
+        new Chart(canvas, config);
     });
 });

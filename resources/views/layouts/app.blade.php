@@ -58,14 +58,14 @@
                     <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg>
                     <span>Dashboard</span>
                 </a>
-                <span class="admin-nav-item is-disabled" aria-disabled="true">
+                <a href="{{ route('admin.tren') }}" @class(['admin-nav-item', 'is-active' => request()->routeIs('admin.tren')]) @if (request()->routeIs('admin.tren')) aria-current="page" @endif>
                     <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
                     <span>Tren</span>
-                </span>
-                <span class="admin-nav-item is-disabled" aria-disabled="true">
+                </a>
+                <a href="{{ route('admin.funnel') }}" @class(['admin-nav-item', 'is-active' => request()->routeIs('admin.funnel')]) @if (request()->routeIs('admin.funnel')) aria-current="page" @endif>
                     <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
                     <span>Funnel</span>
-                </span>
+                </a>
                 <span class="admin-nav-item is-disabled" aria-disabled="true">
                     <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" x2="18" y1="20" y2="10"/><line x1="12" x2="12" y1="20" y2="4"/><line x1="6" x2="6" y1="20" y2="14"/></svg>
                     <span>Perbandingan</span>

@@ -3217,3 +3217,94 @@ a.developer-nav-item:focus-visible {
         border: 1px solid #999 !important;
     }
 }
+
+/* ============================================================
+   Halaman analitik admin (M5 FR-01..03)
+   ============================================================ */
+.analytics-filter { display: grid; gap: 1rem; }
+.analytics-quick { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.analytics-quick [aria-current="true"] {
+    background: var(--color-primary);
+    border-color: var(--color-primary);
+    color: #fff;
+}
+.analytics-kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 1rem;
+}
+.analytics-kpi { display: flex; flex-direction: column; gap: 0.25rem; }
+.analytics-kpi-label {
+    font-size: 0.8125rem;
+    color: var(--color-text-secondary);
+}
+.analytics-kpi-value {
+    font-family: var(--font-heading);
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--color-text-primary);
+    overflow-wrap: anywhere;
+}
+.analytics-kpi-sub {
+    font-size: 0.8125rem;
+    color: var(--color-text-secondary);
+}
+.analytics-note {
+    font-size: 0.875rem;
+    color: var(--color-text-secondary);
+}
+.analytics-note-list {
+    margin: 0.75rem 0 0;
+    padding-left: 1.25rem;
+    font-size: 0.875rem;
+    color: var(--color-text-secondary);
+}
+/* Daftar berperingkat (Terlaris, Naik/Turun): nomor urut via counter
+   karena <li> ber-display flex (marker bawaan tidak tampil). */
+.analytics-list {
+    margin: 0;
+    padding-left: 0;
+    list-style: none;
+    counter-reset: analytics-rank;
+    display: grid;
+    gap: 0.5rem;
+}
+.analytics-list li {
+    counter-increment: analytics-rank;
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+}
+.analytics-list li::before {
+    content: counter(analytics-rank) ".";
+    font-weight: 700;
+    color: var(--color-primary-active);
+}
+.analytics-list li span:last-child {
+    margin-left: auto;
+    text-align: right;
+    color: var(--color-text-secondary);
+    font-size: 0.875rem;
+}
+.chart-wrap { position: relative; height: 18rem; }
+.analytics-unavailable { border-left: 4px solid var(--color-primary); }
+.analytics-trend-label {
+    display: inline-block;
+    padding: 0.125rem 0.5rem;
+    border-radius: 999px;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    background: #E2E5F3;
+    color: var(--color-text-primary);
+}
+.analytics-trend-label--naik { background: #D9F5EC; color: #0E6B4F; }
+.analytics-trend-label--turun { background: #FCE4E9; color: #8F1D38; }
+.analytics-warnings ul { margin: 0; padding-left: 1.25rem; display: grid; gap: 0.25rem; }
+
+@media (max-width: 1024px) {
+    .analytics-kpi-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 640px) {
+    .analytics-kpi-grid { grid-template-columns: 1fr; }
+    .chart-wrap { height: 14rem; }
+}
