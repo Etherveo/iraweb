@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\User;
+use App\Support\OrderNumber;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -29,9 +30,6 @@ use LogicException;
 // placeholder button lives (ORD-09).
 class CheckoutService
 {
-    // Order numbers use an unambiguous alphabet (ORD-03): no 0/O, 1/I/L.
-    private const ORDER_CODE_ALPHABET = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
-
     public function __construct(
         private readonly CartService $cart,
         private readonly StockService $stock,
@@ -128,7 +126,7 @@ class CheckoutService
             usort($lines, fn (array $a, array $b) => $a['product_id'] <=> $b['product_id']);
 
             $order = Order::create([
-                'order_number' => $this->uniqueOrderNumber(),
+                'order_number' => OrderNumber::generate(),
                 'user_id' => $user->id,
                 'status' => 'menunggu_pembayaran',
                 'total_idr' => $total,
@@ -205,19 +203,5 @@ class CheckoutService
 
             return $order->fresh();
         });
-    }
-
-    // ORD-03: IRA-YYMMDD-XXXXXX, 6 random chars, unique, non-sequential.
-    private function uniqueOrderNumber(): string
-    {
-        do {
-            $code = '';
-            for ($i = 0; $i < 6; $i++) {
-                $code .= self::ORDER_CODE_ALPHABET[random_int(0, strlen(self::ORDER_CODE_ALPHABET) - 1)];
-            }
-            $number = 'IRA-'.now()->format('ymd').'-'.$code;
-        } while (Order::query()->where('order_number', $number)->exists());
-
-        return $number;
     }
 }

@@ -1,0 +1,263 @@
+{
+  "pulau": "Jawa",
+  "provinsi": [
+    {
+      "nama": "Banten",
+      "kota_kabupaten": [
+        {
+          "nama": "Kota Serang",
+          "kecamatan": [
+            {
+              "nama": "Serang",
+              "kelurahan": [
+                {"nama": "Cimuncang", "kode_pos": "42111"},
+                {"nama": "Kotabaru", "kode_pos": "42112"}
+              ]
+            },
+            {
+              "nama": "Cipocok Jaya",
+              "kelurahan": [
+                {"nama": "Cipocok Jaya", "kode_pos": "42121"},
+                {"nama": "Banjaragung", "kode_pos": "42122"}
+              ]
+            }
+          ]
+        },
+        {
+          "nama": "Kota Tangerang Selatan",
+          "kecamatan": [
+            {
+              "nama": "Pamulang",
+              "kelurahan": [
+                {"nama": "Pamulang Barat", "kode_pos": "15417"},
+                {"nama": "Pamulang Timur", "kode_pos": "15417"}
+              ]
+            },
+            {
+              "nama": "Ciputat",
+              "kelurahan": [
+                {"nama": "Ciputat", "kode_pos": "15411"},
+                {"nama": "Cipayung", "kode_pos": "15411"}
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "nama": "Daerah Khusus Jakarta",
+      "kota_kabupaten": [
+        {
+          "nama": "Kota Administrasi Jakarta Pusat",
+          "kecamatan": [
+            {
+              "nama": "Gambir",
+              "kelurahan": [
+                {"nama": "Gambir", "kode_pos": "10110"},
+                {"nama": "Cideng", "kode_pos": "10150"}
+              ]
+            },
+            {
+              "nama": "Menteng",
+              "kelurahan": [
+                {"nama": "Menteng", "kode_pos": "10310"},
+                {"nama": "Pegangsaan", "kode_pos": "10320"}
+              ]
+            }
+          ]
+        },
+        {
+          "nama": "Kota Administrasi Jakarta Selatan",
+          "kecamatan": [
+            {
+              "nama": "Kebayoran Baru",
+              "kelurahan": [
+                {"nama": "Selong", "kode_pos": "12110"},
+                {"nama": "Gunung", "kode_pos": "12120"}
+              ]
+            },
+            {
+              "nama": "Kebayoran Lama",
+              "kelurahan": [
+                {"nama": "Grogol Utara", "kode_pos": "12210"},
+                {"nama": "Grogol Selatan", "kode_pos": "12220"}
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "nama": "Jawa Barat",
+      "kota_kabupaten": [
+        {
+          "nama": "Kota Bandung",
+          "kecamatan": [
+            {
+              "nama": "Coblong",
+              "kelurahan": [
+                {"nama": "Dago", "kode_pos": "40135"},
+                {"nama": "Lebak Gede", "kode_pos": "40132"}
+              ]
+            },
+            {
+              "nama": "Sumur Bandung",
+              "kelurahan": [
+                {"nama": "Braga", "kode_pos": "40111"},
+                {"nama": "Merdeka", "kode_pos": "40113"}
+              ]
+            }
+          ]
+        },
+        {
+          "nama": "Kota Bogor",
+          "kecamatan": [
+            {
+              "nama": "Bogor Tengah",
+              "kelurahan": [
+                {"nama": "Pabaton", "kode_pos": "16121"},
+                {"nama": "Cibogor", "kode_pos": "16124"}
+              ]
+            },
+            {
+              "nama": "Bogor Utara",
+              "kelurahan": [
+                {"nama": "Bantarjati", "kode_pos": "16153"},
+                {"nama": "Tegal Gundil", "kode_pos": "16152"}
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "nama": "Jawa Tengah",
+      "kota_kabupaten": [
+        {
+          "nama": "Kota Semarang",
+          "kecamatan": [
+            {
+              "nama": "Semarang Tengah",
+              "kelurahan": [
+                {"nama": "Miroto", "kode_pos": "50134"},
+                {"nama": "Brumbungan", "kode_pos": "50135"}
+              ]
+            },
+            {
+              "nama": "Semarang Selatan",
+              "kelurahan": [
+                {"nama": "Pleburan", "kode_pos": "50241"},
+                {"nama": "Mugassari", "kode_pos": "50249"}
+              ]
+            }
+          ]
+        },
+        {
+          "nama": "Kota Surakarta",
+          "kecamatan": [
+            {
+              "nama": "Banjarsari",
+              "kelurahan": [
+                {"nama": "Keprabon", "kode_pos": "57131"},
+                {"nama": "Timuran", "kode_pos": "57131"}
+              ]
+            },
+            {
+              "nama": "Laweyan",
+              "kelurahan": [
+                {"nama": "Sriwedari", "kode_pos": "57141"},
+                {"nama": "Penumping", "kode_pos": "57141"}
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "nama": "Daerah Istimewa Yogyakarta",
+      "kota_kabupaten": [
+        {
+          "nama": "Kota Yogyakarta",
+          "kecamatan": [
+            {
+              "nama": "Gondokusuman",
+              "kelurahan": [
+                {"nama": "Terban", "kode_pos": "55223"},
+                {"nama": "Klitren", "kode_pos": "55222"}
+              ]
+            },
+            {
+              "nama": "Gondomanan",
+              "kelurahan": [
+                {"nama": "Ngupasan", "kode_pos": "55122"},
+                {"nama": "Prawirodirjan", "kode_pos": "55121"}
+              ]
+            }
+          ]
+        },
+        {
+          "nama": "Kabupaten Sleman",
+          "kecamatan": [
+            {
+              "nama": "Depok",
+              "kelurahan": [
+                {"nama": "Caturtunggal", "kode_pos": "55281"},
+                {"nama": "Condongcatur", "kode_pos": "55283"}
+              ]
+            },
+            {
+              "nama": "Ngaglik",
+              "kelurahan": [
+                {"nama": "Sardonoharjo", "kode_pos": "55581"},
+                {"nama": "Sariharjo", "kode_pos": "55581"}
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "nama": "Jawa Timur",
+      "kota_kabupaten": [
+        {
+          "nama": "Kota Surabaya",
+          "kecamatan": [
+            {
+              "nama": "Gubeng",
+              "kelurahan": [
+                {"nama": "Airlangga", "kode_pos": "60286"},
+                {"nama": "Gubeng", "kode_pos": "60281"}
+              ]
+            },
+            {
+              "nama": "Tegalsari",
+              "kelurahan": [
+                {"nama": "Kedungdoro", "kode_pos": "60261"},
+                {"nama": "Tegalsari", "kode_pos": "60262"}
+              ]
+            }
+          ]
+        },
+        {
+          "nama": "Kota Malang",
+          "kecamatan": [
+            {
+              "nama": "Klojen",
+              "kelurahan": [
+                {"nama": "Klojen", "kode_pos": "65111"},
+                {"nama": "Oro-oro Dowo", "kode_pos": "65112"}
+              ]
+            },
+            {
+              "nama": "Lowokwaru",
+              "kelurahan": [
+                {"nama": "Lowokwaru", "kode_pos": "65141"},
+                {"nama": "Tulusrejo", "kode_pos": "65141"}
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

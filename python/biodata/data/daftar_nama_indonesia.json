@@ -1,0 +1,829 @@
+{
+  "daftar_nama": [
+    {
+      "nama": "Sutrisno",
+      "gender": "laki-laki",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Slamet",
+      "gender": "laki-laki",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Mulyadi",
+      "gender": "laki-laki",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Herman",
+      "gender": "laki-laki",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Supardi",
+      "gender": "laki-laki",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Ismail",
+      "gender": "laki-laki",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Supriyanto",
+      "gender": "laki-laki",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Nurhayati",
+      "gender": "perempuan",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Sulastri",
+      "gender": "perempuan",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Sumiati",
+      "gender": "perempuan",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Sri Wahyuni",
+      "gender": "perempuan",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Sumarni",
+      "gender": "perempuan",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Sunarti",
+      "gender": "perempuan",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Siti Aminah",
+      "gender": "perempuan",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Ernawati",
+      "gender": "perempuan",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Aditya Pratama",
+      "gender": "laki-laki",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Rizky Maulana",
+      "gender": "laki-laki",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Dimas Saputra",
+      "gender": "laki-laki",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Fajar Ramadhan",
+      "gender": "laki-laki",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Rendra Kurniawan",
+      "gender": "laki-laki",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Yoga Firmansyah",
+      "gender": "laki-laki",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Arif Setiawan",
+      "gender": "laki-laki",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Bayu Permana",
+      "gender": "laki-laki",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Andika Putra",
+      "gender": "laki-laki",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Ilham Akbar",
+      "gender": "laki-laki",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Reza Pahlevi",
+      "gender": "laki-laki",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Farhan Hakim",
+      "gender": "laki-laki",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Aldi Nugraha",
+      "gender": "laki-laki",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Bagas Wicaksono",
+      "gender": "laki-laki",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Galih Prakoso",
+      "gender": "laki-laki",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Rafi Hidayat",
+      "gender": "laki-laki",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Taufik Iskandar",
+      "gender": "laki-laki",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Hendra Kusuma",
+      "gender": "laki-laki",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Yudha Pamungkas",
+      "gender": "laki-laki",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Wahyu Prasetyo",
+      "gender": "laki-laki",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Doni Kurnia",
+      "gender": "laki-laki",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Febriansyah",
+      "gender": "laki-laki",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Eko Purnomo",
+      "gender": "laki-laki",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Dedi Irawan",
+      "gender": "laki-laki",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Rian Syahputra",
+      "gender": "laki-laki",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Irfan Setia",
+      "gender": "laki-laki",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Akmal Fadillah",
+      "gender": "laki-laki",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Bintang Mahendra",
+      "gender": "laki-laki",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Randy Saputro",
+      "gender": "laki-laki",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Kevin Alfarizi",
+      "gender": "laki-laki",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Naufal Firdaus",
+      "gender": "laki-laki",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Zainal Arifin",
+      "gender": "laki-laki",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Hafiz Ananda",
+      "gender": "laki-laki",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Danu Pratama",
+      "gender": "laki-laki",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Sandi Wijaya",
+      "gender": "laki-laki",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Miko Saputra",
+      "gender": "laki-laki",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Yusril Ramadhan",
+      "gender": "laki-laki",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Guntur Pranata",
+      "gender": "laki-laki",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Riko Apriansyah",
+      "gender": "laki-laki",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Syahrul Mubin",
+      "gender": "laki-laki",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Aldo Firmansyah",
+      "gender": "laki-laki",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Fikri Abdullah",
+      "gender": "laki-laki",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Ridwan Fadli",
+      "gender": "laki-laki",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Miftahul Rizal",
+      "gender": "laki-laki",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Nanda Kurniawan",
+      "gender": "laki-laki",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Jefriansyah",
+      "gender": "laki-laki",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Andri Syahdan",
+      "gender": "laki-laki",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Ardiansyah Putra",
+      "gender": "laki-laki",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Hamdan Yusuf",
+      "gender": "laki-laki",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Syamsul Bahri",
+      "gender": "laki-laki",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Daffa Alfaruq",
+      "gender": "laki-laki",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Rangga Mahardika",
+      "gender": "laki-laki",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Pandu Lesmana",
+      "gender": "laki-laki",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Junaidi Karim",
+      "gender": "laki-laki",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Rifki Faturrahman",
+      "gender": "laki-laki",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Malik Ramli",
+      "gender": "laki-laki",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Fadlan Akbar",
+      "gender": "laki-laki",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Sahrul Anwar",
+      "gender": "laki-laki",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Rio Kharisma",
+      "gender": "laki-laki",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Rasyid Mubarak",
+      "gender": "laki-laki",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Yanuar Aditya",
+      "gender": "laki-laki",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Satria Pamungkas",
+      "gender": "laki-laki",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Iqbal Fauzan",
+      "gender": "laki-laki",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Maman Hidayat",
+      "gender": "laki-laki",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Kresna Wijanarko",
+      "gender": "laki-laki",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Lutfi Hakim",
+      "gender": "laki-laki",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Oki Pratama",
+      "gender": "laki-laki",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Arkan Maulana",
+      "gender": "laki-laki",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Dzaky Firmansyah",
+      "gender": "laki-laki",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Rully Permadi",
+      "gender": "laki-laki",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Aswin Mahendra",
+      "gender": "laki-laki",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Rasyad Fikri",
+      "gender": "laki-laki",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Mardian Saleh",
+      "gender": "laki-laki",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Fadhel Akbar",
+      "gender": "laki-laki",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Alwan Syukur",
+      "gender": "laki-laki",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Anisa Putri",
+      "gender": "perempuan",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Nabila Azzahra",
+      "gender": "perempuan",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Putri Anggraini",
+      "gender": "perempuan",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Intan Permatasari",
+      "gender": "perempuan",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Rani Puspitasari",
+      "gender": "perempuan",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Fitri Handayani",
+      "gender": "perempuan",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Ayu Maharani",
+      "gender": "perempuan",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Laila Khairunnisa",
+      "gender": "perempuan",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Nadya Oktaviani",
+      "gender": "perempuan",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Citra Amelia",
+      "gender": "perempuan",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Tiara Safitri",
+      "gender": "perempuan",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Vina Aprilia",
+      "gender": "perempuan",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Melati Wulandari",
+      "gender": "perempuan",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Dinda Kartika",
+      "gender": "perempuan",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Riska Amelia",
+      "gender": "perempuan",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Maya Febrianti",
+      "gender": "perempuan",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Desi Anggraini",
+      "gender": "perempuan",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Nia Kurniasih",
+      "gender": "perempuan",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Eka Puspita",
+      "gender": "perempuan",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Yuni Astuti",
+      "gender": "perempuan",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Ratna Pertiwi",
+      "gender": "perempuan",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Indah Pratiwi",
+      "gender": "perempuan",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Winda Lestari",
+      "gender": "perempuan",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Sari Novitasari",
+      "gender": "perempuan",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Rika Yuliana",
+      "gender": "perempuan",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Fitria Ningsih",
+      "gender": "perempuan",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Novia Rahma",
+      "gender": "perempuan",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Zahra Nurfadila",
+      "gender": "perempuan",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Salsabila Putri",
+      "gender": "perempuan",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Aulia Rahmadani",
+      "gender": "perempuan",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Shinta Maharani",
+      "gender": "perempuan",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Mutiara Anjani",
+      "gender": "perempuan",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Rahmawati",
+      "gender": "perempuan",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Nurul Fajriani",
+      "gender": "perempuan",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Wulan Sari",
+      "gender": "perempuan",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Cici Amelia",
+      "gender": "perempuan",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Anjani Kusuma",
+      "gender": "perempuan",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Dwi Lestari",
+      "gender": "perempuan",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Niken Larasati",
+      "gender": "perempuan",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Febrina Dewi",
+      "gender": "perempuan",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Riska Yuniarti",
+      "gender": "perempuan",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Rara Oktavia",
+      "gender": "perempuan",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Syifa Azzahra",
+      "gender": "perempuan",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Safira Nabila",
+      "gender": "perempuan",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Hasna Maulida",
+      "gender": "perempuan",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Nurlaila",
+      "gender": "perempuan",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Yuliana Sari",
+      "gender": "perempuan",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Kurnia Salsabila",
+      "gender": "perempuan",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Della Puspita",
+      "gender": "perempuan",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Tika Ramadhani",
+      "gender": "perempuan",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Meylani Putri",
+      "gender": "perempuan",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Suci Wulandari",
+      "gender": "perempuan",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Riska Fitriani",
+      "gender": "perempuan",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Nanda Pertiwi",
+      "gender": "perempuan",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Evi Marlina",
+      "gender": "perempuan",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Ririn Amelia",
+      "gender": "perempuan",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Fadila Zahira",
+      "gender": "perempuan",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Marisa Kurnia",
+      "gender": "perempuan",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Aisyah Humaira",
+      "gender": "perempuan",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Lutfia Rahman",
+      "gender": "perempuan",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Nurlina Yusuf",
+      "gender": "perempuan",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Yusnita Karim",
+      "gender": "perempuan",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Karmila Hasan",
+      "gender": "perempuan",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Desmawati",
+      "gender": "perempuan",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Melyana",
+      "gender": "perempuan",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Juliana Umar",
+      "gender": "perempuan",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Hasnawati",
+      "gender": "perempuan",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Nurjannah",
+      "gender": "perempuan",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Ismiati",
+      "gender": "perempuan",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Rahmi Safitri",
+      "gender": "perempuan",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Zulfia Ananda",
+      "gender": "perempuan",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Riska Maharani",
+      "gender": "perempuan",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Nurfadilah",
+      "gender": "perempuan",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Alia Sasmita",
+      "gender": "perempuan",
+      "kelompok": "indonesia"
+    },
+    {
+      "nama": "Cahyani Putri",
+      "gender": "perempuan",
+      "kelompok": "indonesia"
+    }
+  ]
+}

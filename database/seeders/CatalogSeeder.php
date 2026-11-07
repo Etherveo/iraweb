@@ -8,7 +8,8 @@ use App\Models\StockMovement;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
 
-// M2 catalog seed data.
+// M2 catalog seed data. M4 SIM-42 expanded it to 6 categories /
+// 40 active products (min 5 per category).
 // DATA CONTOH FIKTIF — bukan data penjualan Ira Stationery yang asli,
 // bukan data toko yang sebenarnya. Nama, harga, dan stok di bawah hanya
 // contoh untuk demo/pengujian, dan harus diganti admin lewat halaman
@@ -24,6 +25,10 @@ class CatalogSeeder extends Seeder
                 ['Pensil 2B', 3000, 200],
                 ['Pensil Mekanik 0,5 mm', 15000, 40],
                 ['Spidol Whiteboard Hitam', 12000, 60],
+                ['Pulpen Gel Merah 0,5 mm', 5000, 70],
+                ['Spidol Whiteboard Biru', 12000, 55],
+                ['Spidol Permanen Hitam', 15000, 40],
+                ['Pensil Mekanik 0,7 mm', 18000, 35],
             ],
             'Kertas & Buku' => [
                 ['Buku Tulis 38 Lembar', 6000, 150],
@@ -31,6 +36,9 @@ class CatalogSeeder extends Seeder
                 ['Kertas HVS A4 1 Rim', 55000, 30],
                 ['Kertas Origami 1 Pak', 8000, 70],
                 ['Map Plastik Bening', 4000, 110],
+                ['Buku Tulis 58 Lembar', 8000, 120],
+                ['Buku Agenda A5', 25000, 45],
+                ['Kertas HVS F4 1 Rim', 60000, 25],
             ],
             'Perlengkapan Kantor' => [
                 ['Stapler Kecil', 25000, 25],
@@ -38,20 +46,32 @@ class CatalogSeeder extends Seeder
                 ['Gunting Kantor', 18000, 45],
                 ['Lem Stick', 9000, 80],
                 ['Selotip Bening', 6000, 100],
+                ['Pembolong Kertas', 35000, 20],
+                ['Binder Clip Set 12', 12000, 90],
+                ['Stapler Besar', 45000, 15],
             ],
             'Seni & Kreativitas' => [
                 ['Pensil Warna 12 Warna', 35000, 35],
                 ['Crayon 24 Warna', 45000, 20],
                 ['Cat Air 12 Warna', 55000, 15],
                 ['Kuas Lukis Set 5', 30000, 25],
+                ['Cat Akrilik 6 Warna', 60000, 18],
             ],
             'Aksesoris Sekolah' => [
                 ['Penggaris 30 cm', 5000, 130],
                 ['Penghapus Putih', 2000, 160],
                 ['Rautan Pensil', 3000, 90],
                 ['Tas Pensil Kain', 20000, 50],
+                ['Tempat Pensil Plastik', 15000, 60],
                 // Produk contoh nonaktif: tidak tampil di katalog pembeli (SHP-04).
                 ['Kotak Pensil Kayu Edisi Lama', 40000, 10, false],
+            ],
+            'Tas & Ransel Sekolah' => [
+                ['Tas Ransel Sekolah Polos', 120000, 20],
+                ['Tas Selempang Anak', 75000, 30],
+                ['Tas Ransel Laptop 14 Inci', 185000, 12],
+                ['Tas Bekal Sekolah', 35000, 45],
+                ['Tas Ransel Mini Anak', 65000, 25],
             ],
         ];
 
@@ -87,7 +107,7 @@ class CatalogSeeder extends Seeder
                         'order_id' => null,
                         'actor_type' => 'admin_toko',
                         'actor_id' => null,
-                        'note' => 'Stok awal seeder M2 (data contoh fiktif): 0 → '.$stock.'.',
+                        'note' => 'Stok awal seeder (data contoh fiktif): 0 → '.$stock.'.',
                         'origin' => 'normal',
                         'simulation_run_id' => null,
                         'created_at' => now(),

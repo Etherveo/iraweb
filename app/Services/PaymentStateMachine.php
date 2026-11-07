@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\Payment;
 use App\Models\PaymentStatusTransition;
 use App\Models\User;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
@@ -19,6 +20,14 @@ use Illuminate\Validation\ValidationException;
 // paid call is rejected (the payment is already final), so stock and
 // purchase events can never double (PAY-27 maps that rejection to
 // 200 already_processed).
+//
+// M4 SIM-29: transition()/recordInitial()/writeTransition() accept an
+// optional ?Carbon $at. When null (the default) every stamp is now(),
+// exactly as before; when given, the stamps use $at, so a backdated
+// simulation run can place the transition inside its period. The
+// mark* cascades are NOT extended and NOT used by the simulator
+// (rencana §2.4/R2: they reject expired payments, touch stock, and
+// hardcode their triggers); the simulator uses transition() directly.
 class PaymentStateMachine
 {
     public const TRANSITIONS = [
@@ -47,6 +56,7 @@ class PaymentStateMachine
         string $to,
         string $trigger,
         ?string $requestId = null,
+        ?Carbon $at = null,
     ): Payment {
         $from = $payment->status;
 
@@ -56,21 +66,23 @@ class PaymentStateMachine
             ]);
         }
 
+        $stamp = $at ?? now();
+
         $payment->update([
             'status' => $to,
-            'paid_at' => $to === 'paid' ? now() : $payment->paid_at,
-            'updated_at' => now(),
+            'paid_at' => $to === 'paid' ? $stamp : $payment->paid_at,
+            'updated_at' => $stamp,
         ]);
 
-        $this->writeTransition($payment, $from, $to, $trigger, $requestId);
+        $this->writeTransition($payment, $from, $to, $trigger, $requestId, $at);
 
         return $payment->fresh();
     }
 
     // The initial transition row for a new payment (null -> pending).
-    public function recordInitial(Payment $payment, string $trigger): void
+    public function recordInitial(Payment $payment, string $trigger, ?Carbon $at = null): void
     {
-        $this->writeTransition($payment, null, 'pending', $trigger, null);
+        $this->writeTransition($payment, null, 'pending', $trigger, null, $at);
     }
 
     // PAY-29 / STK-03 / EVT-05: pending -> paid, order -> dibayar,
@@ -205,17 +217,20 @@ class PaymentStateMachine
         string $to,
         string $trigger,
         ?string $requestId,
+        ?Carbon $at = null,
     ): void {
+        $stamp = $at ?? now();
+
         PaymentStatusTransition::create([
             'payment_id' => $payment->id,
             'from_status' => $from,
             'to_status' => $to,
             'trigger' => $trigger,
             'request_id' => $requestId,
-            'occurred_at' => now(),
+            'occurred_at' => $stamp,
             'origin' => $payment->origin,
             'simulation_run_id' => $payment->simulation_run_id,
-            'created_at' => now(),
+            'created_at' => $stamp,
         ]);
     }
 }

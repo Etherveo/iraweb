@@ -1,0 +1,578 @@
+{
+  "pulau": "Kalimantan",
+  "provinsi": [
+    {
+      "nama": "Kalimantan Barat",
+      "kota_kabupaten": [
+        {
+          "nama": "Kota Pontianak",
+          "kecamatan": [
+            {
+              "nama": "Pontianak Selatan",
+              "kelurahan": [
+                {
+                  "nama": "Benua Melayu Laut",
+                  "kode_pos": "78123"
+                },
+                {
+                  "nama": "Benua Melayu Darat",
+                  "kode_pos": "78122"
+                },
+                {
+                  "nama": "Kota Baru",
+                  "kode_pos": "78121"
+                }
+              ]
+            },
+            {
+              "nama": "Pontianak Kota",
+              "kelurahan": [
+                {
+                  "nama": "Tengah",
+                  "kode_pos": "78111"
+                },
+                {
+                  "nama": "Mariana",
+                  "kode_pos": "78112"
+                },
+                {
+                  "nama": "Darat Sekip",
+                  "kode_pos": "78117"
+                }
+              ]
+            },
+            {
+              "nama": "Pontianak Tenggara",
+              "kelurahan": [
+                {
+                  "nama": "Bansir Darat",
+                  "kode_pos": "78124"
+                },
+                {
+                  "nama": "Bansir Laut",
+                  "kode_pos": "78181",
+                  "sumber": "generated"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "nama": "Kota Singkawang",
+          "kecamatan": [
+            {
+              "nama": "Singkawang Barat",
+              "kelurahan": [
+                {
+                  "nama": "Pasiran",
+                  "kode_pos": "79123"
+                }
+              ]
+            },
+            {
+              "nama": "Singkawang Tengah",
+              "kelurahan": [
+                {
+                  "nama": "Roban",
+                  "kode_pos": "79112"
+                },
+                {
+                  "nama": "Condong",
+                  "kode_pos": "79111"
+                }
+              ]
+            },
+            {
+              "nama": "Singkawang Selatan",
+              "kelurahan": [
+                {
+                  "nama": "Sedau",
+                  "kode_pos": "79163"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "nama": "Kalimantan Tengah",
+      "kota_kabupaten": [
+        {
+          "nama": "Kota Palangka Raya",
+          "kecamatan": [
+            {
+              "nama": "Pahandut",
+              "kelurahan": [
+                {
+                  "nama": "Langkai",
+                  "kode_pos": "73111"
+                },
+                {
+                  "nama": "Pahandut",
+                  "kode_pos": "73111"
+                },
+                {
+                  "nama": "Panarung",
+                  "kode_pos": "73111"
+                }
+              ]
+            },
+            {
+              "nama": "Jekan Raya",
+              "kelurahan": [
+                {
+                  "nama": "Bukit Tunggal",
+                  "kode_pos": "73112"
+                },
+                {
+                  "nama": "Menteng",
+                  "kode_pos": "73111"
+                },
+                {
+                  "nama": "Palangka",
+                  "kode_pos": "73112"
+                }
+              ]
+            },
+            {
+              "nama": "Sebangau",
+              "kelurahan": [
+                {
+                  "nama": "Kereng Bangkirai",
+                  "kode_pos": "73113"
+                },
+                {
+                  "nama": "Sabaru",
+                  "kode_pos": "73113"
+                },
+                {
+                  "nama": "Kalampangan",
+                  "kode_pos": "73114"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "nama": "Kabupaten Kotawaringin Timur",
+          "kecamatan": [
+            {
+              "nama": "Baamang",
+              "kelurahan": [
+                {
+                  "nama": "Baamang Hilir",
+                  "kode_pos": "74311"
+                },
+                {
+                  "nama": "Baamang Barat",
+                  "kode_pos": "74312"
+                },
+                {
+                  "nama": "Baamang Tengah",
+                  "kode_pos": "74312"
+                }
+              ]
+            },
+            {
+              "nama": "Mentawa Baru (Ketapang)",
+              "kelurahan": [
+                {
+                  "nama": "Mentawa Baru Hilir",
+                  "kode_pos": "74323"
+                },
+                {
+                  "nama": "Mentawa Baru Hulu",
+                  "kode_pos": "74322"
+                },
+                {
+                  "nama": "Ketapang",
+                  "kode_pos": "74325"
+                }
+              ]
+            },
+            {
+              "nama": "Seranau",
+              "kelurahan": [
+                {
+                  "nama": "Ganepo",
+                  "kode_pos": "74314"
+                },
+                {
+                  "nama": "Terantang",
+                  "kode_pos": "74314"
+                },
+                {
+                  "nama": "Batuah",
+                  "kode_pos": "74315"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "nama": "Kalimantan Selatan",
+      "kota_kabupaten": [
+        {
+          "nama": "Kota Banjarmasin",
+          "kecamatan": [
+            {
+              "nama": "Banjarmasin Selatan",
+              "kelurahan": [
+                {
+                  "nama": "Pemurus Dalam",
+                  "kode_pos": "70248"
+                },
+                {
+                  "nama": "Kelayan Selatan",
+                  "kode_pos": "70246"
+                },
+                {
+                  "nama": "Kelayan Timur",
+                  "kode_pos": "70247"
+                }
+              ]
+            },
+            {
+              "nama": "Banjarmasin Tengah",
+              "kelurahan": [
+                {
+                  "nama": "Antasan Besar",
+                  "kode_pos": "70114"
+                }
+              ]
+            },
+            {
+              "nama": "Banjarmasin Barat",
+              "kelurahan": [
+                {
+                  "nama": "Pelambuan",
+                  "kode_pos": "70118"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "nama": "Kota Banjarbaru",
+          "kecamatan": [
+            {
+              "nama": "Banjar Baru Selatan",
+              "kelurahan": [
+                {
+                  "nama": "Guntung Paikat",
+                  "kode_pos": "70713"
+                },
+                {
+                  "nama": "Kemuning",
+                  "kode_pos": "70714"
+                },
+                {
+                  "nama": "Loktabat Selatan",
+                  "kode_pos": "70714"
+                }
+              ]
+            },
+            {
+              "nama": "Banjar Baru Utara",
+              "kelurahan": [
+                {
+                  "nama": "Komet",
+                  "kode_pos": "70714"
+                },
+                {
+                  "nama": "Loktabat Utara",
+                  "kode_pos": "70714"
+                },
+                {
+                  "nama": "Mentaos",
+                  "kode_pos": "70714"
+                }
+              ]
+            },
+            {
+              "nama": "Cempaka",
+              "kelurahan": [
+                {
+                  "nama": "Palam",
+                  "kode_pos": "70731"
+                },
+                {
+                  "nama": "Bangkal",
+                  "kode_pos": "70732"
+                },
+                {
+                  "nama": "Cempaka",
+                  "kode_pos": "70733"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "nama": "Kabupaten Banjar",
+          "kecamatan": [
+            {
+              "nama": "Martapura Kota",
+              "kelurahan": [
+                {
+                  "nama": "Jawa",
+                  "kode_pos": "70614"
+                },
+                {
+                  "nama": "Jawa Laut",
+                  "kode_pos": "70615"
+                },
+                {
+                  "nama": "Tunggul Irang",
+                  "kode_pos": "70615"
+                }
+              ]
+            },
+            {
+              "nama": "Aluh-Aluh",
+              "kelurahan": [
+                {
+                  "nama": "Handil Baru",
+                  "kode_pos": "70655"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "nama": "Kalimantan Timur",
+      "kota_kabupaten": [
+        {
+          "nama": "Kota Samarinda",
+          "kecamatan": [
+            {
+              "nama": "Samarinda Kota",
+              "kelurahan": [
+                {
+                  "nama": "Pasar Pagi",
+                  "kode_pos": "75111"
+                },
+                {
+                  "nama": "Pelabuhan",
+                  "kode_pos": "75112"
+                },
+                {
+                  "nama": "Karang Mumus",
+                  "kode_pos": "75113"
+                }
+              ]
+            },
+            {
+              "nama": "Samarinda Ilir",
+              "kelurahan": [
+                {
+                  "nama": "Selili",
+                  "kode_pos": "75114"
+                },
+                {
+                  "nama": "Sungai Dama",
+                  "kode_pos": "75115"
+                },
+                {
+                  "nama": "Sidodamai",
+                  "kode_pos": "75116"
+                }
+              ]
+            },
+            {
+              "nama": "Samarinda Ulu",
+              "kelurahan": [
+                {
+                  "nama": "Air Hitam",
+                  "kode_pos": "75124"
+                },
+                {
+                  "nama": "Air Putih",
+                  "kode_pos": "75124"
+                },
+                {
+                  "nama": "Bukit Pinang",
+                  "kode_pos": "75124"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "nama": "Kota Balikpapan",
+          "kecamatan": [
+            {
+              "nama": "Balikpapan Kota",
+              "kelurahan": [
+                {
+                  "nama": "Klandasan Ilir",
+                  "kode_pos": "76113"
+                }
+              ]
+            },
+            {
+              "nama": "Balikpapan Selatan",
+              "kelurahan": [
+                {
+                  "nama": "Damai Baru",
+                  "kode_pos": "76114"
+                },
+                {
+                  "nama": "Sepinggan",
+                  "kode_pos": "76115"
+                }
+              ]
+            },
+            {
+              "nama": "Balikpapan Barat",
+              "kelurahan": [
+                {
+                  "nama": "Baru Ilir",
+                  "kode_pos": "76131"
+                },
+                {
+                  "nama": "Marga Sari",
+                  "kode_pos": "76131"
+                },
+                {
+                  "nama": "Margo Mulyo",
+                  "kode_pos": "76131"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "nama": "Kota Bontang",
+          "kecamatan": [
+            {
+              "nama": "Bontang Utara",
+              "kelurahan": [
+                {
+                  "nama": "Bontang Baru",
+                  "kode_pos": "75311"
+                }
+              ]
+            },
+            {
+              "nama": "Bontang Selatan",
+              "kelurahan": [
+                {
+                  "nama": "Tanjung Laut",
+                  "kode_pos": "75321"
+                },
+                {
+                  "nama": "Berebas Tengah",
+                  "kode_pos": "75325"
+                },
+                {
+                  "nama": "Berebas Pantai",
+                  "kode_pos": "75325"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "nama": "Kalimantan Utara",
+      "kota_kabupaten": [
+        {
+          "nama": "Kabupaten Bulungan",
+          "kecamatan": [
+            {
+              "nama": "Tanjung Selor",
+              "kelurahan": [
+                {
+                  "nama": "Tanjung Selor Ulu",
+                  "kode_pos": "77211"
+                },
+                {
+                  "nama": "Tanjung Selor Ilir",
+                  "kode_pos": "77212"
+                },
+                {
+                  "nama": "Apung",
+                  "kode_pos": "77212"
+                }
+              ]
+            },
+            {
+              "nama": "Tanjung Palas Timur",
+              "kelurahan": [
+                {
+                  "nama": "Tanah Kuning",
+                  "kode_pos": "77215"
+                },
+                {
+                  "nama": "Mangkupadi",
+                  "kode_pos": "77215"
+                },
+                {
+                  "nama": "Pura Sajau",
+                  "kode_pos": "77215"
+                }
+              ]
+            },
+            {
+              "nama": "Pulau Bunyu",
+              "kelurahan": [
+                {
+                  "nama": "Pulau Bunyu Timur",
+                  "kode_pos": "77281"
+                },
+                {
+                  "nama": "Pulau Bunyu Barat",
+                  "kode_pos": "77281"
+                },
+                {
+                  "nama": "Pulau Bunyu Selatan",
+                  "kode_pos": "77281"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "nama": "Kota Tarakan",
+          "kecamatan": [
+            {
+              "nama": "Tarakan Barat",
+              "kelurahan": [
+                {
+                  "nama": "Karang Balik",
+                  "kode_pos": "77112"
+                },
+                {
+                  "nama": "Karang Rejo",
+                  "kode_pos": "77112"
+                }
+              ]
+            },
+            {
+              "nama": "Tarakan Tengah",
+              "kelurahan": [
+                {
+                  "nama": "Pamusian",
+                  "kode_pos": "77135",
+                  "sumber": "generated"
+                },
+                {
+                  "nama": "Selumit",
+                  "kode_pos": "77193",
+                  "sumber": "generated"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,713 @@
+{
+  "pulau": "Sulawesi",
+  "provinsi": [
+    {
+      "nama": "Gorontalo",
+      "kota_kabupaten": [
+        {
+          "nama": "Kota Gorontalo",
+          "kecamatan": [
+            {
+              "nama": "Kota Selatan",
+              "kelurahan": [
+                {
+                  "nama": "Limba B",
+                  "kode_pos": "96115"
+                },
+                {
+                  "nama": "Limba U I",
+                  "kode_pos": "96115"
+                },
+                {
+                  "nama": "Limba U II",
+                  "kode_pos": "96115"
+                }
+              ]
+            },
+            {
+              "nama": "Kota Utara",
+              "kelurahan": [
+                {
+                  "nama": "Dembe Jaya",
+                  "kode_pos": "96123"
+                },
+                {
+                  "nama": "Wongkaditi",
+                  "kode_pos": "96123"
+                },
+                {
+                  "nama": "Wongkaditi Barat",
+                  "kode_pos": "96123"
+                }
+              ]
+            },
+            {
+              "nama": "Kota Timur",
+              "kelurahan": [
+                {
+                  "nama": "Heledulaa",
+                  "kode_pos": "96191",
+                  "sumber": "generated"
+                },
+                {
+                  "nama": "Heledulaa Selatan",
+                  "kode_pos": "96124",
+                  "sumber": "generated"
+                },
+                {
+                  "nama": "Ipilo",
+                  "kode_pos": "96113",
+                  "sumber": "generated"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "nama": "Kabupaten Gorontalo",
+          "kecamatan": [
+            {
+              "nama": "Limboto",
+              "kelurahan": [
+                {
+                  "nama": "Kayubulan",
+                  "kode_pos": "96211"
+                },
+                {
+                  "nama": "Hepuhulawa",
+                  "kode_pos": "96212"
+                },
+                {
+                  "nama": "Hunggaluwa",
+                  "kode_pos": "96219"
+                }
+              ]
+            },
+            {
+              "nama": "Limboto Barat",
+              "kelurahan": [
+                {
+                  "nama": "Daenaa",
+                  "kode_pos": "96215"
+                },
+                {
+                  "nama": "Huidu",
+                  "kode_pos": "96215"
+                },
+                {
+                  "nama": "Ombulo",
+                  "kode_pos": "96215"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "nama": "Sulawesi Utara",
+      "kota_kabupaten": [
+        {
+          "nama": "Kota Manado",
+          "kecamatan": [
+            {
+              "nama": "Wenang",
+              "kelurahan": [
+                {
+                  "nama": "Wenang Utara",
+                  "kode_pos": "95145",
+                  "sumber": "generated"
+                },
+                {
+                  "nama": "Wenang Selatan",
+                  "kode_pos": "95141",
+                  "sumber": "generated"
+                },
+                {
+                  "nama": "Wenang Tengah",
+                  "kode_pos": "95138",
+                  "sumber": "generated"
+                }
+              ]
+            },
+            {
+              "nama": "Sario",
+              "kelurahan": [
+                {
+                  "nama": "Sario",
+                  "kode_pos": "95127",
+                  "sumber": "generated"
+                },
+                {
+                  "nama": "Sario Utara",
+                  "kode_pos": "95123",
+                  "sumber": "generated"
+                },
+                {
+                  "nama": "Sario Tumpaan",
+                  "kode_pos": "95196",
+                  "sumber": "generated"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "nama": "Kota Bitung",
+          "kecamatan": [
+            {
+              "nama": "Maesa",
+              "kelurahan": [
+                {
+                  "nama": "Bitung Timur",
+                  "kode_pos": "95579",
+                  "sumber": "generated"
+                },
+                {
+                  "nama": "Bitung Barat Satu",
+                  "kode_pos": "95521",
+                  "sumber": "generated"
+                },
+                {
+                  "nama": "Bitung Barat Dua",
+                  "kode_pos": "95585",
+                  "sumber": "generated"
+                }
+              ]
+            },
+            {
+              "nama": "Aertembaga",
+              "kelurahan": [
+                {
+                  "nama": "Aertembaga Satu",
+                  "kode_pos": "95564",
+                  "sumber": "generated"
+                },
+                {
+                  "nama": "Aertembaga Dua",
+                  "kode_pos": "95514",
+                  "sumber": "generated"
+                },
+                {
+                  "nama": "Makawidey",
+                  "kode_pos": "95513",
+                  "sumber": "generated"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "nama": "Sulawesi Tengah",
+      "kota_kabupaten": [
+        {
+          "nama": "Kota Palu",
+          "kecamatan": [
+            {
+              "nama": "Palu Barat",
+              "kelurahan": [
+                {
+                  "nama": "Lere",
+                  "kode_pos": "94121",
+                  "sumber": "generated"
+                },
+                {
+                  "nama": "Kamonji",
+                  "kode_pos": "94137",
+                  "sumber": "generated"
+                },
+                {
+                  "nama": "Ujuna",
+                  "kode_pos": "94139",
+                  "sumber": "generated"
+                }
+              ]
+            },
+            {
+              "nama": "Palu Timur",
+              "kelurahan": [
+                {
+                  "nama": "Besusu Barat",
+                  "kode_pos": "94174",
+                  "sumber": "generated"
+                },
+                {
+                  "nama": "Besusu Tengah",
+                  "kode_pos": "94187",
+                  "sumber": "generated"
+                },
+                {
+                  "nama": "Besusu Timur",
+                  "kode_pos": "94113",
+                  "sumber": "generated"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "nama": "Kabupaten Banggai",
+          "kecamatan": [
+            {
+              "nama": "Luwuk",
+              "kelurahan": [
+                {
+                  "nama": "Baru",
+                  "kode_pos": "94711"
+                },
+                {
+                  "nama": "Karaton",
+                  "kode_pos": "94711"
+                },
+                {
+                  "nama": "Luwuk",
+                  "kode_pos": "94711"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "nama": "Sulawesi Barat",
+      "kota_kabupaten": [
+        {
+          "nama": "Kabupaten Mamuju",
+          "kecamatan": [
+            {
+              "nama": "Oman",
+              "sumber": "generated",
+              "kelurahan": [
+                {
+                  "nama": "Panang",
+                  "kode_pos": "91599",
+                  "sumber": "generated"
+                },
+                {
+                  "nama": "Sedamur",
+                  "kode_pos": "91579",
+                  "sumber": "generated"
+                },
+                {
+                  "nama": "Tenga Lau Tiang",
+                  "kode_pos": "91563",
+                  "sumber": "generated"
+                }
+              ]
+            },
+            {
+              "nama": "Weya",
+              "sumber": "generated",
+              "kelurahan": [
+                {
+                  "nama": "Ng Ba Bua",
+                  "kode_pos": "91538",
+                  "sumber": "generated"
+                },
+                {
+                  "nama": "Bit",
+                  "kode_pos": "91567",
+                  "sumber": "generated"
+                },
+                {
+                  "nama": "Kedama",
+                  "kode_pos": "91585",
+                  "sumber": "generated"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "nama": "Kabupaten Majene",
+          "kecamatan": [
+            {
+              "nama": "Pandamang",
+              "sumber": "generated",
+              "kelurahan": [
+                {
+                  "nama": "Mang Bua",
+                  "kode_pos": "91445",
+                  "sumber": "generated"
+                },
+                {
+                  "nama": "Cidekario",
+                  "kode_pos": "91410",
+                  "sumber": "generated"
+                },
+                {
+                  "nama": "Bar Ti Bari",
+                  "kode_pos": "91430",
+                  "sumber": "generated"
+                }
+              ]
+            },
+            {
+              "nama": "Barat Selas Dowo",
+              "sumber": "generated",
+              "kelurahan": [
+                {
+                  "nama": "Baamura",
+                  "kode_pos": "91499",
+                  "sumber": "generated"
+                },
+                {
+                  "nama": "Komeng",
+                  "kode_pos": "91464",
+                  "sumber": "generated"
+                },
+                {
+                  "nama": "Ujung Ti",
+                  "kode_pos": "91453",
+                  "sumber": "generated"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "nama": "Kabupaten Mamasa",
+          "kecamatan": [
+            {
+              "nama": "Tan",
+              "sumber": "generated",
+              "kelurahan": [
+                {
+                  "nama": "Panepulau Hilik",
+                  "kode_pos": "91384",
+                  "sumber": "generated"
+                },
+                {
+                  "nama": "Wey",
+                  "kode_pos": "91259",
+                  "sumber": "generated"
+                },
+                {
+                  "nama": "Dautan",
+                  "kode_pos": "91320",
+                  "sumber": "generated"
+                }
+              ]
+            },
+            {
+              "nama": "Cemai",
+              "sumber": "generated",
+              "kelurahan": [
+                {
+                  "nama": "Sajari",
+                  "kode_pos": "91881",
+                  "sumber": "generated"
+                },
+                {
+                  "nama": "Aerakayan",
+                  "kode_pos": "91444",
+                  "sumber": "generated"
+                },
+                {
+                  "nama": "Tawang",
+                  "kode_pos": "91204",
+                  "sumber": "generated"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "nama": "Sulawesi Selatan",
+      "kota_kabupaten": [
+        {
+          "nama": "Kota Makassar",
+          "kecamatan": [
+            {
+              "nama": "Klau Barmaru",
+              "sumber": "generated",
+              "kelurahan": [
+                {
+                  "nama": "Pledembong",
+                  "kode_pos": "90121",
+                  "sumber": "generated"
+                },
+                {
+                  "nama": "Kedulowong Baru",
+                  "kode_pos": "90158",
+                  "sumber": "generated"
+                },
+                {
+                  "nama": "Kedut",
+                  "kode_pos": "90122",
+                  "sumber": "generated"
+                }
+              ]
+            },
+            {
+              "nama": "Balatiang",
+              "sumber": "generated",
+              "kelurahan": [
+                {
+                  "nama": "Aerat",
+                  "kode_pos": "90155",
+                  "sumber": "generated"
+                },
+                {
+                  "nama": "Ngah",
+                  "kode_pos": "90154",
+                  "sumber": "generated"
+                },
+                {
+                  "nama": "Tunta Bulat",
+                  "kode_pos": "90187",
+                  "sumber": "generated"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "nama": "Kabupaten Bantaeng",
+          "kecamatan": [
+            {
+              "nama": "Mang",
+              "sumber": "generated",
+              "kelurahan": [
+                {
+                  "nama": "Grogol Bara",
+                  "kode_pos": "90370",
+                  "sumber": "generated"
+                },
+                {
+                  "nama": "Tenteng Serenung",
+                  "kode_pos": "90926",
+                  "sumber": "generated"
+                },
+                {
+                  "nama": "Kan",
+                  "kode_pos": "90144",
+                  "sumber": "generated"
+                }
+              ]
+            },
+            {
+              "nama": "Karang Sara",
+              "sumber": "generated",
+              "kelurahan": [
+                {
+                  "nama": "Baran Timur",
+                  "kode_pos": "90847",
+                  "sumber": "generated"
+                },
+                {
+                  "nama": "Wen",
+                  "kode_pos": "90570",
+                  "sumber": "generated"
+                },
+                {
+                  "nama": "Pontangangalu",
+                  "kode_pos": "90649",
+                  "sumber": "generated"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "nama": "Kabupaten Barru",
+          "kecamatan": [
+            {
+              "nama": "Pamur",
+              "sumber": "generated",
+              "kelurahan": [
+                {
+                  "nama": "Gulayung",
+                  "kode_pos": "90227",
+                  "sumber": "generated"
+                },
+                {
+                  "nama": "Klo",
+                  "kode_pos": "90487",
+                  "sumber": "generated"
+                },
+                {
+                  "nama": "Bon",
+                  "kode_pos": "90180",
+                  "sumber": "generated"
+                }
+              ]
+            },
+            {
+              "nama": "Ledua",
+              "sumber": "generated",
+              "kelurahan": [
+                {
+                  "nama": "Airjo",
+                  "kode_pos": "90665",
+                  "sumber": "generated"
+                },
+                {
+                  "nama": "Metan Rejo",
+                  "kode_pos": "90400",
+                  "sumber": "generated"
+                },
+                {
+                  "nama": "Cemaesuman",
+                  "kode_pos": "90949",
+                  "sumber": "generated"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "nama": "Sulawesi Tenggara",
+      "kota_kabupaten": [
+        {
+          "nama": "Kota Kendari",
+          "kecamatan": [
+            {
+              "nama": "Klondam",
+              "sumber": "generated",
+              "kelurahan": [
+                {
+                  "nama": "Heping",
+                  "kode_pos": "93190",
+                  "sumber": "generated"
+                },
+                {
+                  "nama": "Timur",
+                  "kode_pos": "93189",
+                  "sumber": "generated"
+                },
+                {
+                  "nama": "Ujung Tenari",
+                  "kode_pos": "93156",
+                  "sumber": "generated"
+                }
+              ]
+            },
+            {
+              "nama": "Paa",
+              "sumber": "generated",
+              "kelurahan": [
+                {
+                  "nama": "Lilimban Ilo",
+                  "kode_pos": "93183",
+                  "sumber": "generated"
+                },
+                {
+                  "nama": "Pong Ulan",
+                  "kode_pos": "93134",
+                  "sumber": "generated"
+                },
+                {
+                  "nama": "Tapakaru",
+                  "kode_pos": "93118",
+                  "sumber": "generated"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "nama": "Kabupaten Bombana",
+          "kecamatan": [
+            {
+              "nama": "Batanan Baglimur",
+              "sumber": "generated",
+              "kelurahan": [
+                {
+                  "nama": "Mengkan",
+                  "kode_pos": "93146",
+                  "sumber": "generated"
+                },
+                {
+                  "nama": "Mak Selokwa Bang",
+                  "kode_pos": "93777",
+                  "sumber": "generated"
+                },
+                {
+                  "nama": "Pan",
+                  "kode_pos": "93333",
+                  "sumber": "generated"
+                }
+              ]
+            },
+            {
+              "nama": "Ujungah",
+              "sumber": "generated",
+              "kelurahan": [
+                {
+                  "nama": "Panandunah",
+                  "kode_pos": "93891",
+                  "sumber": "generated"
+                },
+                {
+                  "nama": "Hulataru",
+                  "kode_pos": "93396",
+                  "sumber": "generated"
+                },
+                {
+                  "nama": "Aeng",
+                  "kode_pos": "93181",
+                  "sumber": "generated"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "nama": "Kabupaten Buton",
+          "kecamatan": [
+            {
+              "nama": "Ban",
+              "sumber": "generated",
+              "kelurahan": [
+                {
+                  "nama": "Pempassajat",
+                  "kode_pos": "93975",
+                  "sumber": "generated"
+                },
+                {
+                  "nama": "Tan Terteng",
+                  "kode_pos": "93338",
+                  "sumber": "generated"
+                },
+                {
+                  "nama": "Banji",
+                  "kode_pos": "93987",
+                  "sumber": "generated"
+                }
+              ]
+            },
+            {
+              "nama": "Pentian",
+              "sumber": "generated",
+              "kelurahan": [
+                {
+                  "nama": "Apangah",
+                  "kode_pos": "93203",
+                  "sumber": "generated"
+                },
+                {
+                  "nama": "Karang Ten",
+                  "kode_pos": "93489",
+                  "sumber": "generated"
+                },
+                {
+                  "nama": "Mang Selat",
+                  "kode_pos": "93384",
+                  "sumber": "generated"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
