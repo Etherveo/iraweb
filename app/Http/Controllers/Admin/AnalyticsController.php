@@ -135,7 +135,9 @@ class AnalyticsController extends Controller
     /** @return array<string, mixed> */
     private function salesChart(array $summary): array
     {
-        $buckets = $summary['buckets'] ?? [];
+        // Bucket ada di sales_series.buckets (bukan kunci 'buckets' di
+        // tingkat atas) — modul mengembalikan deret di sales_series.
+        $buckets = $summary['sales_series']['buckets'] ?? [];
 
         return [
             'type' => 'line',

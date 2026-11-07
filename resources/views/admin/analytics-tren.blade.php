@@ -52,22 +52,22 @@ Label dari modul ("Naik"/"Turun"/"Tidak ada tren jelas") — tidak pernah
             @endif
         </div>
 
-        @if (! empty($trend['ranking_rising']))
+        @if (! empty($trend['rankings']['naik'] ?? []))
             <div class="card">
                 <h2>Naik</h2>
                 <ol class="analytics-list">
-                    @foreach ($trend['ranking_rising'] as $product)
+                    @foreach ($trend['rankings']['naik'] as $product)
                         <li><span>{{ $product['name'] }}</span><span>r {{ number_format((float) ($product['r'] ?? 0), 2, ',', '.') }} · {{ number_format((float) ($product['change_abs'] ?? 0), 1, ',', '.') }} unit</span></li>
                     @endforeach
                 </ol>
             </div>
         @endif
 
-        @if (! empty($trend['ranking_falling']))
+        @if (! empty($trend['rankings']['turun'] ?? []))
             <div class="card">
                 <h2>Turun</h2>
                 <ol class="analytics-list">
-                    @foreach ($trend['ranking_falling'] as $product)
+                    @foreach ($trend['rankings']['turun'] as $product)
                         <li><span>{{ $product['name'] }}</span><span>r {{ number_format((float) ($product['r'] ?? 0), 2, ',', '.') }} · {{ number_format((float) ($product['change_abs'] ?? 0), 1, ',', '.') }} unit</span></li>
                     @endforeach
                 </ol>

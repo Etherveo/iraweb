@@ -72,13 +72,21 @@ sama dengan FR-01/FR-02, jadi konsisten dengan dashboard dan tren. --}}
                         </thead>
                         <tbody>
                             @foreach ($funnel['per_product'] as $product)
+                                @php
+                                    // Jumlah per produk ada di 'counts' (bukan di tingkat
+                                    // atas); konversi dihitung dari counts itu.
+                                    $counts = $product['counts'] ?? [];
+                                    $conv = ((int) ($counts['views'] ?? 0)) > 0
+                                        ? ((float) ($counts['purchases'] ?? 0)) / ((float) $counts['views'])
+                                        : null;
+                                @endphp
                                 <tr>
                                     <td>{{ $product['name'] }}</td>
-                                    <td>{{ number_format((int) $product['views']) }}</td>
-                                    <td>{{ number_format((int) $product['add_to_carts']) }}</td>
-                                    <td>{{ number_format((int) $product['bookings']) }}</td>
-                                    <td>{{ number_format((int) $product['purchases']) }}</td>
-                                    <td>{{ ($product['conversion_to_view'] ?? null) !== null ? number_format((float) $product['conversion_to_view'] * 100, 1, ',', '.').'%' : '—' }}</td>
+                                    <td>{{ number_format((int) ($counts['views'] ?? 0)) }}</td>
+                                    <td>{{ number_format((int) ($counts['add_to_carts'] ?? 0)) }}</td>
+                                    <td>{{ number_format((int) ($counts['bookings'] ?? 0)) }}</td>
+                                    <td>{{ number_format((int) ($counts['purchases'] ?? 0)) }}</td>
+                                    <td>{{ $conv !== null ? number_format($conv * 100, 1, ',', '.').'%' : '—' }}</td>
                                 </tr>
                             @endforeach
                         </tbody>

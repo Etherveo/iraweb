@@ -25,31 +25,30 @@ nol yang menyesatkan. --}}
     @else
         @php
             $kpis = $summary['kpis'] ?? [];
-            $vs = $summary['vs_previous'] ?? [];
         @endphp
         <div class="analytics-kpi-grid">
             <div class="card analytics-kpi">
                 <span class="analytics-kpi-label">Penjualan</span>
                 <span class="analytics-kpi-value">{{ ($kpis['revenue_idr']['value'] ?? null) !== null ? 'Rp '.number_format((int) $kpis['revenue_idr']['value'], 0, ',', '.') : ($kpis['revenue_idr']['text'] ?? 'Belum dapat dihitung') }}</span>
-                @include('admin._kpi-change', ['vs' => $vs['revenue_idr'] ?? null])
+                @include('admin._kpi-change', ['vs' => $kpis['revenue_idr']['vs_previous'] ?? null])
             </div>
             <div class="card analytics-kpi">
                 <span class="analytics-kpi-label">Transaksi</span>
                 <span class="analytics-kpi-value">{{ ($kpis['transactions']['value'] ?? null) !== null ? number_format((int) $kpis['transactions']['value']) : ($kpis['transactions']['text'] ?? 'Belum dapat dihitung') }}</span>
-                @include('admin._kpi-change', ['vs' => $vs['transactions'] ?? null])
+                @include('admin._kpi-change', ['vs' => $kpis['transactions']['vs_previous'] ?? null])
             </div>
             <div class="card analytics-kpi">
                 <span class="analytics-kpi-label">Unit terjual</span>
-                <span class="analytics-kpi-value">{{ ($kpis['units']['value'] ?? null) !== null ? number_format((int) $kpis['units']['value']) : ($kpis['units']['text'] ?? 'Belum dapat dihitung') }}</span>
-                @include('admin._kpi-change', ['vs' => $vs['units'] ?? null])
+                <span class="analytics-kpi-value">{{ ($kpis['units_sold']['value'] ?? null) !== null ? number_format((int) $kpis['units_sold']['value']) : ($kpis['units_sold']['text'] ?? 'Belum dapat dihitung') }}</span>
+                @include('admin._kpi-change', ['vs' => $kpis['units_sold']['vs_previous'] ?? null])
             </div>
             <div class="card analytics-kpi">
                 <span class="analytics-kpi-label">Pembelian</span>
                 <span class="analytics-kpi-value">{{ ($kpis['purchases']['value'] ?? null) !== null ? number_format((int) $kpis['purchases']['value']) : ($kpis['purchases']['text'] ?? 'Belum dapat dihitung') }}</span>
-                @include('admin._kpi-change', ['vs' => $vs['purchases'] ?? null])
+                @include('admin._kpi-change', ['vs' => $kpis['purchases']['vs_previous'] ?? null])
             </div>
         </div>
-        @if (collect($vs)->contains(fn ($v) => ($v['descriptive_only'] ?? false) === true))
+        @if (collect($kpis)->contains(fn ($k) => ($k['vs_previous']['descriptive_only'] ?? false) === true))
             <p class="analytics-note">* Perbandingan penjualan (Rp) bersifat deskriptif, bukan klaim tren.</p>
         @endif
         @if ($summary['transactions_differ_from_purchases'] ?? false)
@@ -62,7 +61,7 @@ nol yang menyesatkan. --}}
                 <div class="chart-wrap"><canvas data-chart data-chart-rupiah data-chart-config='@json($chart)' aria-label="Grafik penjualan per hari" role="img"></canvas></div>
             @endif
             @if (! empty($summary['peak_day']))
-                <p class="analytics-note">Hari penjualan tertinggi: {{ \Illuminate\Support\Carbon::parse($summary['peak_day'])->format('d M Y') }}.</p>
+                <p class="analytics-note">Hari penjualan tertinggi: {{ \Illuminate\Support\Carbon::parse($summary['peak_day']['date'])->format('d M Y') }}.</p>
             @endif
         </div>
 
@@ -71,7 +70,7 @@ nol yang menyesatkan. --}}
             @if (! empty($summary['top_selling']))
                 <ol class="analytics-list">
                     @foreach ($summary['top_selling'] as $item)
-                        <li><span>{{ $item['name'] }}</span><span>{{ number_format((int) $item['units']) }} unit terjual · Rp {{ number_format((int) $item['revenue_idr'], 0, ',', '.') }}</span></li>
+                        <li><span>{{ $item['name'] }}</span><span>{{ number_format((int) $item['units_sold']) }} unit terjual · Rp {{ number_format((int) $item['revenue_idr'], 0, ',', '.') }}</span></li>
                     @endforeach
                 </ol>
             @else
@@ -84,7 +83,7 @@ nol yang menyesatkan. --}}
             @if (! empty($summary['least_selling']))
                 <ol class="analytics-list">
                     @foreach ($summary['least_selling'] as $item)
-                        <li><span>{{ $item['name'] }}</span><span>{{ number_format((int) $item['units']) }} unit terjual · Rp {{ number_format((int) $item['revenue_idr'], 0, ',', '.') }}</span></li>
+                        <li><span>{{ $item['name'] }}</span><span>{{ number_format((int) $item['units_sold']) }} unit terjual · Rp {{ number_format((int) $item['revenue_idr'], 0, ',', '.') }}</span></li>
                     @endforeach
                 </ol>
             @else

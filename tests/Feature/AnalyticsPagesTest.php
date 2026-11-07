@@ -30,13 +30,12 @@ function anpFakeSummary(bool $empty = false): array
     if ($empty) {
         return [
             'kpis' => [
-                'revenue_idr' => ['value' => null, 'text' => 'Belum dapat dihitung'],
-                'transactions' => ['value' => null, 'text' => 'Belum dapat dihitung'],
-                'units' => ['value' => null, 'text' => 'Belum dapat dihitung'],
-                'purchases' => ['value' => null, 'text' => 'Belum dapat dihitung'],
+                'revenue_idr' => ['value' => null, 'vs_previous' => ['available' => false, 'text' => 'Belum dapat dihitung']],
+                'transactions' => ['value' => null, 'text' => 'Belum dapat dihitung', 'vs_previous' => ['available' => false, 'text' => 'Belum dapat dihitung']],
+                'units_sold' => ['value' => null, 'vs_previous' => ['available' => false, 'text' => 'Belum dapat dihitung']],
+                'purchases' => ['value' => null, 'vs_previous' => ['available' => false, 'text' => 'Belum dapat dihitung']],
             ],
-            'vs_previous' => [],
-            'buckets' => [],
+            'sales_series' => ['granularity' => 'day', 'buckets' => []],
             'top_selling' => [],
             'least_selling' => [],
             'peak_day' => null,
@@ -48,27 +47,36 @@ function anpFakeSummary(bool $empty = false): array
 
     return [
         'kpis' => [
-            'revenue_idr' => ['value' => 150000, 'text' => null],
-            'transactions' => ['value' => 3, 'text' => null],
-            'units' => ['value' => 5, 'text' => null],
-            'purchases' => ['value' => 5, 'text' => null],
+            'revenue_idr' => [
+                'value' => 150000,
+                'vs_previous' => ['available' => true, 'change_ratio' => 0.5, 'descriptive_only' => true, 'significant' => null],
+            ],
+            'transactions' => [
+                'value' => 3, 'text' => null,
+                'vs_previous' => ['available' => true, 'change_ratio' => 0.5, 'descriptive_only' => false, 'significant' => false],
+            ],
+            'units_sold' => [
+                'value' => 5,
+                'vs_previous' => ['available' => false, 'text' => 'Belum dapat dihitung', 'reason' => 'tidak ada data pembanding'],
+            ],
+            'purchases' => [
+                'value' => 5,
+                'vs_previous' => ['available' => true, 'change_ratio' => 0.25, 'descriptive_only' => false, 'significant' => true],
+            ],
         ],
-        'vs_previous' => [
-            'revenue_idr' => ['available' => true, 'change_ratio' => 0.5, 'descriptive_only' => true, 'significant' => null],
-            'transactions' => ['available' => true, 'change_ratio' => 0.5, 'descriptive_only' => false, 'significant' => false],
-            'units' => ['available' => false, 'text' => 'Belum dapat dihitung', 'reason' => 'tidak ada data pembanding'],
-            'purchases' => ['available' => true, 'change_ratio' => 0.25, 'descriptive_only' => false, 'significant' => true],
-        ],
-        'buckets' => [
-            ['bucket_start' => '2026-10-01', 'bucket_end' => '2026-10-01', 'revenue_idr' => 150000, 'units' => 5, 'transactions' => 3, 'purchases' => 5],
+        'sales_series' => [
+            'granularity' => 'day',
+            'buckets' => [
+                ['bucket_start' => '2026-10-01', 'bucket_end' => '2026-10-01', 'partial' => false, 'revenue_idr' => 150000],
+            ],
         ],
         'top_selling' => [
-            ['key' => 'p1', 'name' => 'Pensil 2B', 'units' => 5, 'revenue_idr' => 150000],
+            ['product_id' => 1, 'name' => 'Pensil 2B', 'units_sold' => 5, 'revenue_idr' => 150000, 'units_text' => '5 terjual', 'rank' => 1],
         ],
         'least_selling' => [
-            ['key' => 'p1', 'name' => 'Pensil 2B', 'units' => 5, 'revenue_idr' => 150000],
+            ['product_id' => 1, 'name' => 'Pensil 2B', 'units_sold' => 5, 'revenue_idr' => 150000, 'units_text' => '5 terjual', 'rank' => 1],
         ],
-        'peak_day' => '2026-10-01',
+        'peak_day' => ['date' => '2026-10-01', 'revenue_idr' => 150000, 'n_days' => 30],
         'empty' => false,
         'transactions_differ_from_purchases' => false,
         'warnings' => [],
@@ -79,12 +87,12 @@ function anpFakeSummary(bool $empty = false): array
 function anpFakeTrend(int $weeksFull = 9): array
 {
     $naik = [
-        'key' => 'p1', 'name' => 'Pensil 2B', 'label_code' => 'naik', 'label' => 'Naik',
+        'product_id' => 1, 'name' => 'Pensil 2B', 'label_code' => 'naik', 'label' => 'Naik',
         'strength' => 'kuat', 'n' => 9, 'beta' => 1.0, 'r' => 0.9, 'p' => 0.001,
         'q' => 0.01, 's' => 53, 'z' => 3.5, 'var' => 211.67, 'mean' => 12.0, 'change_abs' => 8.0,
     ];
     $datar = [
-        'key' => 'p2', 'name' => 'Penghapus', 'label_code' => 'tidak_ada_tren_jelas',
+        'product_id' => 2, 'name' => 'Penghapus', 'label_code' => 'tidak_ada_tren_jelas',
         'label' => 'Tidak ada tren jelas', 'strength' => null, 'n' => 9, 'beta' => 0.1,
         'r' => 0.05, 'p' => 0.9, 'q' => 0.95, 's' => 2, 'z' => 0.07, 'var' => 193.33,
         'mean' => 11.0, 'change_abs' => 0.0,
@@ -104,8 +112,10 @@ function anpFakeTrend(int $weeksFull = 9): array
         'weeks_full' => $weeksFull,
         'n_min_weeks' => 8,
         'products' => [$naik, $datar],
-        'ranking_rising' => $weeksFull < 8 ? [] : [$naik],
-        'ranking_falling' => [],
+        'rankings' => [
+            'naik' => $weeksFull < 8 ? [] : [$naik],
+            'turun' => [],
+        ],
         'warnings' => [],
     ];
 }
@@ -123,7 +133,10 @@ function anpFakeFunnel(): array
         'largest_drop' => ['from_stage' => 'view', 'to_stage' => 'add_to_cart', 'from_label' => 'Dilihat', 'to_label' => 'Keranjang', 'from_count' => 100, 'to_count' => 40, 'diff' => 60, 'ratio' => 0.6],
         'anomalies' => [],
         'per_product' => [
-            ['key' => 'p1', 'name' => 'Pensil 2B', 'views' => 100, 'add_to_carts' => 40, 'bookings' => 24, 'purchases' => 20, 'conversion_to_view' => 0.2],
+            [
+                'product_id' => 1, 'name' => 'Pensil 2B', 'category_id' => null, 'is_active' => true,
+                'counts' => ['views' => 100, 'add_to_carts' => 40, 'bookings' => 24, 'purchases' => 20],
+            ],
         ],
         'bookings_not_purchased' => 4,
         'cancels' => 1,
