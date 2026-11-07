@@ -23,8 +23,52 @@ use RuntimeException;
 // The internal key is never hardcoded: it comes from config('analytics.key')
 // (env ANALYTICS_INTERNAL_KEY). A missing key fails fast with an actionable
 // message instead of sending an unauthenticated request.
+//
+// Each endpoint only accepts its own keys (server.py ENDPOINTS table — the
+// server rejects unknown keys with 422). AnalyticsFactsBuilder::build()
+// returns the FULL payload (facts + products + categories + order_totals),
+// so post() filters it per endpoint before sending: /v1/summary takes
+// order_totals but not categories; /v1/trend and /v1/funnel take neither.
+// The map below MUST stay identical to the server's ENDPOINTS table.
 class AnalyticsClient
 {
+    /** @var array<string, list<string>> endpoint -> body keys the server accepts. */
+    private const ALLOWED_KEYS = [
+        'summary' => [
+            'facts', 'products', 'period', 'origin_filter', 'order_totals',
+            'previous_facts', 'previous_order_totals', 'granularity', 'top_n',
+            'alpha', 'auto_day_max', 'auto_week_max', 'baseline',
+        ],
+        'trend' => [
+            'facts', 'products', 'period', 'origin_filter', 'metric',
+            'product_ids', 'n_min_weeks', 'min_avg_per_week', 'alpha',
+            'r_min', 'q_strong',
+        ],
+        'funnel' => [
+            'facts', 'products', 'period', 'origin_filter', 'product_ids',
+            'category_id',
+        ],
+        'compare' => [
+            'facts_a', 'facts_b', 'products', 'period_a', 'period_b',
+            'origin_filter', 'order_totals_a', 'order_totals_b', 'top_n',
+            'alpha', 'baseline',
+        ],
+        'interest' => [
+            'facts', 'products', 'period', 'origin_filter', 'category_id',
+            'min_views', 'max_ratio', 'max_upper', 'comparator_min_ratio',
+            'comparator_min_purchases', 'comparator_max', 'confidence',
+        ],
+        'category' => [
+            'facts', 'products', 'period', 'origin_filter', 'categories',
+            'order_totals', 'metric', 'granularity', 'price_bins',
+            'n_min_weeks', 'min_avg_per_week', 'alpha', 'r_min', 'q_strong',
+        ],
+        'insight' => [
+            'summary', 'funnel', 'trend', 'interest', 'compare',
+            'origin_transactions', 'period', 'max_items', 'alpha',
+        ],
+    ];
+
     public function __construct(
         private ?string $baseUrl = null,
         private ?string $key = null,
@@ -85,6 +129,10 @@ class AnalyticsClient
                 .'jangan di-commit), lalu restart aplikasi.',
             );
         }
+
+        // Only the keys this endpoint accepts (see ALLOWED_KEYS above) —
+        // anything else makes the server answer 422 "kunci tak dikenal".
+        $payload = array_intersect_key($payload, array_flip(self::ALLOWED_KEYS[$endpoint]));
 
         try {
             $response = Http::asJson()

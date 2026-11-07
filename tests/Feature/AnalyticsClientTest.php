@@ -296,3 +296,60 @@ test('M5 analytics client throws when the internal key is missing', function () 
     expect(fn () => $client->summary(['facts' => []]))
         ->toThrow(InvalidArgumentException::class, 'ANALYTICS_INTERNAL_KEY belum diisi');
 });
+
+test('M5 analytics client only sends the keys each endpoint accepts', function () {
+    Http::fake(fn () => Http::response(['ok' => true], 200));
+
+    $client = new AnalyticsClient('http://127.0.0.1:8001', 'test-key', 5);
+
+    // Payload lengkap seperti hasil AnalyticsFactsBuilder::build() plus
+    // tambahan controller (metric, n_min_weeks, top_n, previous_*).
+    $payload = [
+        'facts' => [],
+        'products' => [],
+        'period' => ['start' => '2026-11-02', 'end' => '2026-11-02'],
+        'origin_filter' => 'all',
+        'categories' => [['category_id' => 1]],
+        'order_totals' => [],
+        'metric' => 'units',
+        'n_min_weeks' => 8,
+        'top_n' => 5,
+        'previous_facts' => [],
+        'previous_order_totals' => [],
+    ];
+
+    $client->summary($payload);
+    $client->trend($payload);
+    $client->funnel($payload);
+
+    // /v1/summary menerima order_totals, tetapi bukan categories.
+    Http::assertSent(function ($request) {
+        $data = $request->data();
+
+        return $request->url() === 'http://127.0.0.1:8001/v1/summary'
+            && isset($data['order_totals'])
+            && ! isset($data['categories'])
+            && ! isset($data['metric']);
+    });
+
+    // /v1/trend dan /v1/funnel tidak menerima categories maupun order_totals.
+    Http::assertSent(function ($request) {
+        $data = $request->data();
+
+        return $request->url() === 'http://127.0.0.1:8001/v1/trend'
+            && isset($data['metric'])
+            && isset($data['n_min_weeks'])
+            && ! isset($data['categories'])
+            && ! isset($data['order_totals']);
+    });
+
+    Http::assertSent(function ($request) {
+        $data = $request->data();
+
+        return $request->url() === 'http://127.0.0.1:8001/v1/funnel'
+            && isset($data['facts'])
+            && ! isset($data['categories'])
+            && ! isset($data['order_totals'])
+            && ! isset($data['metric']);
+    });
+});
