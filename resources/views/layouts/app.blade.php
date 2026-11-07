@@ -14,7 +14,8 @@
     @endif
 </head>
 @php($isAdminShell = auth('web')->check() && auth('web')->user()->isAdmin())
-<body @class(['has-admin-sidebar' => $isAdminShell])>
+@php($isDeveloperShell = auth('developer')->check())
+<body @class(['has-admin-sidebar' => $isAdminShell, 'has-developer-sidebar' => $isDeveloperShell])>
 @if ($isAdminShell)
     <header class="admin-mobile-bar">
         <div class="admin-brand">
@@ -123,6 +124,106 @@
             </form>
         </div>
     </aside>
+@elseif ($isDeveloperShell)
+    {{-- M4 SIM-01: shell Panel Developer — mirror of the admin sidebar
+         (same structure, orange SIMULASI accents instead of lavender). --}}
+    <header class="developer-mobile-bar">
+        <div class="developer-brand">
+            <span class="developer-brand-mark" aria-hidden="true">i.</span>
+            <div class="developer-brand-meta">
+                <strong>Ira Stationery</strong>
+                <span>Panel Developer</span>
+            </div>
+            <span class="badge-simulasi">SIMULASI</span>
+        </div>
+        <button
+            type="button"
+            class="developer-hamburger"
+            data-developer-drawer-open
+            aria-controls="developer-sidebar"
+            aria-expanded="false"
+            aria-label="Buka menu navigasi"
+        >
+            <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="18" y2="18"/></svg>
+        </button>
+    </header>
+
+    <div class="developer-sidebar-backdrop" data-developer-drawer-close hidden></div>
+
+    <aside class="developer-sidebar" id="developer-sidebar" aria-label="Navigasi Panel Developer">
+        <div class="developer-sidebar-head">
+            <div class="developer-brand">
+                <span class="developer-brand-mark" aria-hidden="true">i.</span>
+                <div class="developer-brand-meta">
+                    <strong>Ira Stationery</strong>
+                    <span>Panel Developer</span>
+                </div>
+                <span class="badge-simulasi">SIMULASI</span>
+            </div>
+            <button type="button" class="developer-drawer-close" data-developer-drawer-close aria-label="Tutup menu navigasi">×</button>
+        </div>
+
+        <nav class="developer-sidebar-nav" aria-label="Menu Panel Developer">
+            <div class="developer-nav-group">
+                <p class="developer-nav-heading">SIMULASI</p>
+                <a href="{{ route('developer.dashboard') }}" @class(['developer-nav-item', 'is-active' => request()->routeIs('developer.dashboard')]) @if (request()->routeIs('developer.dashboard')) aria-current="page" @endif>
+                    <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg>
+                    <span>Beranda</span>
+                </a>
+            </div>
+
+            <div class="developer-nav-group">
+                <p class="developer-nav-heading">AKSI</p>
+                <a href="{{ route('developer.akun.create') }}" @class(['developer-nav-item', 'is-active' => request()->routeIs('developer.akun.*')]) @if (request()->routeIs('developer.akun.*')) aria-current="page" @endif>
+                    <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" x2="19" y1="8" y2="14"/><line x1="22" x2="16" y1="11" y2="11"/></svg>
+                    <span>Buat Akun</span>
+                </a>
+                <a href="{{ route('developer.tx-user.create') }}" @class(['developer-nav-item', 'is-active' => request()->routeIs('developer.tx-user.*')]) @if (request()->routeIs('developer.tx-user.*')) aria-current="page" @endif>
+                    <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" x2="21" y1="6" y2="6"/><line x1="8" x2="21" y1="12" y2="12"/><line x1="8" x2="21" y1="18" y2="18"/><line x1="3" x2="3.01" y1="6" y2="6"/><line x1="3" x2="3.01" y1="12" y2="12"/><line x1="3" x2="3.01" y1="18" y2="18"/></svg>
+                    <span>Transaksi per User</span>
+                </a>
+                <a href="{{ route('developer.tx-period.create') }}" @class(['developer-nav-item', 'is-active' => request()->routeIs('developer.tx-period.*')]) @if (request()->routeIs('developer.tx-period.*')) aria-current="page" @endif>
+                    <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>
+                    <span>Transaksi per Periode</span>
+                </a>
+                <a href="{{ route('developer.funnel.create') }}" @class(['developer-nav-item', 'is-active' => request()->routeIs('developer.funnel.*')]) @if (request()->routeIs('developer.funnel.*')) aria-current="page" @endif>
+                    <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+                    <span>Funnel</span>
+                </a>
+            </div>
+
+            <div class="developer-nav-group">
+                <p class="developer-nav-heading">DATA</p>
+                <a href="{{ route('developer.akun-simulasi.index') }}" @class(['developer-nav-item', 'is-active' => request()->routeIs('developer.akun-simulasi.*')]) @if (request()->routeIs('developer.akun-simulasi.*')) aria-current="page" @endif>
+                    <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                    <span>Akun Simulasi</span>
+                </a>
+                <a href="{{ route('developer.run.index') }}" @class(['developer-nav-item', 'is-active' => request()->routeIs('developer.run.*')]) @if (request()->routeIs('developer.run.*')) aria-current="page" @endif>
+                    <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l4 2"/></svg>
+                    <span>Jejak &amp; Audit</span>
+                </a>
+                <a href="{{ route('developer.reset.index') }}" @class(['developer-nav-item', 'is-active' => request()->routeIs('developer.reset.*')]) @if (request()->routeIs('developer.reset.*')) aria-current="page" @endif>
+                    <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                    <span>Reset</span>
+                </a>
+            </div>
+        </nav>
+
+        <div class="developer-sidebar-foot">
+            <p class="developer-sidebar-tz">Ruang kerja simulator &middot; WITA</p>
+            <a href="{{ route('katalog') }}" class="developer-nav-item">
+                <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>
+                <span>Lihat katalog publik</span>
+            </a>
+            <form method="POST" action="{{ route('developer.keluar') }}" class="developer-logout-form">
+                @csrf
+                <button type="submit" class="developer-logout-btn">
+                    <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></svg>
+                    <span>Keluar Developer</span>
+                </button>
+            </form>
+        </div>
+    </aside>
 @else
     <header>
         <strong>Ira Stationery</strong>
@@ -139,14 +240,6 @@
                     <button type="submit">Keluar</button>
                 </form>
             @endauth
-            @auth('developer')
-                <a href="{{ route('developer.dashboard') }}">Panel Developer</a>
-                <a href="{{ route('developer.akun-simulasi.index') }}">Akun Simulasi</a>
-                <form method="POST" action="{{ route('developer.keluar') }}" style="display:inline">
-                    @csrf
-                    <button type="submit">Keluar Developer</button>
-                </form>
-            @endauth
             @guest('web')
                 @guest('developer')
                     <a href="{{ route('masuk') }}">Masuk</a>
@@ -158,6 +251,14 @@
     <div class="topbar-backdrop" data-topbar-menu-close hidden></div>
 @endif
 <main>
+    @if ($isDeveloperShell)
+        {{-- M4 SIM-01: SimBanner permanen — selalu terlihat, tidak bisa
+             ditutup. Semua data di panel ini adalah data eksperimental. --}}
+        <div class="sim-banner" role="note">
+            <span class="badge-simulasi">⚠ SIMULASI</span>
+            <span>Panel Developer — <strong>data eksperimental</strong>. Semua data yang dibuat di sini ditandai <code>developer_simulation</code> dan tidak memengaruhi data toko asli.</span>
+        </div>
+    @endif
     @if (session('status'))
         <p class="alert-success">{{ session('status') }}</p>
     @endif

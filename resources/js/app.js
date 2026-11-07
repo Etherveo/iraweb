@@ -336,4 +336,134 @@ document.addEventListener('DOMContentLoaded', () => {
             el.addEventListener('click', closeTopbarMenu);
         });
     }
+
+    // Drawer sidebar developer untuk tampilan mobile (<1024px, M4).
+    // Pola yang sama dengan drawer admin.
+    const devSidebar = document.getElementById('developer-sidebar');
+    const devOpenBtn = document.querySelector('[data-developer-drawer-open]');
+    const devBackdrop = document.querySelector('.developer-sidebar-backdrop');
+    if (devSidebar && devOpenBtn) {
+        const closeDevDrawer = () => {
+            devSidebar.classList.remove('is-open');
+            devOpenBtn.setAttribute('aria-expanded', 'false');
+            if (devBackdrop) devBackdrop.hidden = true;
+            document.removeEventListener('keydown', onDevDrawerKey);
+            devOpenBtn.focus();
+        };
+
+        const onDevDrawerKey = (e) => {
+            if (e.key === 'Escape') {
+                e.preventDefault();
+                closeDevDrawer();
+            }
+        };
+
+        devOpenBtn.addEventListener('click', () => {
+            const isOpen = devSidebar.classList.toggle('is-open');
+            devOpenBtn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+            if (devBackdrop) devBackdrop.hidden = !isOpen;
+            if (isOpen) {
+                document.addEventListener('keydown', onDevDrawerKey);
+                const closeBtn = devSidebar.querySelector('.developer-drawer-close');
+                if (closeBtn) closeBtn.focus();
+            } else {
+                document.removeEventListener('keydown', onDevDrawerKey);
+            }
+        });
+
+        document.querySelectorAll('[data-developer-drawer-close]').forEach((el) => {
+            el.addEventListener('click', closeDevDrawer);
+        });
+    }
+
+    // Pemilih akun simulasi (M4, D8): pencarian menyaring daftar di
+    // sisi klien, supaya centang tidak hilang saat berpindah halaman.
+    const accountFilter = document.querySelector('[data-sim-account-filter]');
+    if (accountFilter) {
+        const picker = accountFilter.closest('[data-sim-account-picker]');
+        const rows = picker ? Array.from(picker.querySelectorAll('[data-sim-account-row]')) : [];
+        const emptyNote = picker ? picker.querySelector('[data-sim-account-empty]') : null;
+        const countEl = picker ? picker.querySelector('[data-sim-account-count]') : null;
+        const total = rows.length;
+
+        accountFilter.addEventListener('input', () => {
+            const query = accountFilter.value.trim().toLowerCase();
+            let visible = 0;
+
+            rows.forEach((row) => {
+                const match = query === '' || (row.dataset.search || '').includes(query);
+                row.hidden = !match;
+                if (match) visible += 1;
+            });
+
+            if (emptyNote) emptyNote.hidden = visible !== 0;
+            if (countEl) countEl.textContent = query === '' ? String(total) : String(visible);
+        });
+    }
+
+    // Pilihan cepat periode (M4 SIM-16): tanggal dihitung server (WITA)
+    // dan disalin ke dua input tanggal dalam form yang sama.
+    document.querySelectorAll('[data-period-quick]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+            const scope = btn.closest('[data-period-scope]');
+            if (!scope) return;
+            const start = scope.querySelector('input[name="period_start"]');
+            const end = scope.querySelector('input[name="period_end"]');
+            if (start && btn.dataset.start) start.value = btn.dataset.start;
+            if (end && btn.dataset.end) end.value = btn.dataset.end;
+        });
+    });
+
+    // Distribusi 'satu titik': tampilkan input tanggal+jam hanya bila
+    // distribusi waktu = single.
+    document.querySelectorAll('[data-time-distribution]').forEach((radio) => {
+        radio.addEventListener('change', () => {
+            const field = document.querySelector('[data-single-point-field]');
+            if (!field) return;
+            const selected = document.querySelector('[data-time-distribution]:checked');
+            field.hidden = !selected || selected.value !== 'single';
+        });
+    });
+
+    // Cakupan user period-first (SIM-18): pemilih akun hanya untuk
+    // 'one'/'several', input k hanya untuk 'random'.
+    const scopeGroup = document.querySelector('[data-user-scope]');
+    if (scopeGroup) {
+        const syncScope = () => {
+            const selected = scopeGroup.querySelector('[data-user-scope-option]:checked');
+            const value = selected ? selected.value : 'all';
+            const picker = scopeGroup.querySelector('[data-user-scope-picker]');
+            const random = scopeGroup.querySelector('[data-user-scope-random]');
+            if (picker) picker.hidden = value !== 'one' && value !== 'several';
+            if (random) random.hidden = value !== 'random';
+        };
+        scopeGroup.querySelectorAll('[data-user-scope-option]').forEach((radio) => {
+            radio.addEventListener('change', syncScope);
+        });
+        syncScope();
+    }
+
+    // Reset (SIM-38/39): tombol aktif hanya bila frasa diketik persis.
+    // Validasi server tetap yang menentukan; ini hanya kenyamanan.
+    document.querySelectorAll('[data-reset-form]').forEach((form) => {
+        const input = form.querySelector('[data-reset-phrase]');
+        const submit = form.querySelector('[data-reset-submit]');
+        if (!input || !submit) return;
+
+        const syncPhrase = () => {
+            submit.disabled = input.value.trim() !== input.dataset.resetPhrase;
+        };
+        input.addEventListener('input', syncPhrase);
+        syncPhrase();
+    });
+
+    // Konfirmasi eksekusi (SIM-26): cegah klik ganda — kunci
+    // idempotensi di server tetap menjadi pengaman terakhir.
+    document.querySelectorAll('[data-confirm-once]').forEach((form) => {
+        form.addEventListener('submit', () => {
+            form.querySelectorAll('button[type="submit"]').forEach((btn) => {
+                btn.disabled = true;
+            });
+        });
+    });
 });

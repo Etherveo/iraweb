@@ -7,7 +7,13 @@ use App\Http\Controllers\Admin\PaymentController as AdminPaymentController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Auth\BuyerAuthController;
 use App\Http\Controllers\Auth\DeveloperAuthController;
+use App\Http\Controllers\Developer\AccountCreationController;
+use App\Http\Controllers\Developer\DashboardController;
+use App\Http\Controllers\Developer\FunnelController;
+use App\Http\Controllers\Developer\ResetController;
+use App\Http\Controllers\Developer\RunController;
 use App\Http\Controllers\Developer\SimulationAccountController;
+use App\Http\Controllers\Developer\TransactionController;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\Payment\SimulationPageController;
 use App\Http\Controllers\Shop\CartController;
@@ -149,7 +155,39 @@ Route::middleware(['auth:web', 'active', 'role:admin_toko', 'no-cache'])->group(
 // ---- Developer surface (ACC-14; full panel is M4) ----
 // Keputusan 2026-11-05: developers have role 'dev', so these routes
 // declare role:dev like every other protected route (ACC-08, no exception).
+// M4 SIM-01: Beranda + Buat Akun + Transaksi per User/Periode + Funnel +
+// Akun Simulasi + Jejak & Audit + Reset. Transaction/funnel actions are
+// preview-mandatory (SIM-25): pratinjau first, eksekusi after.
 Route::middleware(['auth:developer', 'role:dev', 'no-cache'])->group(function () {
-    Route::get('/developer', [PageController::class, 'developerDashboard'])->name('developer.dashboard');
+    Route::get('/developer', [DashboardController::class, 'index'])->name('developer.dashboard');
     Route::get('/developer/akun-simulasi', [SimulationAccountController::class, 'index'])->name('developer.akun-simulasi.index');
+
+    // SIM-02..08: bulk simulation-account creation (no preview — SIM-25
+    // mandates previews only for actions 2, 3 and 4).
+    Route::get('/developer/akun/buat', [AccountCreationController::class, 'create'])->name('developer.akun.create');
+    Route::post('/developer/akun', [AccountCreationController::class, 'store'])->name('developer.akun.store');
+
+    // SIM-09..15: aksi 2, user-first.
+    Route::get('/developer/transaksi/user', [TransactionController::class, 'userForm'])->name('developer.tx-user.create');
+    Route::post('/developer/transaksi/user/pratinjau', [TransactionController::class, 'userPreview'])->name('developer.tx-user.preview');
+    Route::post('/developer/transaksi/user/eksekusi', [TransactionController::class, 'userExecute'])->name('developer.tx-user.execute');
+
+    // SIM-16..24: aksi 3, period-first.
+    Route::get('/developer/transaksi/periode', [TransactionController::class, 'periodForm'])->name('developer.tx-period.create');
+    Route::post('/developer/transaksi/periode/pratinjau', [TransactionController::class, 'periodPreview'])->name('developer.tx-period.preview');
+    Route::post('/developer/transaksi/periode/eksekusi', [TransactionController::class, 'periodExecute'])->name('developer.tx-period.execute');
+
+    // SIM-31: explicit funnel (no presets — SIM-32/33 are M7).
+    Route::get('/developer/funnel', [FunnelController::class, 'create'])->name('developer.funnel.create');
+    Route::post('/developer/funnel/pratinjau', [FunnelController::class, 'preview'])->name('developer.funnel.preview');
+    Route::post('/developer/funnel/eksekusi', [FunnelController::class, 'execute'])->name('developer.funnel.execute');
+
+    // SIM-35/37: run trace.
+    Route::get('/developer/run', [RunController::class, 'index'])->name('developer.run.index');
+    Route::get('/developer/run/{run}', [RunController::class, 'show'])->name('developer.run.show');
+
+    // SIM-38/39: reset per run + reset-all (type-the-phrase).
+    Route::get('/developer/reset', [ResetController::class, 'index'])->name('developer.reset.index');
+    Route::post('/developer/reset/run/{run}', [ResetController::class, 'resetRun'])->name('developer.reset.run');
+    Route::post('/developer/reset/semua', [ResetController::class, 'resetAll'])->name('developer.reset.all');
 });

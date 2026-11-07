@@ -7,6 +7,8 @@ use App\Payments\PaymentAdapter;
 use App\Payments\ProviderRegistry;
 use App\Payments\QrRenderer;
 use App\Payments\TextQrRenderer;
+use App\Simulation\BiodataGenerator;
+use App\Simulation\PythonBiodataGenerator;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
@@ -32,6 +34,12 @@ class AppServiceProvider extends ServiceProvider
         // swap this binding when the real QR implementation lands —
         // nothing else changes (see QrRenderer).
         $this->app->bind(QrRenderer::class, TextQrRenderer::class);
+
+        // M4 SIM-06: the biodata generator is chosen by binding, never
+        // by a direct class reference in controllers — Pest rebinds
+        // this to SequentialBiodataGenerator so tests never shell out
+        // to Python.
+        $this->app->bind(BiodataGenerator::class, PythonBiodataGenerator::class);
     }
 
     /**
