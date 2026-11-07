@@ -45,7 +45,10 @@ final class PeriodResolver
         }
 
         // Inclusive day count: same-day period is 1 day, not 0.
-        $days = $start->diffInDays($end) + 1;
+        // floor() first: Carbon 3 diffInDays() returns a float
+        // (e.g. 6.999999988425926 for 1–7 Oct), and passing the raw
+        // float into PeriodRange's int $days deprecated on PHP 8.5.
+        $days = (int) floor($start->diffInDays($end)) + 1;
 
         if ($days > $this->maxPeriodDays) {
             throw new InvalidArgumentException("Panjang periode {$days} hari melebihi batas {$this->maxPeriodDays} hari.");
