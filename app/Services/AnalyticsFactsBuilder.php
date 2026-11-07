@@ -221,7 +221,14 @@ class AnalyticsFactsBuilder
             return [];
         }
 
-        $orderIds = array_keys(array_merge(...array_values($byDay)));
+        // NB: array_merge() menomori ulang kunci integer, jadi order_id
+        // akan hilang bila $byDay digabung langsung. Ambil kuncinya
+        // dulu per hari — di sini order_id adalah nilai, bukan kunci.
+        $orderIds = [];
+
+        foreach ($byDay as $dayIds) {
+            $orderIds = array_merge($orderIds, array_keys($dayIds));
+        }
 
         // (order_id, category_id) pairs, deduplicated: one order counts
         // once per category even with two products of that category.
