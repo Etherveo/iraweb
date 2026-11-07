@@ -36,13 +36,15 @@ class AnalyticsController extends Controller
         $payload['previous_order_totals'] = $prev['order_totals'];
         $payload['top_n'] = 5;
 
-        $summary = $this->client->summary($payload);
+        $configError = $this->keyMissing();
+        $summary = $configError ? null : $this->client->summary($payload);
 
         return view('admin.analytics-dashboard', [
             'dari' => $dari,
             'sampai' => $sampai,
             'summary' => $summary,
             'unavailable' => $summary === null,
+            'config_error' => $configError,
             'chart' => $summary === null || ($summary['empty'] ?? false)
                 ? null
                 : $this->salesChart($summary),
@@ -60,13 +62,15 @@ class AnalyticsController extends Controller
         $payload['metric'] = 'units';
         $payload['n_min_weeks'] = 8;
 
-        $trend = $this->client->trend($payload);
+        $configError = $this->keyMissing();
+        $trend = $configError ? null : $this->client->trend($payload);
 
         return view('admin.analytics-tren', [
             'dari' => $dari,
             'sampai' => $sampai,
             'trend' => $trend,
             'unavailable' => $trend === null,
+            'config_error' => $configError,
         ]);
     }
 
@@ -79,17 +83,31 @@ class AnalyticsController extends Controller
 
         $payload = $this->facts->build($dari, $sampai);
 
-        $funnel = $this->client->funnel($payload);
+        $configError = $this->keyMissing();
+        $funnel = $configError ? null : $this->client->funnel($payload);
 
         return view('admin.analytics-funnel', [
             'dari' => $dari,
             'sampai' => $sampai,
             'funnel' => $funnel,
             'unavailable' => $funnel === null,
+            'config_error' => $configError,
             'has_events' => $funnel !== null
                 && array_sum(array_column($funnel['stages'] ?? [], 'count')) > 0,
             'chart' => $funnel === null ? null : $this->funnelChart($funnel),
         ]);
+    }
+
+    // Kunci internal kosong → halaman menampilkan pesan konfigurasi
+    // (200), bukan 500. Sengaja dicek DI SINI, bukan dengan menangkap
+    // InvalidArgumentException dari client: client juga melempar jenis
+    // yang sama untuk respons 422, dan keduanya tidak boleh tertukar.
+    // Fail-fast client tetap dipertahankan sebagai pertahanan kedua.
+    private function keyMissing(): bool
+    {
+        $key = config('analytics.key');
+
+        return ! is_string($key) || $key === '';
     }
 
     // Periode sebelumnya dengan panjang yang sama, tepat sebelum periode

@@ -16,7 +16,7 @@ nol yang menyesatkan. --}}
     @include('admin._analytics-filter', ['filterRoute' => 'admin.dashboard'])
 
     @if ($unavailable)
-        @include('admin._analytics-unavailable')
+        @include('admin._analytics-unavailable', ['config_error' => $config_error ?? false])
     @elseif (($summary['empty'] ?? false) === true)
         <div class="card analytics-empty">
             <h2>Belum ada data pada periode ini</h2>

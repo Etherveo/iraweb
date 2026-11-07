@@ -16,7 +16,7 @@ Label dari modul ("Naik"/"Turun"/"Tidak ada tren jelas") — tidak pernah
     @include('admin._analytics-filter', ['filterRoute' => 'admin.tren'])
 
     @if ($unavailable)
-        @include('admin._analytics-unavailable')
+        @include('admin._analytics-unavailable', ['config_error' => $config_error ?? false])
     @else
         @if (($trend['weeks_full'] ?? 0) < 8)
             <div class="admin-info-box" role="alert">

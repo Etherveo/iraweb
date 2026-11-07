@@ -16,7 +16,7 @@ sama dengan FR-01/FR-02, jadi konsisten dengan dashboard dan tren. --}}
     @include('admin._analytics-filter', ['filterRoute' => 'admin.funnel'])
 
     @if ($unavailable)
-        @include('admin._analytics-unavailable')
+        @include('admin._analytics-unavailable', ['config_error' => $config_error ?? false])
     @else
         @if ($has_events && $chart)
             <div class="card">

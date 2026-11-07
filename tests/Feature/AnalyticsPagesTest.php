@@ -182,6 +182,31 @@ test('M5 FR-01 dashboard shows unavailable instead of zeros when the service is 
         ->assertDontSee('Rp 150.000');
 });
 
+test('M5 analytics pages show a configuration message instead of a 500 when the internal key is missing', function () {
+    config(['analytics.key' => '']);
+
+    // Client tidak boleh dipanggil sama sekali — bila terpanggil,
+    // fail-fast-nya akan melempar dan halaman jadi 500.
+    Http::fake(fn () => throw new RuntimeException('client must not be called'));
+
+    $this->actingAs(anpAdmin(), 'web')
+        ->get('/admin')
+        ->assertOk()
+        ->assertSee('Analitik belum dikonfigurasi')
+        ->assertSee('ANALYTICS_INTERNAL_KEY')
+        ->assertDontSee('Perhitungan sedang tidak tersedia');
+
+    $this->actingAs(anpAdmin(), 'web')
+        ->get('/admin/tren')
+        ->assertOk()
+        ->assertSee('Analitik belum dikonfigurasi');
+
+    $this->actingAs(anpAdmin(), 'web')
+        ->get('/admin/funnel')
+        ->assertOk()
+        ->assertSee('Analitik belum dikonfigurasi');
+});
+
 test('M5 FR-02 trend renders per-product labels and rankings for admin', function () {
     Http::fake([
         'http://127.0.0.1:8001/v1/trend' => Http::response(anpFakeTrend(), 200),
