@@ -13,7 +13,7 @@
             <div>
                 <p class="admin-eyebrow">Toko Ira &bull; Akun Pembeli</p>
                 <h1 class="admin-title">Ubah Profil &amp; Alamat</h1>
-                <p class="admin-subtitle">Perbarui informasi biodata dan alamat pengiriman Anda.</p>
+                <p class="admin-subtitle">Perbarui informasi biodata dan alamat Anda.</p>
             </div>
         </header>
 
@@ -85,7 +85,7 @@
             </section>
 
             <section class="card admin-panel" id="form-alamat" aria-labelledby="form-alamat-heading">
-                <h2 class="admin-section-title" id="form-alamat-heading">{{ $address ? 'Ubah Alamat Pengiriman' : 'Tambah Alamat Pengiriman' }}</h2>
+                <h2 class="admin-section-title" id="form-alamat-heading">{{ $address ? 'Ubah Alamat Anda' : 'Tambah Alamat Anda' }}</h2>
 
                 <form method="POST" action="{{ route('profil.alamat.update') }}" class="admin-form">
                     @csrf

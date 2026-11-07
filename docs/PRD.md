@@ -85,7 +85,7 @@ Ini bukan penolakan permanen; tambahkan hanya bila ada persetujuan perubahan sco
 | Lupa/reset password, verifikasi email | Tidak ada pada kedua file. |
 | Halaman profil/pengaturan pembeli (`DESIGN §2` menyarankan menambahkannya) | Tidak tertelusur; aturan penelusuran dari pemilik proyek lebih tinggi daripada saran `DESIGN.md` (`AGENTS §2` urutan 1 > 4). |
 | Unggah gambar produk | Tidak ada pada kedua file; produk memakai placeholder visual (lihat blueprint §13). |
-| Ongkos kirim, pajak, kupon, alamat pengiriman | Tidak ada pada kedua file; total pesanan = jumlah harga × kuantitas. Catatan: tabel `addresses` adalah data profil pembeli simulasi (§2, M4), bukan alamat pengiriman — checkout tidak memakainya. |
+| Ongkos kirim, pajak, kupon, alamat pembeli | Tidak ada pada kedua file; total pesanan = jumlah harga × kuantitas. Catatan: tabel `addresses` adalah data profil pembeli simulasi (§2, M4), bukan alamat pembeli — checkout tidak memakainya. |
 | Kredensial login "sebagai" akun lain (impersonation) | Dilarang `AGENTS §9` tanpa persyaratan eksplisit. |
 | Refund simulasi | Lihat U-14. |
 

@@ -6,7 +6,7 @@
             <div>
                 <p class="admin-eyebrow">Toko Ira &bull; Akun Pembeli</p>
                 <h1 class="admin-title">Profil Saya</h1>
-                <p class="admin-subtitle">Kelola informasi pribadi dan alamat pengiriman Anda.</p>
+                <p class="admin-subtitle">Kelola informasi pribadi dan alamat Anda.</p>
             </div>
             <div class="admin-head-actions">
                 <a class="btn-primary" href="{{ route('profil.edit') }}">Ubah Profil &amp; Alamat</a>
@@ -47,7 +47,7 @@
 
                 <section class="card admin-panel" aria-labelledby="profil-alamat-heading">
                     <div class="buyer-payment-head">
-                        <h2 class="admin-section-title" id="profil-alamat-heading">Alamat Pengiriman</h2>
+                        <h2 class="admin-section-title" id="profil-alamat-heading">Alamat Saya</h2>
                         @if ($address)
                             <span class="status-chip status-chip-info">
                                 <span>{{ $address->address_type }}</span>
