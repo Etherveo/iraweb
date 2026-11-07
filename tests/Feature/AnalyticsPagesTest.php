@@ -275,13 +275,13 @@ test('M5 FR-03 funnel shows unavailable instead of zeros when the service is dow
 });
 
 test('M5 analytics pages reject guests and buyers (dashboard)', function () {
-    $this->get('/admin')->assertRedirect('/masuk');
+    $this->get('/admin')->assertRedirect('/masuk?aktor=admin_toko');
     $this->actingAs(anpBuyer(), 'web')->get('/admin')->assertForbidden();
 });
 
 test('M5 analytics pages reject guests and buyers (trend and funnel)', function () {
-    $this->get('/admin/tren')->assertRedirect('/masuk');
-    $this->get('/admin/funnel')->assertRedirect('/masuk');
+    $this->get('/admin/tren')->assertRedirect('/masuk?aktor=admin_toko');
+    $this->get('/admin/funnel')->assertRedirect('/masuk?aktor=admin_toko');
     $this->actingAs(anpBuyer(), 'web')->get('/admin/tren')->assertForbidden();
     $this->actingAs(anpBuyer(), 'web')->get('/admin/funnel')->assertForbidden();
 });
