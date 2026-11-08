@@ -477,6 +477,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // hanya data + opsi aman-JSON). Sumbu/tooltip Rp diaktifkan lewat
     // [data-chart-rupiah] — callback tidak bisa lewat JSON, jadi
     // ditambahkan di sini.
+    const prefersReducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     document.querySelectorAll('[data-chart]').forEach((canvas) => {
         let config;
         try {
@@ -486,22 +487,106 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         if (!config.type || !config.data) return;
 
-        if (canvas.hasAttribute('data-chart-rupiah')) {
-            const rupiah = (value) => 'Rp ' + Number(value).toLocaleString('id-ID');
-            config.options = config.options || {};
-            config.options.plugins = config.options.plugins || {};
-            config.options.plugins.tooltip = {
-                ...(config.options.plugins.tooltip || {}),
-                callbacks: {
-                    label: (ctx) => ' ' + rupiah(ctx.parsed.y ?? ctx.parsed.x ?? 0),
-                },
-            };
-            config.options.scales = config.options.scales || {};
-            config.options.scales.y = {
-                ...(config.options.scales.y || {}),
-                ticks: { callback: (value) => rupiah(value) },
-            };
+        const isRupiah = canvas.hasAttribute('data-chart-rupiah');
+        const formatNum = (val) => Number(val ?? 0).toLocaleString('id-ID');
+        const rupiah = (value) => 'Rp ' + formatNum(value);
+
+        config.options = config.options || {};
+        if (prefersReducedMotion) {
+            config.options.animation = false;
         }
+
+        // Interaksi hover lebih mudah dibaca pada grafik garis harian
+        if (config.type === 'line') {
+            config.options.interaction = {
+                mode: 'index',
+                intersect: false,
+                ...(config.options.interaction || {}),
+            };
+            const ctx2d = typeof canvas.getContext === 'function' ? canvas.getContext('2d') : null;
+            if (Array.isArray(config.data.datasets)) {
+                config.data.datasets = config.data.datasets.map((ds) => {
+                    let bg = ds.backgroundColor || 'rgba(102, 85, 245, 0.16)';
+                    if (ctx2d) {
+                        const grad = ctx2d.createLinearGradient(0, 0, 0, 280);
+                        grad.addColorStop(0, 'rgba(102, 85, 245, 0.28)');
+                        grad.addColorStop(1, 'rgba(102, 85, 245, 0.01)');
+                        bg = grad;
+                    }
+                    return {
+                        borderWidth: 2.75,
+                        pointRadius: 3.5,
+                        pointHoverRadius: 6,
+                        pointBackgroundColor: '#FFFFFF',
+                        pointBorderColor: ds.borderColor || '#6655F5',
+                        pointBorderWidth: 2,
+                        ...ds,
+                        backgroundColor: bg,
+                    };
+                });
+            }
+        } else if (config.type === 'bar' && Array.isArray(config.data.datasets)) {
+            config.data.datasets = config.data.datasets.map((ds) => ({
+                maxBarThickness: 36,
+                borderSkipped: false,
+                ...ds,
+            }));
+        }
+
+        config.options.plugins = config.options.plugins || {};
+        config.options.plugins.tooltip = {
+            backgroundColor: '#171A36',
+            titleColor: '#FFFFFF',
+            bodyColor: '#EAECF8',
+            titleFont: { family: "'Manrope', sans-serif", size: 13, weight: '700' },
+            bodyFont: { family: "'Inter', sans-serif", size: 13 },
+            padding: 12,
+            cornerRadius: 12,
+            displayColors: true,
+            boxPadding: 5,
+            ...(config.options.plugins.tooltip || {}),
+            callbacks: {
+                ...((config.options.plugins.tooltip && config.options.plugins.tooltip.callbacks) || {}),
+                label: (ctx) => {
+                    const rawVal = config.options.indexAxis === 'y'
+                        ? (ctx.parsed.x ?? ctx.parsed.y ?? 0)
+                        : (ctx.parsed.y ?? ctx.parsed.x ?? 0);
+                    const formatted = isRupiah ? rupiah(rawVal) : formatNum(rawVal);
+                    const prefix = ctx.dataset && ctx.dataset.label ? ctx.dataset.label + ': ' : '';
+                    return ' ' + prefix + formatted;
+                },
+            },
+        };
+
+        const axisTickStyle = {
+            color: '#515A8C',
+            font: { family: "'Inter', sans-serif", size: 12 },
+        };
+        const axisGridStyle = {
+            color: 'rgba(209, 213, 231, 0.55)',
+            drawTicks: false,
+        };
+
+        config.options.scales = config.options.scales || {};
+        config.options.scales.x = {
+            grid: config.options.indexAxis === 'y' ? axisGridStyle : { display: false },
+            border: { display: false },
+            ...(config.options.scales.x || {}),
+            ticks: {
+                ...axisTickStyle,
+                ...((config.options.scales.x && config.options.scales.x.ticks) || {}),
+            },
+        };
+        config.options.scales.y = {
+            grid: config.options.indexAxis === 'y' ? { display: false } : axisGridStyle,
+            border: { display: false },
+            ...(config.options.scales.y || {}),
+            ticks: {
+                ...axisTickStyle,
+                ...((config.options.scales.y && config.options.scales.y.ticks) || {}),
+                ...(isRupiah ? { callback: (value) => rupiah(value) } : {}),
+            },
+        };
 
         new Chart(canvas, config);
     });

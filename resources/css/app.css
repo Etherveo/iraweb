@@ -3219,92 +3219,551 @@ a.developer-nav-item:focus-visible {
 }
 
 /* ============================================================
-   Halaman analitik admin (M5 FR-01..03)
+   Halaman analitik admin (M5 FR-01..03 — UI.md §16, Figma 3:172447)
    ============================================================ */
-.analytics-filter { display: grid; gap: 1rem; }
-.analytics-quick { display: flex; flex-wrap: wrap; gap: 0.5rem; }
-.analytics-quick [aria-current="true"] {
-    background: var(--color-primary);
-    border-color: var(--color-primary);
-    color: #fff;
+.analytics-filter {
+    display: grid;
+    gap: 1.125rem;
 }
+.analytics-filter-top {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+}
+.analytics-quick {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+.analytics-quick-pill.btn-secondary {
+    min-height: 38px;
+    padding: 0 1rem;
+    border-radius: 999px;
+    font-size: 0.8125rem;
+    background: var(--color-surface-light);
+    border: 1px solid #D7DBED;
+}
+.analytics-quick [aria-current="true"],
+.analytics-quick-pill.btn-secondary[aria-current="true"] {
+    background: linear-gradient(135deg, #8172FF, #5946EF);
+    border-color: transparent;
+    color: #fff;
+    box-shadow: 0 6px 14px rgba(102, 85, 245, 0.28);
+}
+.analytics-period-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 38px;
+    padding: 0.25rem 0.875rem;
+    border-radius: 999px;
+    background: var(--color-primary-soft);
+    border: 1px solid #D4CEFC;
+    color: #39318F;
+    font-family: var(--font-heading);
+    font-size: 0.8125rem;
+    font-weight: 700;
+}
+.analytics-period-icon {
+    width: 1rem;
+    height: 1rem;
+    flex-shrink: 0;
+    color: var(--color-primary);
+}
+.analytics-filter-form.admin-filters {
+    padding-bottom: 0;
+    border-bottom: 0;
+    padding-top: 0.875rem;
+    border-top: 1px solid #DCE0F0;
+}
+
+/* Grid kartu KPI (4 kolom desktop → 2 tablet → 1 mobile) */
 .analytics-kpi-grid {
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 1rem;
+    gap: 1.125rem;
 }
-.analytics-kpi { display: flex; flex-direction: column; gap: 0.25rem; }
+.analytics-kpi {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 1.25rem 1.375rem;
+    border-radius: var(--radius-lg);
+    background: var(--color-surface);
+    box-shadow: var(--shadow-md);
+    border: 1px solid rgba(255, 255, 255, 0.65);
+    min-width: 0;
+}
+.analytics-kpi-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+}
 .analytics-kpi-label {
+    font-family: var(--font-heading);
     font-size: 0.8125rem;
+    font-weight: 700;
     color: var(--color-text-secondary);
+}
+.analytics-kpi-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.125rem;
+    height: 2.125rem;
+    border-radius: 0.625rem;
+    background: var(--color-primary-soft);
+    color: var(--color-primary);
+    flex-shrink: 0;
+}
+.analytics-kpi-icon svg {
+    width: 1.125rem;
+    height: 1.125rem;
+}
+.analytics-kpi-icon.is-up {
+    background: #D9F5EC;
+    color: #0E6B4F;
+}
+.analytics-kpi-icon.is-down {
+    background: #FCE4E9;
+    color: #8F1D38;
 }
 .analytics-kpi-value {
     font-family: var(--font-heading);
-    font-size: 1.5rem;
-    font-weight: 700;
+    font-size: 1.75rem;
+    font-weight: 800;
+    line-height: 1.2;
+    letter-spacing: -0.02em;
     color: var(--color-text-primary);
     overflow-wrap: anywhere;
 }
 .analytics-kpi-sub {
     font-size: 0.8125rem;
+    line-height: 1.45;
     color: var(--color-text-secondary);
+}
+.analytics-kpi-change {
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.25rem;
+    margin-top: auto;
+    padding-top: 0.125rem;
+    font-weight: 600;
+}
+.analytics-kpi-change-main {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+.analytics-kpi-trend-icon {
+    width: 0.9375rem;
+    height: 0.9375rem;
+    flex-shrink: 0;
+}
+.analytics-kpi-change.is-up .analytics-kpi-change-main {
+    color: #0E6B4F;
+}
+.analytics-kpi-change.is-down .analytics-kpi-change-main {
+    color: #B4324B;
+}
+.analytics-sig-badge {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--color-text-secondary);
+}
+.analytics-sig-badge.is-sig {
+    color: #39318F;
+}
+
+.analytics-footnotes {
+    display: grid;
+    gap: 0.25rem;
+    padding: 0 0.25rem;
 }
 .analytics-note {
+    margin: 0;
     font-size: 0.875rem;
+    line-height: 1.55;
     color: var(--color-text-secondary);
+}
+.analytics-note strong {
+    color: var(--color-text-primary);
+    font-weight: 700;
 }
 .analytics-note-list {
-    margin: 0.75rem 0 0;
+    margin: 0.5rem 0 0;
     padding-left: 1.25rem;
+    display: grid;
+    gap: 0.25rem;
     font-size: 0.875rem;
     color: var(--color-text-secondary);
 }
-/* Daftar berperingkat (Terlaris, Naik/Turun): nomor urut via counter
-   karena <li> ber-display flex (marker bawaan tidak tampil). */
+
+/* Header panel & kartu grafik / daftar */
+.analytics-card-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 0.75rem;
+}
+.analytics-card-head .admin-section-title {
+    margin: 0;
+}
+.analytics-card-sub {
+    margin: 0.25rem 0 0;
+    font-size: 0.8125rem;
+    color: var(--color-text-secondary);
+}
+.analytics-legend-group {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+}
+.analytics-legend-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4375rem;
+    padding: 0.25rem 0.6875rem;
+    border-radius: 999px;
+    background: var(--color-surface-light);
+    border: 1px solid #DCE0F0;
+    font-family: var(--font-heading);
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--color-text-secondary);
+}
+.analytics-legend-dot {
+    width: 0.5625rem;
+    height: 0.5625rem;
+    border-radius: 999px;
+    background: var(--color-primary);
+}
+.analytics-legend-dot.is-up { background: #0E9F6E; }
+.analytics-legend-dot.is-down { background: #D63B5A; }
+.analytics-legend-dot.is-neutral { background: #8A92B2; }
+
+.analytics-chart-surface {
+    padding: 1.125rem;
+    border-radius: var(--radius-md);
+    background: var(--color-surface-light);
+    border: 1px solid #DCE0F0;
+}
+.chart-wrap {
+    position: relative;
+    height: 18.5rem;
+    width: 100%;
+}
+
+/* Insight / callout bar (mengikuti bar insight lavender Figma 3:172447) */
+.analytics-callout-grid {
+    display: grid;
+    gap: 0.625rem;
+}
+.analytics-insight-bar {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.625rem;
+    padding: 0.75rem 1rem;
+    border-radius: var(--radius-md);
+    background: var(--color-primary-soft);
+    border: 1px solid #D9D4FC;
+    color: #39318F;
+}
+.analytics-insight-bar .analytics-note {
+    color: #2E2778;
+}
+.analytics-insight-bar.is-warn {
+    background: #FFF4E4;
+    border-color: #F3D5A5;
+    color: #7D4608;
+}
+.analytics-insight-bar.is-warn .analytics-note {
+    color: #6E3D06;
+}
+.analytics-insight-icon {
+    width: 1.125rem;
+    height: 1.125rem;
+    flex-shrink: 0;
+    margin-top: 0.125rem;
+    color: currentColor;
+}
+
+/* Grid 2 kolom untuk kartu berdampingan (Terlaris / Paling sedikit, Naik / Turun) */
+.analytics-split-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.25rem;
+}
+.analytics-split-grid > * {
+    min-width: 0;
+}
+
+/* Daftar berperingkat visual (Terlaris, Paling sedikit terjual, Naik, Turun) */
 .analytics-list {
     margin: 0;
     padding-left: 0;
     list-style: none;
     counter-reset: analytics-rank;
     display: grid;
-    gap: 0.5rem;
+    gap: 0.75rem;
 }
 .analytics-list li {
     counter-increment: analytics-rank;
-    display: flex;
-    align-items: baseline;
-    gap: 0.5rem;
+    position: relative;
+    padding: 0.75rem 0.875rem 0.75rem 2.75rem;
+    border-radius: var(--radius-md);
+    background: var(--color-surface-light);
+    border: 1px solid #DCE0F0;
+    display: grid;
+    gap: 0.4375rem;
 }
 .analytics-list li::before {
-    content: counter(analytics-rank) ".";
-    font-weight: 700;
+    content: counter(analytics-rank);
+    position: absolute;
+    left: 0.75rem;
+    top: 0.75rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.5rem;
+    height: 1.5rem;
+    border-radius: 999px;
+    background: var(--color-primary-soft);
     color: var(--color-primary-active);
+    font-family: var(--font-heading);
+    font-size: 0.75rem;
+    font-weight: 800;
 }
-.analytics-list li span:last-child {
+.analytics-rank-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.5rem;
+}
+.analytics-rank-name {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    color: var(--color-text-primary);
+}
+.analytics-rank-meta {
     margin-left: auto;
     text-align: right;
     color: var(--color-text-secondary);
-    font-size: 0.875rem;
-}
-.chart-wrap { position: relative; height: 18rem; }
-.analytics-unavailable { border-left: 4px solid var(--color-primary); }
-.analytics-trend-label {
-    display: inline-block;
-    padding: 0.125rem 0.5rem;
-    border-radius: 999px;
     font-size: 0.8125rem;
     font-weight: 600;
+}
+.analytics-bar-track {
+    width: 100%;
+    height: 0.4375rem;
+    border-radius: 999px;
+    background: #DFE3F4;
+    overflow: hidden;
+}
+.analytics-bar-fill {
+    display: block;
+    height: 100%;
+    border-radius: 999px;
+    background: linear-gradient(90deg, #8172FF, #5946EF);
+}
+.analytics-bar-fill.is-muted {
+    background: linear-gradient(90deg, #8A92B2, #646D91);
+}
+.analytics-bar-fill.is-up {
+    background: linear-gradient(90deg, #16B37D, #0E875E);
+}
+.analytics-bar-fill.is-down {
+    background: linear-gradient(90deg, #E34D6C, #B4324B);
+}
+
+/* Bar sebaran bertumpuk (Tren) & kartu step Funnel */
+.analytics-stacked-bar {
+    display: flex;
+    width: 100%;
+    height: 0.75rem;
+    border-radius: 999px;
+    background: #DFE3F4;
+    overflow: hidden;
+    gap: 2px;
+}
+.analytics-stacked-seg {
+    display: block;
+    height: 100%;
+}
+.analytics-stacked-seg.is-up { background: #0E9F6E; }
+.analytics-stacked-seg.is-down { background: #D63B5A; }
+.analytics-stacked-seg.is-neutral { background: #8A92B2; }
+
+.analytics-step-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.125rem 0.5rem;
+    border-radius: 999px;
+    background: var(--color-primary-soft);
+    color: #39318F;
+    font-family: var(--font-heading);
+    font-size: 0.75rem;
+    font-weight: 800;
+}
+
+/* Tabel analitik (.table-wrap tetap scroll horizontal di mobile, bukan meluber) */
+.table-wrap {
+    max-width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border-radius: var(--radius-md);
+    background: var(--color-surface-light);
+    border: 1px solid #DCE0F0;
+}
+.analytics-table-bar-cell {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.625rem;
+    min-width: 7.5rem;
+}
+.analytics-inline-bar {
+    flex: 1 1 3.5rem;
+    max-width: 5.5rem;
+    height: 0.375rem;
+    border-radius: 999px;
+    background: #DFE3F4;
+    overflow: hidden;
+}
+.analytics-inline-bar-fill {
+    display: block;
+    height: 100%;
+    border-radius: 999px;
+    background: var(--color-primary);
+}
+.analytics-inline-bar-fill.is-up { background: #0E9F6E; }
+.analytics-inline-bar-fill.is-down { background: #D63B5A; }
+
+/* State tidak tersedia, kosong, dan kotak peringatan */
+.analytics-unavailable,
+.analytics-empty {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    border-left: 4px solid var(--color-primary);
+}
+.analytics-state-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: var(--radius-md);
+    background: var(--color-primary-soft);
+    color: var(--color-primary);
+    flex-shrink: 0;
+}
+.analytics-state-icon.is-muted {
+    background: var(--color-surface-light);
+    color: var(--color-text-secondary);
+    border: 1px solid #DCE0F0;
+}
+.analytics-state-icon svg {
+    width: 1.5rem;
+    height: 1.5rem;
+}
+.analytics-state-body {
+    display: grid;
+    gap: 0.5rem;
+    min-width: 0;
+}
+.analytics-state-body .admin-section-title {
+    margin: 0;
+}
+.analytics-state-actions {
+    margin-top: 0.25rem;
+}
+.analytics-alert-box {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.625rem;
+    border: 1px solid #D4CEFC;
+}
+.analytics-alert-box p {
+    margin: 0;
+}
+.analytics-alert-icon {
+    width: 1.125rem;
+    height: 1.125rem;
+    flex-shrink: 0;
+    margin-top: 0.125rem;
+    color: var(--color-primary);
+}
+
+.analytics-trend-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.1875rem 0.625rem;
+    border-radius: 999px;
+    font-family: var(--font-heading);
+    font-size: 0.75rem;
+    font-weight: 700;
     background: #E2E5F3;
     color: var(--color-text-primary);
+    white-space: nowrap;
 }
 .analytics-trend-label--naik { background: #D9F5EC; color: #0E6B4F; }
 .analytics-trend-label--turun { background: #FCE4E9; color: #8F1D38; }
-.analytics-warnings ul { margin: 0; padding-left: 1.25rem; display: grid; gap: 0.25rem; }
+.analytics-warnings ul {
+    margin: 0;
+    padding-left: 1.25rem;
+    display: grid;
+    gap: 0.375rem;
+    font-size: 0.875rem;
+    color: var(--color-text-secondary);
+}
 
 @media (max-width: 1024px) {
     .analytics-kpi-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .analytics-split-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 767px) {
+    /* Tabel di dalam .table-wrap tetap berupa tabel scroll horizontal di ponsel */
+    .table-wrap .admin-table {
+        display: table;
+        min-width: 36rem;
+    }
+    .table-wrap .admin-table thead {
+        display: table-header-group;
+    }
+    .table-wrap .admin-table tbody {
+        display: table-row-group;
+    }
+    .table-wrap .admin-table tr {
+        display: table-row;
+        padding: 0;
+    }
+    .table-wrap .admin-table th,
+    .table-wrap .admin-table td {
+        display: table-cell;
+        width: auto;
+        padding: 0.75rem 0.875rem;
+        text-align: left;
+        border-bottom: 1px solid #DCE0F0;
+    }
+    .table-wrap .admin-table td::before {
+        content: none;
+        display: none;
+    }
 }
 @media (max-width: 640px) {
     .analytics-kpi-grid { grid-template-columns: 1fr; }
-    .chart-wrap { height: 14rem; }
+    .chart-wrap { height: 14.5rem; }
+    .analytics-chart-surface { padding: 0.75rem; }
+    .analytics-unavailable,
+    .analytics-empty {
+        flex-direction: column;
+    }
 }
