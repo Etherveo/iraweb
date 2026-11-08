@@ -18,6 +18,9 @@ use InvalidArgumentException;
 // valid, kembali ke halaman analitik yang sama dengan periode default
 // 30 hari + pesan galat di bawah kolom tanggal (ANL-01: "tampilan
 // sebelumnya dipertahankan").
+// M6 FR-05 (ANL-54): parameter `kategori` opsional (id kategori yang
+// harus ada) untuk halaman Aktivitas & Minat; halaman lain tidak
+// mengirimnya sehingga aturan ini tidak berpengaruh di sana.
 class AnalyticsPeriodRequest extends FormRequest
 {
     public function authorize(): bool
@@ -54,6 +57,7 @@ class AnalyticsPeriodRequest extends FormRequest
         return [
             'dari' => ['required', 'date_format:Y-m-d'],
             'sampai' => ['required', 'date_format:Y-m-d'],
+            'kategori' => ['nullable', 'integer', 'exists:categories,id'],
         ];
     }
 
@@ -83,6 +87,14 @@ class AnalyticsPeriodRequest extends FormRequest
         $validated = $this->validated();
 
         return [(string) $validated['dari'], (string) $validated['sampai']];
+    }
+
+    /** Kategori terpilih untuk ANL-54 (null = semua kategori). */
+    public function categoryId(): ?int
+    {
+        $value = $this->validated()['kategori'] ?? null;
+
+        return $value === null ? null : (int) $value;
     }
 
     protected function failedValidation(Validator $validator): void

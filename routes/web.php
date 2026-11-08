@@ -124,12 +124,16 @@ Route::middleware('throttle:60,1')->group(function () {
 // ---- Admin surface (ACC-11/12/13, M2 CAT/PRD; dashboard adalah M5 analitik) ----
 Route::middleware(['auth:web', 'active', 'role:admin_toko', 'no-cache'])->group(function () {
     // M5 FR-01..03: halaman analitik admin (Dashboard/Tren/Funnel).
+    // M6 FR-04/FR-05: Perbandingan, Aktivitas & Minat, Riwayat Aktivitas.
     // PageController::adminDashboard tidak dihapus (method + view
     // placeholder dibiarkan apa adanya), tetapi rute /admin kini memakai
     // AnalyticsController.
     Route::get('/admin', [AnalyticsController::class, 'dashboard'])->name('admin.dashboard');
     Route::get('/admin/tren', [AnalyticsController::class, 'trend'])->name('admin.tren');
     Route::get('/admin/funnel', [AnalyticsController::class, 'funnel'])->name('admin.funnel');
+    Route::get('/admin/perbandingan', [AnalyticsController::class, 'compare'])->name('admin.perbandingan');
+    Route::get('/admin/aktivitas', [AnalyticsController::class, 'interest'])->name('admin.aktivitas');
+    Route::get('/admin/aktivitas/riwayat', [AnalyticsController::class, 'history'])->name('admin.aktivitas.riwayat');
     Route::get('/admin/kategori', [CategoryController::class, 'index'])->name('admin.kategori.index');
     Route::get('/admin/kategori/tambah', [CategoryController::class, 'create'])->name('admin.kategori.create');
     Route::post('/admin/kategori', [CategoryController::class, 'store'])->name('admin.kategori.store');

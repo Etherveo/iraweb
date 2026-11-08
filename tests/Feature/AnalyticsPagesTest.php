@@ -1,6 +1,10 @@
 <?php
 
+use App\Models\Category;
+use App\Models\Event;
+use App\Models\Product;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\Http;
 
@@ -218,6 +222,24 @@ test('M5 analytics pages show a configuration message instead of a 500 when the 
         ->get('/admin/funnel')
         ->assertOk()
         ->assertSee('Analitik belum dikonfigurasi');
+
+    $this->actingAs(anpAdmin(), 'web')
+        ->get('/admin/perbandingan')
+        ->assertOk()
+        ->assertSee('Analitik belum dikonfigurasi');
+
+    $this->actingAs(anpAdmin(), 'web')
+        ->get('/admin/aktivitas')
+        ->assertOk()
+        ->assertSee('Analitik belum dikonfigurasi');
+
+    // Riwayat (ANL-52) tidak memanggil servis — tetap jalan walau kunci
+    // kosong, tanpa pesan konfigurasi.
+    $this->actingAs(anpAdmin(), 'web')
+        ->get('/admin/aktivitas/riwayat')
+        ->assertOk()
+        ->assertSee('Riwayat Aktivitas')
+        ->assertDontSee('Analitik belum dikonfigurasi');
 });
 
 test('M5 FR-02 trend renders per-product labels and rankings for admin', function () {
@@ -336,5 +358,372 @@ test('M5 analytics sidebar links dashboard, trend and funnel', function () {
         ->get('/admin')
         ->assertOk()
         ->assertSee(route('admin.tren'), false)
-        ->assertSee(route('admin.funnel'), false);
+        ->assertSee(route('admin.funnel'), false)
+        ->assertSee(route('admin.perbandingan'), false)
+        ->assertSee(route('admin.aktivitas'), false);
+});
+
+/** Respons /v1/compare palsu — bentuk ASLI compare_periods (rencana M6 §2).
+ *  Angka sengaja konsisten: total = jumlah per produk (unit 19/5,
+ *  transaksi 10/4, pembelian 17/4, Rp 212.000/54.000). */
+function anpFakeCompare(bool $empty = false): array
+{
+    $metric = function ($a, $b, $p, $significance, $significant, $descriptive = false) {
+        $change = $a - $b;
+        $ratio = $b != 0 ? $change / $b : null;
+        $rateA = $a / 30;
+        $rateB = $b / 30;
+        $perDay = $rateA - $rateB;
+        $perDayRatio = $rateB != 0 ? $perDay / $rateB : null;
+
+        $m = [
+            'a' => $a, 'b' => $b, 'days_a' => 30, 'days_b' => 30, 'baseline' => 'B',
+            'change' => $change, 'change_ratio' => $ratio,
+            'change_ratio_text' => $ratio === null ? 'Belum dapat dihitung' : null,
+            'rate_a' => $rateA, 'rate_b' => $rateB,
+            'per_day_change' => $perDay, 'per_day_change_ratio' => $perDayRatio,
+            'per_day_change_ratio_text' => $perDayRatio === null ? 'Belum dapat dihitung' : null,
+            'lengths_differ' => false, 'p' => $p, 'significance' => $significance,
+            'significant' => $significant, 'available' => true,
+        ];
+
+        if ($descriptive) {
+            $m['descriptive_only'] = true;
+        }
+
+        return $m;
+    };
+
+    $data = [
+        'algorithm_version' => 'ira-trend-analytics-ref/0.1.0',
+        'timezone' => 'Asia/Makassar',
+        'origin_filter' => 'all',
+        'baseline' => 'B',
+        'period_a' => ['start' => '2026-10-10', 'end' => '2026-11-08', 'days' => 30],
+        'period_b' => ['start' => '2026-09-10', 'end' => '2026-10-09', 'days' => 30],
+        'empty' => false,
+        'totals' => [
+            'revenue_idr' => $metric(212000, 54000, null, null, null, true),
+            'units_sold' => $metric(19, 5, 0.007, 'Berbeda dari variasi acak', true),
+            'purchases' => $metric(17, 4, 0.007, 'Berbeda dari variasi acak', true),
+            'transactions' => $metric(10, 4, 0.18, 'Belum dapat dibedakan dari variasi acak', false),
+            // Catatan: transactions_differ_from_purchases ada DI DALAM
+            // totals (bukan di tingkat atas) — pelajaran bentuk M5.
+            'transactions_differ_from_purchases' => true,
+        ],
+        'by_product' => [
+            [
+                'product_id' => 1, 'name' => 'Pensil 2B', 'category_id' => null, 'is_active' => true,
+                'units_sold' => $metric(16, 2, 0.002, 'Berbeda dari variasi acak', true),
+                'transactions' => $metric(8, 2, 0.11, 'Belum dapat dibedakan dari variasi acak', false),
+                'purchases' => $metric(14, 2, 0.004, 'Berbeda dari variasi acak', true),
+                'revenue_idr' => $metric(200000, 40000, null, null, null, true),
+            ],
+            [
+                'product_id' => 2, 'name' => 'Penghapus', 'category_id' => null, 'is_active' => true,
+                'units_sold' => $metric(3, 1, 0.63, 'Belum dapat dibedakan dari variasi acak', false),
+                'transactions' => $metric(2, 1, 1.0, 'Belum dapat dibedakan dari variasi acak', false),
+                'purchases' => $metric(3, 1, 0.63, 'Belum dapat dibedakan dari variasi acak', false),
+                'revenue_idr' => $metric(12000, 8000, null, null, null, true),
+            ],
+            [
+                'product_id' => 3, 'name' => 'Buku Tulis', 'category_id' => null, 'is_active' => true,
+                'units_sold' => $metric(0, 2, 0.5, 'Belum dapat dibedakan dari variasi acak', false),
+                'transactions' => $metric(0, 1, 1.0, 'Belum dapat dibedakan dari variasi acak', false),
+                'purchases' => $metric(0, 1, 1.0, 'Belum dapat dibedakan dari variasi acak', false),
+                'revenue_idr' => $metric(0, 6000, null, null, null, true),
+            ],
+        ],
+        'biggest_increase' => [
+            ['product_id' => 1, 'name' => 'Pensil 2B', 'units_a' => 16, 'units_b' => 2, 'per_day_change' => 16 / 30 - 2 / 30, 'change' => 14, 'change_ratio' => 7.0, 'change_ratio_text' => null, 'significance' => 'Berbeda dari variasi acak'],
+            ['product_id' => 2, 'name' => 'Penghapus', 'units_a' => 3, 'units_b' => 1, 'per_day_change' => 3 / 30 - 1 / 30, 'change' => 2, 'change_ratio' => 2.0, 'change_ratio_text' => null, 'significance' => 'Belum dapat dibedakan dari variasi acak'],
+        ],
+        'biggest_decrease' => [
+            ['product_id' => 3, 'name' => 'Buku Tulis', 'units_a' => 0, 'units_b' => 2, 'per_day_change' => 0 - 2 / 30, 'change' => -2, 'change_ratio' => -1.0, 'change_ratio_text' => null, 'significance' => 'Belum dapat dibedakan dari variasi acak'],
+        ],
+        'caveats' => ['Kejadian diasumsikan Poisson dan saling bebas; pelanggan berulang membuat p-value cenderung optimistis.'],
+        'warnings' => [],
+    ];
+
+    if ($empty) {
+        $data['empty'] = true;
+    }
+
+    return $data;
+}
+
+/** Respons /v1/interest palsu — bentuk ASLI analyze_interest (rencana M6 §2). */
+function anpFakeInterest(): array
+{
+    $pensil = [
+        'product_id' => 1, 'name' => 'Pensil 2B', 'category_id' => null, 'is_active' => true,
+        'views' => 100, 'add_to_carts' => 40, 'bookings' => 24, 'purchases' => 2,
+        'ratio' => 0.02, 'ratio_text' => null,
+        'interval' => ['low' => 0.005, 'high' => 0.07, 'level' => 0.95],
+        'cart_minus_purchase' => 38, 'sufficient_data' => true,
+        'status' => 'Perlu ditinjau', 'needs_review' => true, 'is_comparator' => false,
+        'anomaly' => false,
+    ];
+    $penghapus = [
+        'product_id' => 2, 'name' => 'Penghapus', 'category_id' => null, 'is_active' => true,
+        'views' => 20, 'add_to_carts' => 10, 'bookings' => 8, 'purchases' => 5,
+        'ratio' => 0.25, 'ratio_text' => null,
+        'interval' => ['low' => 0.11, 'high' => 0.47, 'level' => 0.95],
+        'cart_minus_purchase' => 5, 'sufficient_data' => true,
+        'status' => 'Tidak disorot', 'needs_review' => false, 'is_comparator' => false,
+        'anomaly' => false,
+    ];
+    $buku = [
+        'product_id' => 3, 'name' => 'Buku Tulis', 'category_id' => null, 'is_active' => true,
+        'views' => 50, 'add_to_carts' => 20, 'bookings' => 15, 'purchases' => 12,
+        'ratio' => 0.24, 'ratio_text' => null,
+        'interval' => ['low' => 0.14, 'high' => 0.38, 'level' => 0.95],
+        'cart_minus_purchase' => 8, 'sufficient_data' => true,
+        'status' => 'Tidak disorot', 'needs_review' => false, 'is_comparator' => true,
+        'anomaly' => false,
+    ];
+
+    return [
+        'algorithm_version' => 'ira-trend-analytics-ref/0.1.0',
+        'timezone' => 'Asia/Makassar',
+        'period' => ['start' => '2026-10-10', 'end' => '2026-11-08', 'days' => 30],
+        'origin_filter' => 'all',
+        'category_id' => null,
+        'params' => ['min_views' => 20, 'max_ratio' => 0.05, 'max_upper' => 0.10, 'comparator_min_ratio' => 0.10, 'comparator_min_purchases' => 10, 'comparator_max' => 3, 'confidence' => 0.95],
+        'products_viewed' => 3,
+        'total_views' => 170,
+        'products' => [$pensil, $penghapus, $buku],
+        'highlights' => [$pensil],
+        'comparators' => [$buku],
+        'warnings' => [],
+    ];
+}
+
+test('M6 FR-04 compare renders metric cards, chart, biggest movers and per-product table for admin', function () {
+    Http::fake([
+        'http://127.0.0.1:8001/v1/compare' => Http::response(anpFakeCompare(), 200),
+    ]);
+
+    $this->actingAs(anpAdmin(), 'web')
+        ->get('/admin/perbandingan?dari=2026-10-10&sampai=2026-11-08&pembanding_dari=2026-09-10&pembanding_sampai=2026-10-09')
+        ->assertOk()
+        ->assertSee('Perbandingan Periode')
+        ->assertSee('Rp 212.000')
+        ->assertSee('+280,0%')
+        ->assertSee('Berbeda dari variasi acak')
+        ->assertSee('Perubahan terbesar naik')
+        ->assertSee('Perubahan terbesar turun')
+        ->assertSee('Pensil 2B')
+        ->assertSee('Buku Tulis')
+        ->assertSee('data-chart')
+        ->assertDontSee('Perhitungan sedang tidak tersedia');
+});
+
+test('M6 FR-04 compare shows an honest empty state when both periods have no data', function () {
+    Http::fake([
+        'http://127.0.0.1:8001/v1/compare' => Http::response(anpFakeCompare(true), 200),
+    ]);
+
+    $this->actingAs(anpAdmin(), 'web')
+        ->get('/admin/perbandingan')
+        ->assertOk()
+        ->assertSee('Belum ada data pada kedua periode')
+        ->assertDontSee('Rp 212.000');
+});
+
+test('M6 FR-04 compare shows unavailable instead of zeros when the service is down', function () {
+    anpFakeDown();
+
+    $this->actingAs(anpAdmin(), 'web')
+        ->get('/admin/perbandingan')
+        ->assertOk()
+        ->assertSee('Perhitungan sedang tidak tersedia')
+        ->assertSee('Coba lagi');
+});
+
+test('M6 FR-04 compare fills period B with the previous period (ANL-46)', function () {
+    Http::fake([
+        'http://127.0.0.1:8001/v1/compare' => Http::response(anpFakeCompare(), 200),
+    ]);
+
+    $this->actingAs(anpAdmin(), 'web')
+        ->get('/admin/perbandingan?dari=2026-10-10&sampai=2026-11-08&pembanding=sebelumnya')
+        ->assertOk()
+        ->assertSee('2026-09-10', false)
+        ->assertSee('2026-10-09', false);
+});
+
+test('M6 FR-04 compare rejects an invalid comparison period', function () {
+    Http::fake([
+        'http://127.0.0.1:8001/v1/compare' => Http::response(anpFakeCompare(), 200),
+    ]);
+
+    $this->actingAs(anpAdmin(), 'web')
+        ->get('/admin/perbandingan?dari=2026-10-10&sampai=2026-11-08&pembanding_dari=2026-10-09&pembanding_sampai=2026-09-10')
+        ->assertRedirect(route('admin.perbandingan'))
+        ->assertSessionHasErrors('pembanding_dari');
+});
+
+test('M6 FR-05 interest renders summary, highlights, comparators and the product table for admin', function () {
+    Http::fake([
+        'http://127.0.0.1:8001/v1/interest' => Http::response(anpFakeInterest(), 200),
+    ]);
+
+    $this->actingAs(anpAdmin(), 'web')
+        ->get('/admin/aktivitas')
+        ->assertOk()
+        ->assertSee('Aktivitas & Minat')
+        ->assertSee('Perlu ditinjau')
+        ->assertSee('Pensil 2B')
+        ->assertSee('Pembanding')
+        ->assertSee('Buku Tulis')
+        ->assertSee('Lihat riwayat')
+        ->assertSee('/admin/aktivitas/riwayat?produk=1', false)
+        ->assertDontSee('Perhitungan sedang tidak tersedia');
+});
+
+test('M6 FR-05 interest shows unavailable instead of zeros when the service is down', function () {
+    anpFakeDown();
+
+    $this->actingAs(anpAdmin(), 'web')
+        ->get('/admin/aktivitas')
+        ->assertOk()
+        ->assertSee('Perhitungan sedang tidak tersedia')
+        ->assertSee('Coba lagi');
+});
+
+test('M6 FR-05 interest forwards the category filter to the service (ANL-54)', function () {
+    $category = Category::factory()->create();
+
+    Http::fake([
+        'http://127.0.0.1:8001/v1/interest' => Http::response(anpFakeInterest(), 200),
+    ]);
+
+    $this->actingAs(anpAdmin(), 'web')
+        ->get('/admin/aktivitas?kategori='.$category->id)
+        ->assertOk()
+        ->assertSee($category->name);
+
+    Http::assertSent(function ($request) use ($category) {
+        return str_ends_with($request->url(), '/v1/interest')
+            && ($request->data()['category_id'] ?? null) === $category->id;
+    });
+});
+
+test('M6 FR-05 interest sorts the product table (ANL-54)', function () {
+    Http::fake([
+        'http://127.0.0.1:8001/v1/interest' => Http::response(anpFakeInterest(), 200),
+    ]);
+
+    $admin = anpAdmin();
+
+    // Default: urut dilihat menurun (Pensil 100 > Buku 50).
+    $default = $this->actingAs($admin, 'web')->get('/admin/aktivitas')->assertOk();
+    $table = substr($default->getContent(), (int) strpos($default->getContent(), 'Minat per produk'));
+    $this->assertTrue(strpos($table, 'Pensil 2B') < strpos($table, 'Buku Tulis'));
+
+    // urut=pembelian: Buku (12) di atas Pensil (2).
+    $byPurchase = $this->actingAs($admin, 'web')->get('/admin/aktivitas?urut=pembelian')->assertOk();
+    $table2 = substr($byPurchase->getContent(), (int) strpos($byPurchase->getContent(), 'Minat per produk'));
+    $this->assertTrue(strpos($table2, 'Buku Tulis') < strpos($table2, 'Pensil 2B'));
+});
+
+test('M6 FR-05 history renders real events with buyer name only, without calling the service', function () {
+    // Riwayat tidak boleh memanggil servis Python sama sekali.
+    Http::fake(fn () => throw new RuntimeException('service must not be called'));
+
+    $buyer = anpBuyer();
+    $product = Product::factory()->create(['name' => 'Pensil 2B']);
+    Event::factory()->create([
+        'event_type' => 'purchase', 'user_id' => $buyer->id, 'product_id' => $product->id,
+        'occurred_at' => now(), 'origin' => 'normal',
+    ]);
+
+    $this->actingAs(anpAdmin(), 'web')
+        ->get('/admin/aktivitas/riwayat')
+        ->assertOk()
+        ->assertSee('Riwayat Aktivitas')
+        ->assertSee($buyer->name)
+        ->assertSee('Pensil 2B')
+        ->assertSee('Pembelian')
+        ->assertDontSee($buyer->email)
+        // Keputusan 2026-11-08: nol label simulasi di UI admin.
+        ->assertDontSee('Simulasi');
+});
+
+test('M6 FR-05 history date filter follows WITA days, not UTC dates', function () {
+    // occurred_at disimpan UTC, halaman menampilkan WITA: event pukul
+    // 02:00 WITA (18:00 UTC hari sebelumnya) harus masuk filter hari
+    // WITA-nya, dan event pukul 02:00 WITA keesokan harinya tidak.
+    $buyer = anpBuyer();
+    $product = Product::factory()->create(['name' => 'Pensil 2B']);
+    Event::factory()->create([
+        'event_type' => 'view', 'user_id' => $buyer->id, 'product_id' => $product->id,
+        'occurred_at' => Carbon::parse('2026-11-07 18:00', 'UTC'), 'origin' => 'normal',
+    ]);
+    Event::factory()->create([
+        'event_type' => 'view', 'user_id' => $buyer->id, 'product_id' => $product->id,
+        'occurred_at' => Carbon::parse('2026-11-08 18:00', 'UTC'), 'origin' => 'normal',
+    ]);
+
+    $page = $this->actingAs(anpAdmin(), 'web')
+        ->get('/admin/aktivitas/riwayat?dari=2026-11-08&sampai=2026-11-08')
+        ->assertOk();
+    // Satu baris cocok (header + 1) — event 02:00 WITA 8 Nov masuk,
+    // event 02:00 WITA 9 Nov tidak.
+    $this->assertSame(2, substr_count($page->getContent(), '<tr>'));
+});
+
+test('M6 FR-05 history filters by product and type', function () {
+    $productA = Product::factory()->create(['name' => 'Pensil 2B']);
+    $productB = Product::factory()->create(['name' => 'Penghapus']);
+    $buyerA = anpBuyer();
+    $buyerB = anpBuyer();
+    Event::factory()->create(['event_type' => 'view', 'user_id' => $buyerA->id, 'product_id' => $productA->id, 'origin' => 'normal']);
+    Event::factory()->create(['event_type' => 'purchase', 'user_id' => $buyerB->id, 'product_id' => $productB->id, 'origin' => 'developer_simulation']);
+
+    // Nama pembeli dipakai sebagai penanda baris (nama produk juga ada
+    // di dropdown filter, jadi tidak bisa dipakai assertDontSee).
+    $this->actingAs(anpAdmin(), 'web')
+        ->get('/admin/aktivitas/riwayat?produk='.$productB->id)
+        ->assertOk()
+        ->assertSee($buyerB->name)
+        ->assertDontSee($buyerA->name);
+
+    $this->actingAs(anpAdmin(), 'web')
+        ->get('/admin/aktivitas/riwayat?jenis=purchase')
+        ->assertOk()
+        ->assertSee($buyerB->name)
+        ->assertDontSee($buyerA->name);
+});
+
+test('M6 FR-05 history paginates 20 events per page, newest first', function () {
+    $buyer = anpBuyer();
+
+    for ($i = 1; $i <= 21; $i++) {
+        $product = Product::factory()->create(['name' => 'Produk Riwayat '.str_pad((string) $i, 2, '0', STR_PAD_LEFT)]);
+        Event::factory()->create([
+            'event_type' => 'view', 'user_id' => $buyer->id, 'product_id' => $product->id,
+            'occurred_at' => now()->subMinutes(21 - $i), 'origin' => 'normal',
+        ]);
+    }
+
+    $page1 = $this->actingAs(anpAdmin(), 'web')->get('/admin/aktivitas/riwayat')->assertOk();
+    $this->assertSame(21, substr_count($page1->getContent(), '<tr>')); // header + 20
+    $this->assertStringContainsString('page=2', $page1->getContent());
+
+    $page2 = $this->actingAs(anpAdmin(), 'web')->get('/admin/aktivitas/riwayat?page=2')->assertOk();
+    $this->assertSame(2, substr_count($page2->getContent(), '<tr>')); // header + 1
+    $page2->assertSee('Produk Riwayat 01');
+});
+
+test('M6 analytics pages reject guests and buyers (compare, interest, history)', function () {
+    $this->get('/admin/perbandingan')->assertRedirect('/masuk?aktor=admin_toko');
+    $this->get('/admin/aktivitas')->assertRedirect('/masuk?aktor=admin_toko');
+    $this->get('/admin/aktivitas/riwayat')->assertRedirect('/masuk?aktor=admin_toko');
+
+    $buyer = anpBuyer();
+    $this->actingAs($buyer, 'web')->get('/admin/perbandingan')->assertForbidden();
+    $this->actingAs($buyer, 'web')->get('/admin/aktivitas')->assertForbidden();
+    $this->actingAs($buyer, 'web')->get('/admin/aktivitas/riwayat')->assertForbidden();
 });

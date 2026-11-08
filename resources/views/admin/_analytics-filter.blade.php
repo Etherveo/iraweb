@@ -13,12 +13,15 @@ rentang kustom, GET sehingga periode bisa dibagikan lewat URL). --}}
             $today->copy()->subMonthNoOverflow()->endOfMonth()->toDateString(),
         ],
     ];
+    // M6 ANL-54: pilihan cepat mempertahankan filter kategori bila ada
+    // (hanya halaman Aktivitas & Minat yang mengirim $categories).
+    $keepKategori = request()->filled('kategori') ? ['kategori' => request('kategori')] : [];
 @endphp
 <div class="card admin-panel analytics-filter">
     <div class="analytics-filter-top">
         <div class="analytics-quick" role="group" aria-label="Pilihan cepat periode">
             @foreach ($quick as $label => [$d, $s])
-                <a class="btn-secondary analytics-quick-pill" href="{{ route($filterRoute, ['dari' => $d, 'sampai' => $s]) }}" @if (($dari ?? null) === $d && ($sampai ?? null) === $s) aria-current="true" @endif>{{ $label }}</a>
+                <a class="btn-secondary analytics-quick-pill" href="{{ route($filterRoute, array_merge(['dari' => $d, 'sampai' => $s], $keepKategori)) }}" @if (($dari ?? null) === $d && ($sampai ?? null) === $s) aria-current="true" @endif>{{ $label }}</a>
             @endforeach
         </div>
         @if (! empty($dari) && ! empty($sampai))
@@ -42,9 +45,20 @@ rentang kustom, GET sehingga periode bisa dibagikan lewat URL). --}}
             <input class="input" type="date" id="sampai" name="sampai" value="{{ old('sampai', $sampai ?? '') }}" max="{{ $today->toDateString() }}" @error('sampai') aria-invalid="true" aria-describedby="error-sampai" @enderror>
             @error('sampai') <span class="field-error" id="error-sampai">{{ $message }}</span> @enderror
         </div>
+        @if (isset($categories))
+            <div class="admin-filter-group">
+                <label for="kategori" class="admin-label">Kategori</label>
+                <select class="input" id="kategori" name="kategori">
+                    <option value="">Semua kategori</option>
+                    @foreach ($categories as $category)
+                        <option value="{{ $category['id'] }}" @selected((string) request('kategori', '') === (string) $category['id'])>{{ $category['name'] }}</option>
+                    @endforeach
+                </select>
+            </div>
+        @endif
         <div class="admin-filter-actions">
             <button class="btn-primary" type="submit">Tampilkan</button>
-            @if (request()->query('dari') || request()->query('sampai'))
+            @if (request()->query('dari') || request()->query('sampai') || request()->query('kategori'))
                 <a class="btn-secondary" href="{{ route($filterRoute) }}">Reset</a>
             @endif
         </div>

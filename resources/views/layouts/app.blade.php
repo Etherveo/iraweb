@@ -66,14 +66,14 @@
                     <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
                     <span>Funnel</span>
                 </a>
-                <span class="admin-nav-item is-disabled" aria-disabled="true">
+                <a href="{{ route('admin.perbandingan') }}" @class(['admin-nav-item', 'is-active' => request()->routeIs('admin.perbandingan')]) @if (request()->routeIs('admin.perbandingan')) aria-current="page" @endif>
                     <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" x2="18" y1="20" y2="10"/><line x1="12" x2="12" y1="20" y2="4"/><line x1="6" x2="6" y1="20" y2="14"/></svg>
                     <span>Perbandingan</span>
-                </span>
-                <span class="admin-nav-item is-disabled" aria-disabled="true">
+                </a>
+                <a href="{{ route('admin.aktivitas') }}" @class(['admin-nav-item', 'is-active' => request()->routeIs('admin.aktivitas', 'admin.aktivitas.*')]) @if (request()->routeIs('admin.aktivitas', 'admin.aktivitas.*')) aria-current="page" @endif>
                     <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-2.48a2 2 0 0 0-1.93 1.46l-2.35 8.36a.25.25 0 0 1-.48 0L9.24 2.18a.25.25 0 0 0-.48 0l-2.35 8.36A2 2 0 0 1 4.49 12H2"/></svg>
                     <span>Aktivitas &amp; Minat</span>
-                </span>
+                </a>
                 <span class="admin-nav-item is-disabled" aria-disabled="true">
                     <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg>
                     <span>Kategori</span>
