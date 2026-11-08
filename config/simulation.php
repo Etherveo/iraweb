@@ -40,8 +40,11 @@ return [
 
     // Biodata generator (SIM-06): Python wrapper invoked via CLI subprocess.
     // Binary name differs per OS — laptop Ren is Windows (python),
-    // the VM is Linux (python3); never hardcode one name.
-    'generator_python' => env('SIM_GENERATOR_PYTHON', PHP_OS_FAMILY === 'Windows' ? 'python' : 'python3'),
+    // the VM is Linux (python3); never hardcode one name. String kosong
+    // berarti "pakai default OS": env() hanya memakai default bila variabel
+    // TIDAK ADA; bila ada tapi kosong (SIM_GENERATOR_PYTHON= di .env),
+    // nilainya '' dan tanpa ?: di sini Process akan mencoba menjalankan "".
+    'generator_python' => env('SIM_GENERATOR_PYTHON') ?: (PHP_OS_FAMILY === 'Windows' ? 'python' : 'python3'),
     'generator_path' => env('SIM_GENERATOR_PATH', base_path('python/biodata/generate_biodata.py')),
     'generator_timeout' => (int) env('SIM_GENERATOR_TIMEOUT', 120),
 ];
