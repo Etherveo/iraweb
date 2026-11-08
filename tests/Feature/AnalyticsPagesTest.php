@@ -7,6 +7,7 @@ use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Str;
 
 // M5 langkah 4–6: halaman analitik admin (FR-01 Dashboard, FR-02 Tren,
 // FR-03 Funnel). Tidak ada tes di sini yang butuh servis Python berjalan
@@ -680,7 +681,7 @@ test('M6 FR-05 history filters by product and type', function () {
     $buyerA = anpBuyer();
     $buyerB = anpBuyer();
     Event::factory()->create(['event_type' => 'view', 'user_id' => $buyerA->id, 'product_id' => $productA->id, 'origin' => 'normal']);
-    Event::factory()->create(['event_type' => 'purchase', 'user_id' => $buyerB->id, 'product_id' => $productB->id, 'origin' => 'developer_simulation']);
+    Event::factory()->create(['event_type' => 'purchase', 'user_id' => $buyerB->id, 'product_id' => $productB->id, 'origin' => 'developer_simulation', 'simulation_run_id' => (string) Str::ulid()]);
 
     // Nama pembeli dipakai sebagai penanda baris (nama produk juga ada
     // di dropdown filter, jadi tidak bisa dipakai assertDontSee).
