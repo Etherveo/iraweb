@@ -61,6 +61,9 @@ class OrderStateMachine
             'status' => $to,
             // EVT-07: the order stores when it was paid.
             'paid_at' => $to === 'dibayar' ? $stamp : $order->paid_at,
+            // M5: the order stores when it was picked up (set once, when
+            // the order becomes selesai — the pickup-and-pay marker).
+            'picked_up_at' => $to === 'selesai' ? $stamp : $order->picked_up_at,
             'updated_at' => $stamp,
         ]);
 

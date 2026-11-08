@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\AnalyticsController;
 use App\Http\Controllers\Admin\BuyerAccountController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\OrderController as AdminOrderController;
@@ -120,9 +121,15 @@ Route::middleware('throttle:60,1')->group(function () {
     Route::post('/pay/sim/{token}/gagal', [SimulationPageController::class, 'fail'])->name('pay.sim.gagal');
 });
 
-// ---- Admin surface (ACC-11/12/13, M2 CAT/PRD; dashboard is an M5 placeholder) ----
+// ---- Admin surface (ACC-11/12/13, M2 CAT/PRD; dashboard adalah M5 analitik) ----
 Route::middleware(['auth:web', 'active', 'role:admin_toko', 'no-cache'])->group(function () {
-    Route::get('/admin', [PageController::class, 'adminDashboard'])->name('admin.dashboard');
+    // M5 FR-01..03: halaman analitik admin (Dashboard/Tren/Funnel).
+    // PageController::adminDashboard tidak dihapus (method + view
+    // placeholder dibiarkan apa adanya), tetapi rute /admin kini memakai
+    // AnalyticsController.
+    Route::get('/admin', [AnalyticsController::class, 'dashboard'])->name('admin.dashboard');
+    Route::get('/admin/tren', [AnalyticsController::class, 'trend'])->name('admin.tren');
+    Route::get('/admin/funnel', [AnalyticsController::class, 'funnel'])->name('admin.funnel');
     Route::get('/admin/kategori', [CategoryController::class, 'index'])->name('admin.kategori.index');
     Route::get('/admin/kategori/tambah', [CategoryController::class, 'create'])->name('admin.kategori.create');
     Route::post('/admin/kategori', [CategoryController::class, 'store'])->name('admin.kategori.store');

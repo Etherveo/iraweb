@@ -118,3 +118,23 @@ test('integrasi wrapper Python: deterministik + domain sim + seed dilaporkan', f
 
     return $version === '' || ! file_exists(base_path('python/biodata/generate_biodata.py'));
 }, 'Python atau wrapper generate_biodata.py tidak tersedia di mesin ini.');
+
+test('integrasi wrapper Python: binary kosong di config jatuh ke default OS', function () {
+    // Regresi 2026-11-08: SIM_GENERATOR_PYTHON= (kosong) di .env membuat
+    // config berisi '' dan Process mencoba menjalankan "" — Windows
+    // menjawab '""' is not recognized as a command. Kosong harus
+    // berarti "pakai default OS", sama seperti bila variabel tak ada.
+    config(['simulation.generator_python' => '']);
+
+    $generator = new PythonBiodataGenerator;
+
+    $items = $generator->generate(1, 0, 42);
+
+    expect($items)->toHaveCount(1);
+    expect($items[0]['email'])->toEndWith('@sim.ira-stationery.test');
+})->skip(function (): bool {
+    $binary = PHP_OS_FAMILY === 'Windows' ? 'python' : 'python3';
+    $version = trim((string) shell_exec($binary.' --version 2>&1'));
+
+    return $version === '' || ! file_exists(base_path('python/biodata/generate_biodata.py'));
+}, 'Python atau wrapper generate_biodata.py tidak tersedia di mesin ini.');

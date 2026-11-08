@@ -693,6 +693,10 @@ test('ORD-12 admin fulfillment moves dibayar to diproses to selesai, and nothing
     $this->post('/admin/pesanan/'.$order->id.'/status', ['to_status' => 'diproses'])
         ->assertRedirect('/admin/pesanan/'.$order->id);
     expect($order->fresh()->status)->toBe('diproses');
+    // M5: picked_up_at stays NULL until the order is selesai.
+    expect($order->fresh()->picked_up_at)->toBeNull();
+    $this->get('/admin/pesanan/'.$order->id)->assertOk()
+        ->assertSee('Tandai Sudah Diambil & Dibayar');
     $this->assertDatabaseHas('order_status_histories', [
         'order_id' => $order->id, 'from_status' => 'dibayar',
         'to_status' => 'diproses', 'trigger' => 'admin',
@@ -702,6 +706,10 @@ test('ORD-12 admin fulfillment moves dibayar to diproses to selesai, and nothing
     $this->post('/admin/pesanan/'.$order->id.'/status', ['to_status' => 'selesai'])
         ->assertRedirect('/admin/pesanan/'.$order->id);
     expect($order->fresh()->status)->toBe('selesai');
+    // M5: the pickup-and-pay marker — picked_up_at is stamped on selesai.
+    expect($order->fresh()->picked_up_at)->not->toBeNull();
+    $this->get('/admin/pesanan/'.$order->id)->assertOk()
+        ->assertSee('Selesai')->assertSee('Diambil');
 });
 
 test('ORD-12 admin cannot mark an order paid, cancel a paid order, or touch a waiting order', function () {
@@ -757,7 +765,7 @@ test('ORD-10/11/13 admin order list filters by status, date range, origin and or
         ->assertSee('alasan: buyer')
         ->assertSee('Tidak ada aksi pemenuhan');
     $this->get('/admin/pesanan/'.$paid->id)->assertOk()
-        ->assertSee('Tandai Diproses');
+        ->assertSee('Tandai Siap Diambil');
 });
 
 // ---- EVT-02 view ----

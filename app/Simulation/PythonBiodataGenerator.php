@@ -35,7 +35,10 @@ final class PythonBiodataGenerator implements BiodataGenerator
             throw new InvalidArgumentException('Offset harus ≥ 0.');
         }
 
-        $binary = (string) config('simulation.generator_python', PHP_OS_FAMILY === 'Windows' ? 'python' : 'python3');
+        // String kosong (mis. SIM_GENERATOR_PYTHON= di .env) berarti "pakai
+        // default OS" — tanpa ?: di sini Process mencoba menjalankan ""
+        // dan Windows menjawab '""' is not recognized as a command.
+        $binary = (string) config('simulation.generator_python') ?: (PHP_OS_FAMILY === 'Windows' ? 'python' : 'python3');
         $path = (string) config('simulation.generator_path');
         $timeout = (int) config('simulation.generator_timeout', 120);
 
