@@ -39,6 +39,8 @@ final class TimeDistributor
             'random' => $this->randomTimes($count, $startUtc, $span),
             'even' => $this->evenTimes($count, $startUtc, $span),
             'single' => $this->singleTimes($count, $startUtc, $endUtc, $singlePoint),
+            'rising' => $this->risingTimes($count, $startUtc, $span),
+            'falling' => $this->fallingTimes($count, $startUtc, $span),
             default => throw new InvalidArgumentException("Distribusi waktu tidak dikenal: '{$mode}'."),
         };
 
@@ -71,6 +73,42 @@ final class TimeDistributor
 
         for ($i = 0; $i < $count; $i++) {
             $times[] = $startUtc->addSeconds((int) floor(($i + 0.5) * $span / $count));
+        }
+
+        return $times;
+    }
+
+    /**
+     * Kerapatan linear NAIK (M7 SIM-34, blueprint §9.4): f(u) = 2u pada
+     * [0, 1], CDF u² — sampel via invers CDF u = sqrt(v), satu tarikan
+     * RNG per titik seperti randomTimes. Titik akhir diurutkan oleh
+     * distribute(), seperti mode lain.
+     *
+     * @return list<CarbonImmutable>
+     */
+    private function risingTimes(int $count, CarbonImmutable $startUtc, int $span): array
+    {
+        $times = [];
+
+        for ($i = 0; $i < $count; $i++) {
+            $times[] = $startUtc->addSeconds((int) floor(sqrt($this->random->nextFloat()) * $span));
+        }
+
+        return $times;
+    }
+
+    /**
+     * Kerapatan linear TURUN (M7 SIM-34, blueprint §9.4): f(u) = 2(1-u),
+     * CDF 2u − u² — sampel via invers CDF u = 1 − sqrt(1 − v).
+     *
+     * @return list<CarbonImmutable>
+     */
+    private function fallingTimes(int $count, CarbonImmutable $startUtc, int $span): array
+    {
+        $times = [];
+
+        for ($i = 0; $i < $count; $i++) {
+            $times[] = $startUtc->addSeconds((int) floor((1 - sqrt(1 - $this->random->nextFloat())) * $span));
         }
 
         return $times;

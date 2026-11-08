@@ -1404,3 +1404,96 @@ test('SIM-42 seeder: 6 kategori, 40 produk aktif, idempoten', function () {
     expect(Product::count())->toBe(41);
     expect(StockMovement::count())->toBe($movements);
 });
+
+// ---- M7 SIM-34 / SIM-32 / SIM-33 ------------------------------------------
+
+test('M7 SIM-34 validator menerima distribusi waktu menaik dan menurun (Aksi 2 + Aksi 3)', function () {
+    $developer = m4tDeveloper();
+
+    m4tProduct();
+    m4tProduct();
+    m4tProduct();
+
+    [$users] = m4tCreateAccounts($this, $developer, 2);
+
+    $this->actingAs($developer, 'developer');
+
+    // Aksi 2 (user-first) + Aksi 3 (period-first) berbagi validateCommonTx.
+    $this->post(route('developer.tx-user.preview'), m4tUserFirstPayload(
+        [$users[0]->id],
+        ['transactions_per_account' => 1, 'time_distribution' => 'rising'],
+    ))->assertOk();
+
+    $this->post(route('developer.tx-period.preview'), m4tPeriodFirstPayload(
+        ['transaction_count' => 2, 'time_distribution' => 'falling'],
+    ))->assertOk();
+});
+
+test('M7 SIM-34 validator menerima distribusi waktu menaik dan menurun (Aksi 4 funnel)', function () {
+    $developer = m4tDeveloper();
+
+    m4tProduct();
+
+    [$users] = m4tCreateAccounts($this, $developer, 1);
+
+    $this->actingAs($developer, 'developer');
+
+    $this->post(route('developer.funnel.preview'), m4tFunnelPayload(
+        [$users[0]->id],
+        ['time_distribution' => 'rising'],
+    ))->assertOk();
+
+    $this->post(route('developer.funnel.preview'), m4tFunnelPayload(
+        [$users[0]->id],
+        ['time_distribution' => 'falling'],
+    ))->assertOk();
+});
+
+test('M7 SIM-34 validator menolak distribusi waktu yang tidak dikenal', function () {
+    $developer = m4tDeveloper();
+
+    m4tProduct();
+
+    [$users] = m4tCreateAccounts($this, $developer, 1);
+
+    $this->actingAs($developer, 'developer');
+
+    $this->post(route('developer.tx-period.preview'), m4tPeriodFirstPayload(
+        ['time_distribution' => 'zigzag'],
+    ))->assertSessionHasErrors('time_distribution');
+});
+
+test('M7 SIM-32/33 tombol preset tampil di form funnel dan nilainya lolos validasi SIM-31', function () {
+    $developer = m4tDeveloper();
+
+    m4tProduct();
+
+    [$users] = m4tCreateAccounts($this, $developer, 1);
+
+    $page = $this->actingAs($developer, 'developer')
+        ->get(route('developer.funnel.create'))
+        ->assertOk();
+
+    // Dua tombol preset + radio distribusi waktu baru (SIM-34).
+    $page->assertSee('Minat tanpa pembelian')
+        ->assertSee('Funnel lengkap')
+        ->assertSee('data-view="200"', false)
+        ->assertSee('data-booking="40"', false)
+        ->assertSee('data-booking="60"', false)
+        ->assertSee('Menaik')
+        ->assertSee('Menurun');
+
+    // SIM-32: view 200, add_to_cart 120, booking 40, purchase 0
+    // (total event 200 + 120 + 2×40 = 400 ≤ 2000).
+    $this->post(route('developer.funnel.preview'), m4tFunnelPayload(
+        [$users[0]->id],
+        ['view_count' => 200, 'add_to_cart_count' => 120, 'booking_count' => 40, 'purchase_count' => 0],
+    ))->assertOk();
+
+    // SIM-33: view 200, add_to_cart 120, booking 60, purchase 40
+    // (total event 200 + 120 + 2×60 = 440 ≤ 2000).
+    $this->post(route('developer.funnel.preview'), m4tFunnelPayload(
+        [$users[0]->id],
+        ['view_count' => 200, 'add_to_cart_count' => 120, 'booking_count' => 60, 'purchase_count' => 40],
+    ))->assertOk();
+});

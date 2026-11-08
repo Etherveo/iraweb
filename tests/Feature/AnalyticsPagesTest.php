@@ -728,3 +728,326 @@ test('M6 analytics pages reject guests and buyers (compare, interest, history)',
     $this->actingAs($buyer, 'web')->get('/admin/aktivitas')->assertForbidden();
     $this->actingAs($buyer, 'web')->get('/admin/aktivitas/riwayat')->assertForbidden();
 });
+
+// ---- M7 FR-06 ------------------------------------------------------------
+
+/** Respons /v1/category palsu — bentuk ASLI analyze_category (rencana M7 §2,
+ *  dibaca dari category.py + diverifikasi langsung ke server).
+ *  Periode 69 hari (9 minggu penuh) supaya tren terklasifikasi, bukan
+ *  "Data belum cukup". Porsi memakai largest remainder: Rp 943+57=1000,
+ *  unit 842+158=1000. Transaksi kelompok harga SELALU null + teks
+ *  (modul tidak menghitungnya). */
+function anpFakeCategory(bool $singleCategory = false, bool $empty = false): array
+{
+    $series = function (array $units): array {
+        $out = [];
+        $day = 1;
+
+        foreach ($units as $u) {
+            $out[] = [
+                'bucket_start' => '2026-09-'.str_pad((string) $day, 2, '0', STR_PAD_LEFT),
+                'bucket_end' => '2026-09-'.str_pad((string) $day, 2, '0', STR_PAD_LEFT),
+                'partial' => false, 'revenue_idr' => $u * 12500, 'units_sold' => $u,
+            ];
+            $day++;
+        }
+
+        return $out;
+    };
+
+    $trend = function (string $code, string $label, $beta, $r, $change, ?string $strength = null, int $n = 9, $p = 0.001, $q = 0.01, float $avg = 12.0): array {
+        return [
+            'label_code' => $code, 'label' => $label, 'strength' => $strength, 'n' => $n,
+            'beta' => $beta, 'r' => $r, 'p' => $p, 'q' => $q, 'change_abs' => $change,
+            'avg_units_per_week' => $avg, 'series' => [],
+            'start_source' => 'first_activity', 'start_date' => '2026-09-01', 'trimmed_weeks' => 0,
+        ];
+    };
+
+    $alat = [
+        'category_id' => 1, 'name' => 'Alat Tulis',
+        'revenue_idr' => $empty ? 0 : 200000, 'units_sold' => $empty ? 0 : 16,
+        'purchases' => $empty ? 0 : 14, 'transactions' => $empty ? 0 : 8, 'transactions_text' => null,
+        'share_revenue' => ['tenths' => $empty ? 0 : 943, 'pct' => $empty ? 0.0 : 94.3],
+        'share_units' => ['tenths' => $empty ? 0 : 842, 'pct' => $empty ? 0.0 : 84.2],
+        'has_sales' => ! $empty, 'series' => $series($empty ? [0, 0] : [10, 6]),
+        'trend' => $empty
+            ? $trend('tidak_ada_penjualan', 'Tidak ada penjualan', null, null, null, null, 9, null, null, 0.0)
+            : $trend('naik', 'Naik', 1.0, 0.9, 8.0, 'kuat'),
+    ];
+    $buku = [
+        'category_id' => 2, 'name' => 'Buku & Kertas',
+        'revenue_idr' => ($singleCategory || $empty) ? 0 : 12000,
+        'units_sold' => ($singleCategory || $empty) ? 0 : 3,
+        'purchases' => ($singleCategory || $empty) ? 0 : 3,
+        'transactions' => ($singleCategory || $empty) ? 0 : 2, 'transactions_text' => null,
+        'share_revenue' => ['tenths' => ($singleCategory || $empty) ? 0 : 57, 'pct' => ($singleCategory || $empty) ? 0.0 : 5.7],
+        'share_units' => ['tenths' => ($singleCategory || $empty) ? 0 : 158, 'pct' => ($singleCategory || $empty) ? 0.0 : 15.8],
+        'has_sales' => ! ($singleCategory || $empty),
+        'series' => $series($singleCategory || $empty ? [0, 0] : [2, 1]),
+        'trend' => ($singleCategory || $empty)
+            ? $trend('tidak_ada_penjualan', 'Tidak ada penjualan', null, null, null, null, 9, null, null, 0.0)
+            : $trend('tidak_ada_tren_jelas', 'Tidak ada tren jelas', 0.1, 0.05, 0.0),
+    ];
+    $kantor = [
+        'category_id' => 3, 'name' => 'Peralatan Kantor',
+        'revenue_idr' => 0, 'units_sold' => 0, 'purchases' => 0, 'transactions' => 0,
+        'transactions_text' => null,
+        'share_revenue' => ['tenths' => 0, 'pct' => 0.0],
+        'share_units' => ['tenths' => 0, 'pct' => 0.0],
+        'has_sales' => false, 'series' => $series([0, 0]),
+        'trend' => $trend('tidak_ada_penjualan', 'Tidak ada penjualan', null, null, null, null, 9, null, null, 0.0),
+    ];
+
+    $warnings = [];
+
+    if ($singleCategory && ! $empty) {
+        $warnings[] = 'Hanya satu kategori yang memiliki penjualan pada periode ini; perbandingan antar-kategori belum bermakna.';
+    }
+
+    return [
+        'algorithm_version' => 'ira-trend-analytics-ref/0.1.0',
+        'timezone' => 'Asia/Makassar',
+        'period' => ['start' => '2026-09-01', 'end' => '2026-11-08', 'days' => 69],
+        'origin_filter' => 'all',
+        'metric' => 'units',
+        'granularity' => 'day',
+        'trend_granularity' => 'week',
+        'weeks_full' => 9,
+        'partial_weeks' => 0,
+        'totals' => [
+            'revenue_idr' => $empty ? 0 : 212000,
+            'units_sold' => $empty ? 0 : 19,
+            'purchases' => $empty ? 0 : 17,
+            'transactions' => $empty ? 0 : 10,
+            'transactions_text' => null,
+        ],
+        'categories' => [$alat, $buku, $kantor],
+        'n_trend_tested' => 2,
+        'price_groups' => [
+            [
+                'label' => '<Rp10.000', 'min_price' => null, 'max_price_exclusive' => 10000,
+                'product_count' => 0, 'active_product_count' => 0,
+                'revenue_idr' => 0, 'units_sold' => 0, 'purchases' => 0,
+                'transactions' => null, 'transactions_text' => 'Belum dapat dihitung',
+                'share_revenue' => ['tenths' => 0, 'pct' => 0.0],
+                'share_units' => ['tenths' => 0, 'pct' => 0.0],
+            ],
+            [
+                'label' => 'Rp10.000–49.999', 'min_price' => 10000, 'max_price_exclusive' => 50000,
+                'product_count' => 2, 'active_product_count' => 2,
+                'revenue_idr' => $empty ? 0 : 212000, 'units_sold' => $empty ? 0 : 19,
+                'purchases' => $empty ? 0 : 17,
+                'transactions' => null, 'transactions_text' => 'Belum dapat dihitung',
+                'share_revenue' => ['tenths' => $empty ? 0 : 1000, 'pct' => $empty ? 0.0 : 100.0],
+                'share_units' => ['tenths' => $empty ? 0 : 1000, 'pct' => $empty ? 0.0 : 100.0],
+            ],
+            [
+                'label' => '≥Rp50.000', 'min_price' => 50000, 'max_price_exclusive' => null,
+                'product_count' => 0, 'active_product_count' => 0,
+                'revenue_idr' => 0, 'units_sold' => 0, 'purchases' => 0,
+                'transactions' => null, 'transactions_text' => 'Belum dapat dihitung',
+                'share_revenue' => ['tenths' => 0, 'pct' => 0.0],
+                'share_units' => ['tenths' => 0, 'pct' => 0.0],
+            ],
+        ],
+        'warnings' => $warnings,
+    ];
+}
+
+/** Respons /v1/category-compare palsu — bentuk ASLI compare_categories
+ *  (rencana M7 §2, diverifikasi langsung ke server). Rp memakai
+ *  compare_metric + descriptive_only; unit memakai compare_metric tanpa
+ *  uji (p/significance null). Panjang kedua periode sama (69 hari). */
+function anpFakeCategoryCompare(bool $empty = false): array
+{
+    $metric = function ($a, $b, bool $descriptive = false) {
+        $change = $a - $b;
+        $ratio = $b != 0 ? $change / $b : null;
+        $rateA = $a / 69;
+        $rateB = $b / 69;
+        $perDay = $rateA - $rateB;
+        $perDayRatio = $rateB != 0 ? $perDay / $rateB : null;
+
+        $m = [
+            'a' => $a, 'b' => $b, 'days_a' => 69, 'days_b' => 69, 'baseline' => 'B',
+            'change' => $change, 'change_ratio' => $ratio,
+            'change_ratio_text' => $ratio === null ? 'Belum dapat dihitung' : null,
+            'rate_a' => $rateA, 'rate_b' => $rateB,
+            'per_day_change' => $perDay, 'per_day_change_ratio' => $perDayRatio,
+            'per_day_change_ratio_text' => $perDayRatio === null ? 'Belum dapat dihitung' : null,
+            'lengths_differ' => false, 'p' => null, 'significance' => null, 'significant' => null,
+        ];
+
+        if ($descriptive) {
+            $m['descriptive_only'] = true;
+        }
+
+        return $m;
+    };
+
+    $z = fn () => $metric(0, 0);
+
+    return [
+        'algorithm_version' => 'ira-trend-analytics-ref/0.1.0',
+        'timezone' => 'Asia/Makassar',
+        'origin_filter' => 'all',
+        'baseline' => 'B',
+        'period_a' => ['start' => '2026-09-01', 'end' => '2026-11-08', 'days' => 69],
+        'period_b' => ['start' => '2026-06-24', 'end' => '2026-08-31', 'days' => 69],
+        'categories' => [
+            [
+                'category_id' => 1, 'name' => 'Alat Tulis',
+                'revenue_idr' => $empty ? $z() : $metric(200000, 80000, true),
+                'units_sold' => $empty ? $z() : $metric(16, 6),
+            ],
+            [
+                'category_id' => 2, 'name' => 'Buku & Kertas',
+                'revenue_idr' => $empty ? $z() : $metric(12000, 6000, true),
+                'units_sold' => $empty ? $z() : $metric(3, 2),
+            ],
+            [
+                'category_id' => 3, 'name' => 'Peralatan Kantor',
+                'revenue_idr' => $z(),
+                'units_sold' => $z(),
+            ],
+        ],
+        'warnings' => [],
+    ];
+}
+
+test('M7 FR-06 category renders per-category cards, shares, price groups, trend labels and matrix for admin', function () {
+    Http::fake([
+        'http://127.0.0.1:8001/v1/category' => Http::response(anpFakeCategory(), 200),
+        'http://127.0.0.1:8001/v1/category-compare' => Http::response(anpFakeCategoryCompare(), 200),
+    ]);
+
+    $this->actingAs(anpAdmin(), 'web')
+        ->get('/admin/kategori-analisis?dari=2026-09-01&sampai=2026-11-08&pembanding_dari=2026-06-24&pembanding_sampai=2026-08-31')
+        ->assertOk()
+        ->assertSee('Kategori & Karakteristik')
+        ->assertSee('Rp 212.000')
+        ->assertSee('Alat Tulis')
+        ->assertSee('94,3%')
+        ->assertSee('84,2%')
+        ->assertSee('Naik')
+        ->assertSee('Tidak ada tren jelas')
+        ->assertSee('Peralatan Kantor')
+        ->assertSee('Rp10.000–49.999')
+        ->assertSee('2 aktif / 2')
+        ->assertSee('Belum dapat dihitung')
+        ->assertSee('Perbandingan kategori antar periode')
+        ->assertSee('Rp 200.000')
+        ->assertSee('+150,0%')
+        ->assertSee('hanya deskriptif')
+        ->assertSee('data-chart')
+        ->assertDontSee('Perhitungan sedang tidak tersedia');
+});
+
+test('M7 FR-06 category shows zero-sales categories and the single-category note (ANL-65)', function () {
+    Http::fake([
+        'http://127.0.0.1:8001/v1/category' => Http::response(anpFakeCategory(true), 200),
+        'http://127.0.0.1:8001/v1/category-compare' => Http::response(anpFakeCategoryCompare(), 200),
+    ]);
+
+    $this->actingAs(anpAdmin(), 'web')
+        ->get('/admin/kategori-analisis?dari=2026-09-01&sampai=2026-11-08&pembanding_dari=2026-06-24&pembanding_sampai=2026-08-31')
+        ->assertOk()
+        ->assertSee('Peralatan Kantor')
+        ->assertSee('Buku & Kertas')
+        ->assertSee('Rp 0')
+        ->assertSee('Hanya satu kategori yang memiliki penjualan pada periode ini; perbandingan antar-kategori belum bermakna.');
+});
+
+test('M7 FR-06 category shows an honest empty state when the period has no sales', function () {
+    Http::fake([
+        'http://127.0.0.1:8001/v1/category' => Http::response(anpFakeCategory(false, true), 200),
+        'http://127.0.0.1:8001/v1/category-compare' => Http::response(anpFakeCategoryCompare(true), 200),
+    ]);
+
+    $this->actingAs(anpAdmin(), 'web')
+        ->get('/admin/kategori-analisis')
+        ->assertOk()
+        ->assertSee('Belum ada data pada periode ini')
+        ->assertDontSee('Rp 212.000');
+});
+
+test('M7 FR-06 category shows unavailable instead of zeros when the service is down', function () {
+    anpFakeDown();
+
+    $this->actingAs(anpAdmin(), 'web')
+        ->get('/admin/kategori-analisis')
+        ->assertOk()
+        ->assertSee('Perhitungan sedang tidak tersedia')
+        ->assertSee('Coba lagi');
+});
+
+test('M7 FR-06 category sends only allowed keys to /v1/category and /v1/category-compare', function () {
+    Http::fake([
+        'http://127.0.0.1:8001/v1/category' => Http::response(anpFakeCategory(), 200),
+        'http://127.0.0.1:8001/v1/category-compare' => Http::response(anpFakeCategoryCompare(), 200),
+    ]);
+
+    $this->actingAs(anpAdmin(), 'web')
+        ->get('/admin/kategori-analisis')
+        ->assertOk();
+
+    Http::assertSent(function ($request) {
+        if (! str_ends_with($request->url(), '/v1/category')) {
+            return false;
+        }
+
+        $keys = array_keys($request->data());
+        $allowed = ['period', 'origin_filter', 'facts', 'products', 'categories', 'order_totals'];
+
+        return count(array_diff($keys, $allowed)) === 0
+            && count(array_diff($allowed, $keys)) === 0;
+    });
+
+    Http::assertSent(function ($request) {
+        if (! str_ends_with($request->url(), '/v1/category-compare')) {
+            return false;
+        }
+
+        $keys = array_keys($request->data());
+        $allowed = ['facts_a', 'facts_b', 'products', 'period_a', 'period_b', 'categories', 'baseline'];
+
+        return count(array_diff($keys, $allowed)) === 0
+            && count(array_diff($allowed, $keys)) === 0
+            && ! isset($request->data()['order_totals_a'])
+            && ! isset($request->data()['order_totals_b']);
+    });
+});
+
+test('M7 FR-06 sidebar links kategori-analisis and the product category CRUD stays separate (R3)', function () {
+    Http::fake([
+        'http://127.0.0.1:8001/v1/summary' => Http::response(anpFakeSummary(), 200),
+        'http://127.0.0.1:8001/v1/category' => Http::response(anpFakeCategory(), 200),
+        'http://127.0.0.1:8001/v1/category-compare' => Http::response(anpFakeCategoryCompare(), 200),
+    ]);
+
+    $admin = anpAdmin();
+
+    $this->actingAs($admin, 'web')
+        ->get('/admin')
+        ->assertOk()
+        ->assertSee(route('admin.kategori-analisis'), false)
+        ->assertSee(route('admin.kategori.index'), false);
+
+    // Kedua rute hidup berdampingan: analitik + CRUD kategori produk.
+    $this->actingAs($admin, 'web')
+        ->get('/admin/kategori-analisis')
+        ->assertOk()
+        ->assertSee('Kategori & Karakteristik');
+
+    $this->actingAs($admin, 'web')
+        ->get('/admin/kategori')
+        ->assertOk();
+});
+
+test('M7 analytics pages reject guests and buyers (kategori)', function () {
+    $this->get('/admin/kategori-analisis')->assertRedirect('/masuk?aktor=admin_toko');
+
+    $buyer = anpBuyer();
+    $this->actingAs($buyer, 'web')->get('/admin/kategori-analisis')->assertForbidden();
+});

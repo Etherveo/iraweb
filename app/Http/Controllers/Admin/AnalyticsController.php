@@ -13,9 +13,9 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
-// M5 FR-01..03 (ANL-01) + M6 FR-04/FR-05 (ANL-41..56): halaman analitik
-// admin — Dashboard, Tren, Funnel, Perbandingan, Aktivitas & Minat,
-// Riwayat Aktivitas.
+// M5 FR-01..03 (ANL-01) + M6 FR-04/FR-05 (ANL-41..56) + M7 FR-06
+// (ANL-61..65): halaman analitik admin — Dashboard, Tren, Funnel,
+// Perbandingan, Aktivitas & Minat, Riwayat Aktivitas, Kategori.
 // Data dihitung oleh servis Python (AnalyticsClient); Laravel hanya
 // menyusun facts (AnalyticsFactsBuilder) dan menampilkan hasilnya.
 // Servis mati (client mengembalikan null) → halaman tetap 200 dengan
@@ -144,6 +144,58 @@ class AnalyticsController extends Controller
             'chart' => $compare === null || ($compare['empty'] ?? false)
                 ? null
                 : $this->compareChart($a['facts'], $b['facts'], $dari, $sampai, $pembandingDari, $pembandingSampai),
+        ]);
+    }
+
+    // FR-06 Kategori & Karakteristik (ANL-61..65, keputusan M7 §3.2/3.3):
+    // satu halaman + satu matriks perbandingan di dalamnya. Periode A
+    // → analyze_category; periode B → compare_categories (ANL-63).
+    // B default = periode berpanjang sama tepat sebelum A (ANL-46,
+    // dihitung AnalyticsCompareRequest — B selalu terisi, jadi matriks
+    // selalu dihitung bila kunci ada). Payload category = build()
+    // apa adanya (facts, products, period, categories, order_totals —
+    // semua diizinkan /v1/category). Payload category-compare TANPA
+    // order_totals_* (compare_categories tidak menerimanya; server
+    // menolaknya dengan 422, pelajaran M5). Kategori tanpa transaksi
+    // tetap tampil (ANL-65) — jangan filter has_sales: false.
+    // analyze_category tidak membawa kunci 'empty' — kosong dihitung
+    // di sini dari total Rp + unit = 0.
+    public function category(AnalyticsCompareRequest $request): View
+    {
+        [[$dari, $sampai], [$pembandingDari, $pembandingSampai]] = $request->periods();
+
+        $a = $this->facts->build($dari, $sampai);
+        $b = $this->facts->build($pembandingDari, $pembandingSampai);
+
+        $configError = $this->keyMissing();
+        $category = $configError ? null : $this->client->category($a);
+        $compare = $configError ? null : $this->client->categoryCompare([
+            'facts_a' => $a['facts'],
+            'facts_b' => $b['facts'],
+            'products' => $a['products'],
+            'period_a' => $a['period'],
+            'period_b' => $b['period'],
+            'categories' => $a['categories'],
+            'baseline' => 'B',
+        ]);
+
+        $empty = $category !== null
+            && (int) ($category['totals']['revenue_idr'] ?? 0) === 0
+            && (int) ($category['totals']['units_sold'] ?? 0) === 0;
+
+        return view('admin.analytics-kategori', [
+            'dari' => $dari,
+            'sampai' => $sampai,
+            'pembanding_dari' => $pembandingDari,
+            'pembanding_sampai' => $pembandingSampai,
+            'category' => $category,
+            'compare' => $compare,
+            'unavailable' => $category === null,
+            'config_error' => $configError,
+            'empty' => $empty,
+            'chart' => $category === null || $empty
+                ? null
+                : $this->categoryChart($category),
         ]);
     }
 
@@ -372,6 +424,60 @@ class AnalyticsController extends Controller
                         'pointRadius' => 2,
                     ],
                 ],
+            ],
+            'options' => [
+                'responsive' => true,
+                'maintainAspectRatio' => false,
+                'plugins' => ['legend' => ['display' => true]],
+                'scales' => ['y' => ['beginAtZero' => true]],
+            ],
+        ];
+    }
+
+    // Grafik garis unit per kategori (ANL-62, keputusan M7 §3.7):
+    // satu dataset per kategori dari `series` yang sudah dikembalikan
+    // modul (bucket_start/bucket_end + units_sold) — tanpa panggilan
+    // service tambahan. Semua kategori memakai bucket yang sama, jadi
+    // label diambil dari kategori pertama.
+    /** @return array<string, mixed> */
+    private function categoryChart(array $category): array
+    {
+        $categories = $category['categories'] ?? [];
+        $first = $categories[0] ?? null;
+        $buckets = $first['series'] ?? [];
+
+        $palette = [
+            ['#6655F5', 'rgba(102, 85, 245, 0.15)'],
+            ['#2E9E6B', 'rgba(46, 158, 107, 0.12)'],
+            ['#D97706', 'rgba(217, 119, 6, 0.12)'],
+            ['#0284C7', 'rgba(2, 132, 199, 0.12)'],
+            ['#DB2777', 'rgba(219, 39, 119, 0.12)'],
+            ['#6D28D9', 'rgba(109, 40, 217, 0.12)'],
+        ];
+
+        $datasets = [];
+
+        foreach ($categories as $i => $cat) {
+            [$border, $background] = $palette[$i % count($palette)];
+            $datasets[] = [
+                'label' => (string) ($cat['name'] ?? 'Kategori'),
+                'data' => array_column($cat['series'] ?? [], 'units_sold'),
+                'borderColor' => $border,
+                'backgroundColor' => $background,
+                'fill' => false,
+                'tension' => 0.3,
+                'pointRadius' => 2,
+            ];
+        }
+
+        return [
+            'type' => 'line',
+            'data' => [
+                'labels' => array_map(
+                    static fn (array $b): string => Carbon::parse($b['bucket_start'])->format('d M'),
+                    $buckets,
+                ),
+                'datasets' => $datasets,
             ],
             'options' => [
                 'responsive' => true,

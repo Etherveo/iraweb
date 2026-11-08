@@ -26,6 +26,11 @@
                     <div class="developer-field">
                         <span class="developer-label">Jumlah funnel</span>
                         <p class="developer-hint">Harus menyusut: view ≥ add_to_cart ≥ booking ≥ purchase ≥ 0. Total event (view + add_to_cart + 2 × booking) maksimal {{ $maxEvents }} per request.</p>
+                        <p class="developer-hint">Preset (M7 SIM-32/33) — hanya nilai awal formulir, bukan pola tersimpan (blueprint §9.8):</p>
+                        <div class="admin-filter-actions" role="group" aria-label="Preset jumlah funnel">
+                            <button class="btn-secondary" type="button" data-funnel-preset data-view="200" data-cart="120" data-booking="40" data-purchase="0">Minat tanpa pembelian</button>
+                            <button class="btn-secondary" type="button" data-funnel-preset data-view="200" data-cart="120" data-booking="60" data-purchase="40">Funnel lengkap</button>
+                        </div>
                         <div class="developer-field-grid">
                             <div class="developer-field">
                                 <label class="developer-label" for="view_count">View</label>

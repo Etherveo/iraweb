@@ -1,7 +1,10 @@
 {{-- M6 ANL-41/ANL-46: filter dua periode untuk halaman Perbandingan
 (periode A + periode B + pintasan "periode sebelumnya"). GET sehingga
-perbandingan bisa dibagikan lewat URL. --}}
+perbandingan bisa dibagikan lewat URL. M7: dipakai ulang halaman
+Kategori (ANL-63) — teruskan ['compareRoute' => 'admin.kategori-analisis'];
+tanpa itu, rute default tetap admin.perbandingan. --}}
 @php
+    $compareRoute = $compareRoute ?? 'admin.perbandingan';
     $tz = config('ira.reporting_timezone', 'Asia/Makassar');
     $today = \Illuminate\Support\Carbon::now($tz);
     $quick = [
@@ -19,7 +22,7 @@ perbandingan bisa dibagikan lewat URL. --}}
     <div class="analytics-filter-top">
         <div class="analytics-quick" role="group" aria-label="Pilihan cepat periode A">
             @foreach ($quick as $label => [$d, $s])
-                <a class="btn-secondary analytics-quick-pill" href="{{ route('admin.perbandingan', ['dari' => $d, 'sampai' => $s]) }}" @if (($dari ?? null) === $d && ($sampai ?? null) === $s) aria-current="true" @endif>{{ $label }}</a>
+                <a class="btn-secondary analytics-quick-pill" href="{{ route($compareRoute, ['dari' => $d, 'sampai' => $s]) }}" @if (($dari ?? null) === $d && ($sampai ?? null) === $s) aria-current="true" @endif>{{ $label }}</a>
             @endforeach
         </div>
         <div class="analytics-period-badges">
@@ -37,7 +40,7 @@ perbandingan bisa dibagikan lewat URL. --}}
             @endif
         </div>
     </div>
-    <form method="GET" action="{{ route('admin.perbandingan') }}" class="analytics-compare-form">
+    <form method="GET" action="{{ route($compareRoute) }}" class="analytics-compare-form">
         <div class="analytics-compare-periods">
             <div class="analytics-compare-box">
                 <div class="analytics-compare-box-head">
@@ -81,10 +84,10 @@ perbandingan bisa dibagikan lewat URL. --}}
         <div class="admin-filter-actions analytics-compare-actions">
             <button class="btn-primary" type="submit">Bandingkan</button>
             @if (! empty($dari) && ! empty($sampai))
-                <a class="btn-secondary" href="{{ route('admin.perbandingan', ['dari' => $dari, 'sampai' => $sampai, 'pembanding' => 'sebelumnya']) }}">Isi B dengan periode sebelumnya</a>
+                <a class="btn-secondary" href="{{ route($compareRoute, ['dari' => $dari, 'sampai' => $sampai, 'pembanding' => 'sebelumnya']) }}">Isi B dengan periode sebelumnya</a>
             @endif
             @if (request()->query('dari') || request()->query('sampai') || request()->query('pembanding_dari') || request()->query('pembanding_sampai'))
-                <a class="btn-secondary" href="{{ route('admin.perbandingan') }}">Reset</a>
+                <a class="btn-secondary" href="{{ route($compareRoute) }}">Reset</a>
             @endif
         </div>
     </form>

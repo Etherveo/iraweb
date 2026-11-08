@@ -61,7 +61,7 @@ final class FunnelPlanner
      * - transaction_count: int ≥ 1
      * - items_per_tx: [min, max] (default [1, 3])
      * - qty_per_item: [min, max] (default [1, 99])
-     * - time_distribution: 'random' | 'even' | 'single' (default 'random')
+     * - time_distribution: 'random' | 'even' | 'single' | 'rising' | 'falling' (default 'random')
      * - single_point: CarbonImmutable (UTC) or ISO string — required for 'single'
      * - user_distribution: 'random' | 'even' | 'weighted' (default 'random')
      * - product_distribution: 'random' | 'even' | 'weighted' (default 'random')
@@ -591,7 +591,10 @@ final class FunnelPlanner
         }
 
         $params['action'] = (string) ($params['action'] ?? '');
-        $params['time_distribution'] = $this->normalizeEnum($params['time_distribution'] ?? 'random', ['random', 'even', 'single'], 'time_distribution');
+        // M7 SIM-34: 'rising'/'falling' — harus sama dengan enum di
+        // SimulationRequestValidator (validator sudah meloloskan, planner
+        // tidak boleh menolaknya di sini).
+        $params['time_distribution'] = $this->normalizeEnum($params['time_distribution'] ?? 'random', ['random', 'even', 'single', 'rising', 'falling'], 'time_distribution');
         $params['user_distribution'] = $this->normalizeEnum($params['user_distribution'] ?? 'random', ['random', 'even', 'weighted'], 'user_distribution');
         $params['product_distribution'] = $this->normalizeEnum($params['product_distribution'] ?? 'random', ['random', 'even', 'weighted'], 'product_distribution');
 

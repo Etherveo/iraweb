@@ -418,7 +418,9 @@ final class SimulationRequestValidator
         }
 
         $seed = $this->resolveSeed($input);
-        $timeDistribution = $this->validateEnum($input['time_distribution'] ?? 'random', ['random', 'even', 'single'], 'time_distribution');
+        // M7 SIM-34: 'rising'/'falling' ikut diterima — form funnel
+        // memakai partial _distribution-fields yang sama dengan Aksi 2/3.
+        $timeDistribution = $this->validateEnum($input['time_distribution'] ?? 'random', ['random', 'even', 'single', 'rising', 'falling'], 'time_distribution');
 
         return array_merge($counts, [
             'action' => 'funnel_events',
@@ -466,7 +468,9 @@ final class SimulationRequestValidator
         $qty = $this->validateRange($input['qty_per_item'] ?? null, 'qty_per_item', [1, 99], 1, 99);
 
         $seed ??= $this->resolveSeed($input);
-        $timeDistribution = $this->validateEnum($input['time_distribution'] ?? 'random', ['random', 'even', 'single'], 'time_distribution');
+        // M7 SIM-34: 'rising'/'falling' (profil tren naik/turun) ikut
+        // diterima di Aksi 2 + Aksi 3 (keduanya lewat validateCommonTx).
+        $timeDistribution = $this->validateEnum($input['time_distribution'] ?? 'random', ['random', 'even', 'single', 'rising', 'falling'], 'time_distribution');
 
         return [
             'products' => $products,

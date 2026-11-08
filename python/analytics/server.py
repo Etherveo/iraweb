@@ -20,6 +20,7 @@ Kontrak
     POST /v1/compare   -> compare_periods   (FR-04)
     POST /v1/interest  -> analyze_interest  (FR-05)
     POST /v1/category  -> analyze_category  (FR-06)
+    POST /v1/category-compare -> compare_categories (FR-06 ANL-63)
     POST /v1/insight   -> build_insights    (INS-01..06)
 
   Body JSON memakai nama parameter yang sama dengan fungsi Python-nya
@@ -65,6 +66,7 @@ from algorithms import (  # noqa: E402
     analyze_interest,
     analyze_trend,
     build_insights,
+    compare_categories,
     compare_periods,
     summarize,
 )
@@ -124,6 +126,17 @@ ENDPOINTS = {
             "n_min_weeks", "min_avg_per_week", "alpha", "r_min", "q_strong",
         },
         {"facts", "products", "period"},
+    ),
+    # M7 ANL-63: matriks kategori x dua periode (compare_categories).
+    # Kunci disalin dari signature-nya — TANPA order_totals_* (tidak
+    # diterima fungsi ini); ALLOWED_KEYS di AnalyticsClient harus identik.
+    "/v1/category-compare": (
+        compare_categories,
+        {
+            "facts_a", "facts_b", "products", "period_a", "period_b",
+            "origin_filter", "categories", "baseline",
+        },
+        {"facts_a", "facts_b", "products", "period_a", "period_b"},
     ),
     "/v1/insight": (
         build_insights,

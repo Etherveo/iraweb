@@ -5,7 +5,7 @@
 <div class="developer-field">
     <span class="developer-label">Distribusi waktu</span>
     <div role="radiogroup" aria-label="Distribusi waktu">
-        @foreach (['random' => 'Acak', 'even' => 'Merata', 'single' => 'Satu titik'] as $value => $label)
+        @foreach (['random' => 'Acak', 'even' => 'Merata', 'single' => 'Satu titik', 'rising' => 'Menaik', 'falling' => 'Menurun'] as $value => $label)
             <label class="developer-check-label">
                 <input type="radio" name="time_distribution" value="{{ $value }}" data-time-distribution="{{ $value }}" {{ old('time_distribution', 'random') === $value ? 'checked' : '' }}>
                 <span>{{ $label }}</span>

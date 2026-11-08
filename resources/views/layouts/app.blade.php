@@ -74,10 +74,10 @@
                     <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-2.48a2 2 0 0 0-1.93 1.46l-2.35 8.36a.25.25 0 0 1-.48 0L9.24 2.18a.25.25 0 0 0-.48 0l-2.35 8.36A2 2 0 0 1 4.49 12H2"/></svg>
                     <span>Aktivitas &amp; Minat</span>
                 </a>
-                <span class="admin-nav-item is-disabled" aria-disabled="true">
+                <a href="{{ route('admin.kategori-analisis') }}" @class(['admin-nav-item', 'is-active' => request()->routeIs('admin.kategori-analisis')]) @if (request()->routeIs('admin.kategori-analisis')) aria-current="page" @endif>
                     <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg>
                     <span>Kategori</span>
-                </span>
+                </a>
             </div>
 
             <div class="admin-nav-group">

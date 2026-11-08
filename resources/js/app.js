@@ -430,6 +430,22 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
+    // Preset jumlah funnel (M7 SIM-32/33): tombol hanya mengisi empat
+    // angka formulir Aksi 4 — tanpa perubahan planner/validator
+    // (blueprint §9.8). Tombol bertipe button, bukan submit.
+    document.querySelectorAll('[data-funnel-preset]').forEach((button) => {
+        button.addEventListener('click', () => {
+            const set = (id, value) => {
+                const input = document.getElementById(id);
+                if (input) input.value = value;
+            };
+            set('view_count', button.dataset.view);
+            set('add_to_cart_count', button.dataset.cart);
+            set('booking_count', button.dataset.booking);
+            set('purchase_count', button.dataset.purchase);
+        });
+    });
+
     // Cakupan user period-first (SIM-18): pemilih akun hanya untuk
     // 'one'/'several', input k hanya untuk 'random'.
     const scopeGroup = document.querySelector('[data-user-scope]');

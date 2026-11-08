@@ -63,6 +63,13 @@ class AnalyticsClient
             'order_totals', 'metric', 'granularity', 'price_bins',
             'n_min_weeks', 'min_avg_per_week', 'alpha', 'r_min', 'q_strong',
         ],
+        // M7 ANL-63: kunci HARUS identik dengan tabel ENDPOINTS server
+        // untuk /v1/category-compare (tanpa order_totals_* — fungsi
+        // compare_categories tidak menerimanya).
+        'category-compare' => [
+            'facts_a', 'facts_b', 'products', 'period_a', 'period_b',
+            'origin_filter', 'categories', 'baseline',
+        ],
         'insight' => [
             'summary', 'funnel', 'trend', 'interest', 'compare',
             'origin_transactions', 'period', 'max_items', 'alpha',
@@ -113,6 +120,12 @@ class AnalyticsClient
     public function category(array $payload): ?array
     {
         return $this->post('category', $payload);
+    }
+
+    /** FR-06 ANL-63 category matrix across two periods. Payload: facts_a/facts_b + period_a/period_b + categories. */
+    public function categoryCompare(array $payload): ?array
+    {
+        return $this->post('category-compare', $payload);
     }
 
     /** Insight INS-01..06, from already-computed results. */
