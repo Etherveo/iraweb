@@ -505,16 +505,18 @@ document.addEventListener('DOMContentLoaded', () => {
             };
             const ctx2d = typeof canvas.getContext === 'function' ? canvas.getContext('2d') : null;
             if (Array.isArray(config.data.datasets)) {
-                config.data.datasets = config.data.datasets.map((ds) => {
-                    let bg = ds.backgroundColor || 'rgba(102, 85, 245, 0.16)';
-                    if (ctx2d) {
+                config.data.datasets = config.data.datasets.map((ds, idx) => {
+                    const isFilled = ds.fill !== false;
+                    let bg = ds.backgroundColor || (isFilled ? 'rgba(102, 85, 245, 0.16)' : 'transparent');
+                    if (ctx2d && isFilled) {
                         const grad = ctx2d.createLinearGradient(0, 0, 0, 280);
                         grad.addColorStop(0, 'rgba(102, 85, 245, 0.28)');
                         grad.addColorStop(1, 'rgba(102, 85, 245, 0.01)');
                         bg = grad;
                     }
                     return {
-                        borderWidth: 2.75,
+                        borderWidth: idx === 0 ? 2.75 : 2.25,
+                        borderDash: !isFilled && idx > 0 ? [6, 4] : undefined,
                         pointRadius: 3.5,
                         pointHoverRadius: 6,
                         pointBackgroundColor: '#FFFFFF',
@@ -534,6 +536,19 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         config.options.plugins = config.options.plugins || {};
+        if (config.options.plugins.legend && config.options.plugins.legend.display) {
+            config.options.plugins.legend = {
+                ...config.options.plugins.legend,
+                labels: {
+                    usePointStyle: true,
+                    boxWidth: 8,
+                    padding: 16,
+                    color: '#171A36',
+                    font: { family: "'Manrope', sans-serif", size: 12, weight: '700' },
+                    ...(config.options.plugins.legend.labels || {}),
+                },
+            };
+        }
         config.options.plugins.tooltip = {
             backgroundColor: '#171A36',
             titleColor: '#FFFFFF',
