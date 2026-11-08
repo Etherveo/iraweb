@@ -521,6 +521,7 @@ document.addEventListener('DOMContentLoaded', () => {
             };
             const ctx2d = typeof canvas.getContext === 'function' ? canvas.getContext('2d') : null;
             if (Array.isArray(config.data.datasets)) {
+                const hasAnyFilled = config.data.datasets.some((d) => d.fill !== false);
                 config.data.datasets = config.data.datasets.map((ds, idx) => {
                     const isFilled = ds.fill !== false;
                     let bg = ds.backgroundColor || (isFilled ? 'rgba(102, 85, 245, 0.16)' : 'transparent');
@@ -531,8 +532,8 @@ document.addEventListener('DOMContentLoaded', () => {
                         bg = grad;
                     }
                     return {
-                        borderWidth: idx === 0 ? 2.75 : 2.25,
-                        borderDash: !isFilled && idx > 0 ? [6, 4] : undefined,
+                        borderWidth: idx === 0 ? 2.75 : 2.35,
+                        borderDash: hasAnyFilled && !isFilled && idx > 0 ? [6, 4] : undefined,
                         pointRadius: 3.5,
                         pointHoverRadius: 6,
                         pointBackgroundColor: '#FFFFFF',
