@@ -1,10 +1,10 @@
 # Ira Stationery — Alur Kerja Sistem (Workflow + DFD)
 
-> **Status:** Menggambarkan sistem **sebagaimana dibangun** per 2026-11-08
-> (branch `feature/m5-analitik`, commit `e4cbbe3` per 2026-11-08 13:03 WITA;
-> M4 sudah merge ke `main` di `2d4c6ec`, M5 langkah 1–6 di-gate 259 tes hijau,
-> perbaikan generator biodata sudah di-push, gate ulang menunggu 261 hijau
-> + cek manual langkah 7).
+> **Ruang lingkup:** Dokumen ini menggambarkan **keseluruhan sistem** Ira Stationery
+> per 2026-11-08 — toko (admin dan pembeli) beserta analitik trennya (FR-01–FR-06).
+> Alur dan diagram di sini mencakup seluruh sistem, bukan hanya bagian yang sudah
+> selesai: bagian yang halamannya belum tersedia ditandai di tempatnya
+> (lihat §5.3 langkah 6 dan §8).
 > **Pasangan file ini:** `Blueprint-Workflow.md` menjelaskan layar dan keadaan tiap layar
 > untuk Figma. File ini menjelaskan **aliran datanya**: siapa mengirim apa ke mana,
 > data apa yang disimpan, dan langkah manusia-nya dalam urutan bernomor.
@@ -425,9 +425,9 @@ flowchart TD
    (tautan "Lihat sumber" pada tiap grafik dan tabel).
 5. Mengganti filter periode atau asal data memperbarui grafik dan tabel
    secara bersamaan, bukan hanya salah satunya.
-6. **Yang sudah ada halamannya:** Dashboard, Tren, Funnel. **Yang menyusul
-   (M6/M7):** Perbandingan periode, Aktivitas dan Minat, Kategori —
-   endpoint-nya sudah ada, halamannya belum.
+6. **Yang sudah ada halamannya:** Dashboard, Tren, Funnel. **Yang belum
+   tersedia:** Perbandingan periode, Aktivitas dan Minat, Kategori —
+   endpoint hitungnya sudah ada, halamannya belum.
 
 ---
 
@@ -584,7 +584,7 @@ Admin lalu dapat mengubah `diproses` menjadi `selesai` — dan saat itulah
    pengembalian stok; sistem baru belum punya aturan ini — pembatalan
    setelah dibayar masih ditangani manual oleh admin.
 4. **Halaman analitik Perbandingan, Aktivitas dan Minat, dan Kategori**
-   belum ada — endpoint-nya sudah siap, halamannya menyusul di M6/M7.
+   belum tersedia — endpoint hitungnya sudah siap, halamannya belum.
 5. **Laporan penjualan tersendiri** belum ada — untuk sekarang laporan
    dibaca lewat Dashboard (FR-01).
 
@@ -592,8 +592,7 @@ Admin lalu dapat mengubah `diproses` menjadi `selesai` — dan saat itulah
 
 ## 9. Sumber
 
-- `routes/web.php` (branch `feature/m5-analitik`, commit `5f0bd50`) — semua rute
-  di dokumen ini diambil dari sana.
+- `routes/web.php` — semua rute di dokumen ini diambil dari sana.
 - Migrasi `000001`–`000017` di `database/migrations/` — semua tabel di kamus data.
 - `python/analytics/server.py` — tujuh endpoint `/v1/*` dan `GET /health`.
 - `Blueprint-Workflow.md` (bagian W1–W11, §5) — alur layar dan keadaan tiap layar.
