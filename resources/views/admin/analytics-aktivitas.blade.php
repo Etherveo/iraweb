@@ -97,6 +97,20 @@ sorotan menaut ke riwayat yang sudah terfilter pada produk itu
             </div>
         </div>
 
+        @if (! empty($activityChart))
+            <div class="card admin-panel">
+                <div class="analytics-card-head">
+                    <div>
+                        <h2 class="admin-section-title">Aktivitas harian</h2>
+                        <p class="analytics-card-sub">Dilihat dibanding pembelian · event, bukan pelanggan unik. Klik legenda untuk menampilkan/menyembunyikan garis; arahkan kursor untuk detail per hari.</p>
+                    </div>
+                </div>
+                <div class="analytics-chart-surface">
+                    <div class="chart-wrap"><canvas data-chart data-chart-config='@json($activityChart)' aria-label="Grafik aktivitas harian" role="img"></canvas></div>
+                </div>
+            </div>
+        @endif
+
         <div class="analytics-split-grid">
             <div class="card admin-panel">
                 <div class="analytics-card-head">

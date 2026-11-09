@@ -225,6 +225,9 @@ class AnalyticsController extends Controller
             'interest' => $interest,
             'unavailable' => $interest === null,
             'config_error' => $configError,
+            'activityChart' => $interest === null
+                ? null
+                : $this->interestChart($payload['facts'], $payload['products'], $dari, $sampai, $categoryId),
             'products' => $interest === null
                 ? []
                 : $this->sortedInterestProducts($interest['products'] ?? [], $request->query('urut')),
@@ -513,6 +516,87 @@ class AnalyticsController extends Controller
         }
 
         return $series;
+    }
+
+    // FR-05 ANL-51 (grafik, Figma "Aktivitas harian"): event dilihat vs
+    // pembelian per hari, diagregasi di Laravel dari facts — modul tidak
+    // membawa deret harian (pola yang sama dengan compareChart()).
+    // Hari tanpa event bernilai 0. Bila filter kategori aktif, hanya
+    // produk pada kategori itu yang dihitung.
+    /** @return array<string, mixed> */
+    private function interestChart(array $facts, array $products, string $dari, string $sampai, ?int $categoryId): array
+    {
+        $byProductCategory = [];
+
+        foreach ($products as $product) {
+            $byProductCategory[(int) ($product['id'] ?? 0)] = (int) ($product['category_id'] ?? 0);
+        }
+
+        $days = $this->periodDays($dari, $sampai);
+        $start = Carbon::parse($dari);
+        $byDate = [];
+
+        foreach ($facts as $row) {
+            $date = (string) ($row['date'] ?? '');
+
+            if ($date === '') {
+                continue;
+            }
+
+            if ($categoryId !== null && ($byProductCategory[(int) ($row['product_id'] ?? 0)] ?? null) !== $categoryId) {
+                continue;
+            }
+
+            $byDate[$date]['views'] = ($byDate[$date]['views'] ?? 0) + (int) ($row['views'] ?? 0);
+            $byDate[$date]['purchases'] = ($byDate[$date]['purchases'] ?? 0) + (int) ($row['purchases'] ?? 0);
+        }
+
+        $labels = [];
+        $views = [];
+        $purchases = [];
+
+        for ($i = 0; $i < $days; $i++) {
+            $day = $start->copy()->addDays($i);
+            $labels[] = $day->format('d M');
+            $views[] = $byDate[$day->toDateString()]['views'] ?? 0;
+            $purchases[] = $byDate[$day->toDateString()]['purchases'] ?? 0;
+        }
+
+        return [
+            'type' => 'line',
+            'data' => [
+                'labels' => $labels,
+                'datasets' => [
+                    [
+                        'label' => 'Dilihat (event)',
+                        'data' => $views,
+                        'borderColor' => '#6655F5',
+                        'backgroundColor' => 'rgba(102, 85, 245, 0.15)',
+                        'fill' => true,
+                        'tension' => 0.3,
+                        'pointRadius' => 2,
+                    ],
+                    [
+                        'label' => 'Pembelian (event)',
+                        'data' => $purchases,
+                        'borderColor' => '#5B6472',
+                        'backgroundColor' => 'transparent',
+                        'fill' => false,
+                        'borderDash' => [6, 4],
+                        'tension' => 0.3,
+                        'pointRadius' => 2,
+                    ],
+                ],
+            ],
+            'options' => [
+                'responsive' => true,
+                'maintainAspectRatio' => false,
+                'plugins' => ['legend' => ['display' => true, 'position' => 'bottom']],
+                'scales' => [
+                    'y' => ['beginAtZero' => true, 'title' => ['display' => true, 'text' => 'Jumlah (event)']],
+                ],
+            ],
+        ];
     }
 
     /** Jumlah hari inklusif antara dua tanggal Y-m-d (pola PeriodResolver). */

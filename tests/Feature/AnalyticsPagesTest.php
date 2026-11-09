@@ -91,16 +91,25 @@ function anpFakeSummary(bool $empty = false): array
 /** Respons /v1/trend palsu (1 naik, 1 tanpa tren jelas). */
 function anpFakeTrend(int $weeksFull = 9): array
 {
+    $mondays = ['2026-09-07', '2026-09-14', '2026-09-21', '2026-09-28', '2026-10-05', '2026-10-12', '2026-10-19', '2026-10-26', '2026-11-02'];
+    $series = function (array $units) use ($mondays): array {
+        return array_map(function ($ws, $units) {
+            return ['week_start' => $ws, 'week_end' => date('Y-m-d', strtotime($ws.' +6 days')), 'units' => $units, 'value' => $units * 5000];
+        }, $mondays, $units);
+    };
+
     $naik = [
         'product_id' => 1, 'name' => 'Pensil 2B', 'label_code' => 'naik', 'label' => 'Naik',
         'strength' => 'kuat', 'n' => 9, 'beta' => 1.0, 'r' => 0.9, 'p' => 0.001,
         'q' => 0.01, 's' => 53, 'z' => 3.5, 'var' => 211.67, 'mean' => 12.0, 'change_abs' => 8.0,
+        'total_units' => 108, 'series' => $series([10, 11, 11, 12, 12, 12, 13, 13, 14]),
     ];
     $datar = [
         'product_id' => 2, 'name' => 'Penghapus', 'label_code' => 'tidak_ada_tren_jelas',
         'label' => 'Tidak ada tren jelas', 'strength' => null, 'n' => 9, 'beta' => 0.1,
         'r' => 0.05, 'p' => 0.9, 'q' => 0.95, 's' => 2, 'z' => 0.07, 'var' => 193.33,
         'mean' => 11.0, 'change_abs' => 0.0,
+        'total_units' => 99, 'series' => $series([11, 11, 11, 11, 11, 11, 11, 11, 11]),
     ];
 
     if ($weeksFull < 8) {
@@ -256,6 +265,7 @@ test('M5 FR-02 trend renders per-product labels and rankings for admin', functio
         ->assertSee('Tidak ada tren jelas')
         ->assertSee('Pensil 2B')
         ->assertSee('Penghapus')
+        ->assertSee('Arah penjualan produk')
         ->assertDontSee('stabil');
 });
 
@@ -267,7 +277,8 @@ test('M5 FR-02 trend shows "Data belum cukup" when fewer than 8 full weeks', fun
     $this->actingAs(anpAdmin(), 'web')
         ->get('/admin/tren?dari=2026-10-01&sampai=2026-10-21')
         ->assertOk()
-        ->assertSee('Data belum cukup');
+        ->assertSee('Data belum cukup')
+        ->assertDontSee('Arah penjualan produk');
 });
 
 test('M5 FR-02 trend shows unavailable instead of labels when the service is down', function () {
@@ -581,6 +592,28 @@ test('M6 FR-05 interest renders summary, highlights, comparators and the product
         ->assertSee('Lihat riwayat')
         ->assertSee('/admin/aktivitas/riwayat?produk=1', false)
         ->assertDontSee('Perhitungan sedang tidak tersedia');
+});
+
+test('M6 FR-05 interest renders a daily activity line chart from events (ANL-51)', function () {
+    $buyer = anpBuyer();
+    $pensil = Product::factory()->create(['name' => 'Pensil 2B']);
+    $penghapus = Product::factory()->create(['name' => 'Penghapus']);
+
+    Event::factory()->create(['event_type' => 'view', 'user_id' => $buyer->id, 'product_id' => $pensil->id, 'occurred_at' => Carbon::parse('2026-11-02 09:00:00', 'Asia/Makassar')->utc()]);
+    Event::factory()->create(['event_type' => 'view', 'user_id' => $buyer->id, 'product_id' => $penghapus->id, 'occurred_at' => Carbon::parse('2026-11-02 10:00:00', 'Asia/Makassar')->utc()]);
+    Event::factory()->create(['event_type' => 'purchase', 'user_id' => $buyer->id, 'product_id' => $pensil->id, 'occurred_at' => Carbon::parse('2026-11-02 11:00:00', 'Asia/Makassar')->utc()]);
+    Event::factory()->create(['event_type' => 'view', 'user_id' => $buyer->id, 'product_id' => $pensil->id, 'occurred_at' => Carbon::parse('2026-11-03 09:00:00', 'Asia/Makassar')->utc()]);
+
+    Http::fake([
+        'http://127.0.0.1:8001/v1/interest' => Http::response(anpFakeInterest(), 200),
+    ]);
+
+    $this->actingAs(anpAdmin(), 'web')
+        ->get('/admin/aktivitas')
+        ->assertOk()
+        ->assertSee('Aktivitas harian')
+        ->assertSee('Dilihat (event)')
+        ->assertSee('Pembelian (event)');
 });
 
 test('M6 FR-05 interest shows unavailable instead of zeros when the service is down', function () {

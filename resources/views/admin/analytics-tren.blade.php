@@ -58,6 +58,83 @@ Periode <8 minggu penuh → "Data belum cukup" (K13). --}}
                     ],
                 ];
             }
+
+            // Grafik garis mingguan (Figma "Arah penjualan produk"): unit
+            // terjual per minggu untuk maks 5 produk — Naik/Turun dulu
+            // (dari rankings), lalu total unit terbanyak. Deret tiap produk
+            // disejajarkan pada gabungan minggu penuh; minggu sebelum
+            // produk mulai (trimmed) bernilai null supaya garisnya
+            // berhenti, bukan nol yang menyesatkan.
+            $linePalette = ['#6655F5', '#8B7CF6', '#5B8DEF', '#7A9CC6', '#9B8AFB'];
+            $rankedIds = array_merge(
+                array_column($trend['rankings']['naik'] ?? [], 'product_id'),
+                array_column($trend['rankings']['turun'] ?? [], 'product_id'),
+            );
+            $byProductId = [];
+            foreach ($products as $p) {
+                $byProductId[$p['product_id']] = $p;
+            }
+            $lineCandidates = [];
+            foreach ($rankedIds as $pid) {
+                if (isset($byProductId[$pid]) && ! empty($byProductId[$pid]['series'])) {
+                    $lineCandidates[] = $byProductId[$pid];
+                }
+            }
+            $rest = array_values(array_filter($products, fn ($p) => ! in_array($p['product_id'], $rankedIds, true) && ! empty($p['series'])));
+            usort($rest, fn ($a, $b) => ((float) ($b['total_units'] ?? 0)) <=> ((float) ($a['total_units'] ?? 0)));
+            $lineProducts = array_slice(array_merge($lineCandidates, $rest), 0, 5);
+
+            $trendLineChart = null;
+            if ($weeksFull >= $nMinWeeks && ! empty($lineProducts)) {
+                $weekStarts = [];
+                foreach ($lineProducts as $p) {
+                    foreach ($p['series'] as $point) {
+                        $weekStarts[$point['week_start']] = true;
+                    }
+                }
+                $weekStarts = array_keys($weekStarts);
+                sort($weekStarts);
+                $lineDatasets = [];
+                foreach ($lineProducts as $i => $p) {
+                    $byWeek = [];
+                    foreach ($p['series'] as $point) {
+                        $byWeek[$point['week_start']] = (int) ($point['units'] ?? 0);
+                    }
+                    $color = match ($p['label_code'] ?? '') {
+                        'naik' => '#0E9F6E',
+                        'turun' => '#D63B5A',
+                        default => $linePalette[$i % count($linePalette)],
+                    };
+                    $dataset = [
+                        'label' => $p['name'],
+                        'data' => array_map(fn ($ws) => $byWeek[$ws] ?? null, $weekStarts),
+                        'borderColor' => $color,
+                        'backgroundColor' => 'transparent',
+                        'fill' => false,
+                        'tension' => 0.3,
+                        'pointRadius' => 2,
+                    ];
+                    if (($p['label_code'] ?? '') === 'turun') {
+                        $dataset['borderDash'] = [6, 4];
+                    }
+                    $lineDatasets[] = $dataset;
+                }
+                $trendLineChart = [
+                    'type' => 'line',
+                    'data' => [
+                        'labels' => array_map(fn ($ws) => \Illuminate\Support\Carbon::parse($ws)->format('d M'), $weekStarts),
+                        'datasets' => $lineDatasets,
+                    ],
+                    'options' => [
+                        'responsive' => true,
+                        'maintainAspectRatio' => false,
+                        'plugins' => ['legend' => ['display' => true, 'position' => 'bottom']],
+                        'scales' => [
+                            'y' => ['beginAtZero' => true, 'title' => ['display' => true, 'text' => 'Terjual (unit)']],
+                        ],
+                    ],
+                ];
+            }
         @endphp
 
         @if ($weeksFull < $nMinWeeks)
@@ -150,6 +227,20 @@ Periode <8 minggu penuh → "Data belum cukup" (K13). --}}
                 </div>
                 <div class="analytics-chart-surface">
                     <div class="chart-wrap"><canvas data-chart data-chart-config='@json($trendChart)' aria-label="Grafik perubahan unit per produk" role="img"></canvas></div>
+                </div>
+            </div>
+        @endif
+
+        @if ($trendLineChart)
+            <div class="card admin-panel">
+                <div class="analytics-card-head">
+                    <div>
+                        <h2 class="admin-section-title">Arah penjualan produk</h2>
+                        <p class="analytics-card-sub">Unit terjual per minggu · {{ count($lineProducts) }} produk teratas (Naik/Turun dulu, lalu total unit terbanyak). Klik legenda untuk menampilkan/menyembunyikan garis; arahkan kursor untuk detail per minggu.</p>
+                    </div>
+                </div>
+                <div class="analytics-chart-surface">
+                    <div class="chart-wrap"><canvas data-chart data-chart-config='@json($trendLineChart)' aria-label="Grafik arah penjualan produk per minggu" role="img"></canvas></div>
                 </div>
             </div>
         @endif
