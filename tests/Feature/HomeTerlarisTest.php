@@ -59,38 +59,42 @@ function htPaidOrder($t, User $buyer, array $lines): Order
 
 test('Terlaris shows a product with 3 paid units in the last 30 days', function () {
     $buyer = htBuyer();
-    $product = htProduct(['name' => 'Pulpen Terlaris Tiga']);
+    $product = htProduct(['name' => 'Pulpen Tiga Unit']);
     htPaidOrder($this, $buyer, [['product' => $product, 'qty' => 3]]);
 
     $this->get('/')->assertOk()
+        ->assertSee('section-terlaris')
         ->assertSee('Terlaris')
-        ->assertSee('Pulpen Terlaris Tiga');
+        ->assertSee('Pulpen Tiga Unit');
 });
 
 test('Terlaris hides the section when the best product sold only 2 paid units', function () {
     $buyer = htBuyer();
-    $product = htProduct(['name' => 'Pulpen Terlaris Dua']);
+    $product = htProduct(['name' => 'Pulpen Dua Unit']);
     htPaidOrder($this, $buyer, [['product' => $product, 'qty' => 2]]);
 
     $this->get('/')->assertOk()
+        ->assertDontSee('section-terlaris')
         ->assertDontSee('Terlaris');
 });
 
 test('Terlaris ignores paid units older than 30 days', function () {
     $buyer = htBuyer();
-    $product = htProduct(['name' => 'Pulpen Terlaris Lama']);
+    $product = htProduct(['name' => 'Pulpen Lama']);
     $order = htPaidOrder($this, $buyer, [['product' => $product, 'qty' => 5]]);
     $order->update(['paid_at' => now()->subDays(40)]);
 
     $this->get('/')->assertOk()
+        ->assertDontSee('section-terlaris')
         ->assertDontSee('Terlaris');
 });
 
 test('Terlaris ignores unpaid orders', function () {
     $buyer = htBuyer();
-    $product = htProduct(['name' => 'Pulpen Terlaris Belum Bayar']);
+    $product = htProduct(['name' => 'Pulpen Belum Bayar']);
     htCheckout($this, $buyer, [['product' => $product, 'qty' => 5]]);
 
     $this->get('/')->assertOk()
+        ->assertDontSee('section-terlaris')
         ->assertDontSee('Terlaris');
 });
