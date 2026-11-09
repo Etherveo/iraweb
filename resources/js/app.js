@@ -404,6 +404,50 @@ document.addEventListener('DOMContentLoaded', () => {
             if (emptyNote) emptyNote.hidden = visible !== 0;
             if (countEl) countEl.textContent = query === '' ? String(total) : String(visible);
         });
+
+        // Pilih acak (tombol bantuan): centang N akun acak dari baris
+        // yang sedang terlihat (mengikuti pencarian); centang lama
+        // diganti. N dijepit ke [1, jumlah terlihat] — batas server
+        // (maks 100 akun/request) tetap dijaga validator + pratinjau.
+        const randomCountInput = picker ? picker.querySelector('[data-sim-account-random-count]') : null;
+        const randomButton = picker ? picker.querySelector('[data-sim-account-random]') : null;
+        const clearButton = picker ? picker.querySelector('[data-sim-account-clear]') : null;
+
+        if (randomButton && randomCountInput) {
+            randomButton.addEventListener('click', () => {
+                const visible = rows.filter((row) => !row.hidden);
+                const wanted = Math.floor(Number(randomCountInput.value));
+
+                if (visible.length === 0 || !Number.isFinite(wanted) || wanted < 1) return;
+
+                const n = Math.min(wanted, visible.length);
+                randomCountInput.value = String(n);
+
+                const shuffled = visible.slice();
+                for (let i = shuffled.length - 1; i > 0; i -= 1) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+                }
+
+                rows.forEach((row) => {
+                    const checkbox = row.querySelector('input[type="checkbox"]');
+                    if (checkbox) checkbox.checked = false;
+                });
+                shuffled.slice(0, n).forEach((row) => {
+                    const checkbox = row.querySelector('input[type="checkbox"]');
+                    if (checkbox) checkbox.checked = true;
+                });
+            });
+        }
+
+        if (clearButton) {
+            clearButton.addEventListener('click', () => {
+                rows.forEach((row) => {
+                    const checkbox = row.querySelector('input[type="checkbox"]');
+                    if (checkbox) checkbox.checked = false;
+                });
+            });
+        }
     }
 
     // Pilihan cepat periode (M4 SIM-16): tanggal dihitung server (WITA)

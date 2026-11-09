@@ -1519,6 +1519,15 @@ body > main > .alert-error {
     background: var(--color-surface-light);
     border: 1px solid #DCE0F0;
 }
+.developer-random-pick-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    align-items: center;
+}
+.developer-random-pick-row .input {
+    max-width: 9rem;
+}
 .developer-account-list .developer-check-label {
     min-height: 44px;
     padding: 0.5rem 0.625rem;
