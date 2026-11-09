@@ -225,7 +225,7 @@ Semua butir berikut **belum diputuskan** pada kedua file sumber. Nilai di bawah 
 | Admin memproses | — | `dibayar → diproses` | — |
 | Admin menyelesaikan | — | `diproses → selesai` | — |
 
-Transisi lain pada pesanan ditolak. `dibatalkan`, `kedaluwarsa`, `selesai` final.
+Saat status menjadi `selesai`, sistem mencatat `picked_up_at` (waktu penyelesaian). Transisi lain pada pesanan ditolak. `dibatalkan`, `kedaluwarsa`, `selesai` final.
 
 ### 9.3 Stok (U-04, `P§5.3`)
 
@@ -326,20 +326,22 @@ Format tiap baris: **ID | Fitur | Aktor | Sumber | Kriteria terima | Uji**. Selu
 
 > **Keputusan 2026-11-08 (Ren):** label SIMULASI dihapus dari UI pembeli dan admin — UI tidak lagi membedakan data simulasi dan data normal. Pembedanya hanya metadata (origin / is_simulated / simulation_run_id di database) dan panel developer. Persyaratan lama di bawah ini diganti dengan keputusan ini (pada ORD-08, ORD-09, ORD-10, ORD-11, dan ORD-13, kolom/baris `Asal data`, filter `asal`, dan lencana `SIMULASI` dihapus dari tampilan UI pembeli maupun admin).
 
+> **Keputusan 2026-11-08 dan 2026-11-09 (Ren):** penanda pengambilan pesanan dicatat di pesanan — `pickup_at` (jadwal pengambilan yang diisi pembeli saat checkout, wajib, tanggal+jam WITA) dan `picked_up_at` (waktu pesanan ditandai selesai oleh admin). Instruksi pengambilan tampil ke pembeli setelah pembayaran berhasil; jadwal tampil di detail pesanan admin.
+
 | ID | Fitur | Aktor | Sumber | Kriteria terima | Uji |
 | --- | --- | --- | --- | --- | --- |
-| ORD-01 | Ringkasan checkout | Pembeli | D§6.3, P§3.1 | Halaman menampilkan item, harga, total (dihitung server), dan pilihan metode (PAY-02) sebelum pesanan dibuat. Keranjang kosong atau item bermasalah (CRT-05) mencegah lanjut. | BB |
-| ORD-02 | Buat pesanan dari keranjang | Pembeli | D§6.3, D§11-B4, P§3.1 | Satu aksi atomik: validasi keranjang → cadangkan stok (STK-02) → buat pesanan `menunggu_pembayaran` dengan item (harga snapshot) → catat event `booking` per item → kosongkan keranjang → buat pembayaran (PAY-03). Gagal di tahap mana pun → tidak ada perubahan data. Tombol dikunci saat diproses dan kunci idempotensi mencegah pesanan ganda. | BB+WB |
+| ORD-01 | Ringkasan checkout | Pembeli | D§6.3, P§3.1 | Halaman menampilkan item, harga, total (dihitung server), dan pilihan metode (PAY-02) sebelum pesanan dibuat. Keranjang kosong atau item bermasalah (CRT-05) mencegah lanjut. Formulir jadwal pengambilan (tanggal + jam WITA) wajib diisi sebelum pesanan dibuat. | BB |
+| ORD-02 | Buat pesanan dari keranjang | Pembeli | D§6.3, D§11-B4, P§3.1 | Satu aksi atomik: validasi keranjang → cadangkan stok (STK-02) → buat pesanan `menunggu_pembayaran` dengan item (harga snapshot) → catat event `booking` per item → kosongkan keranjang → buat pembayaran (PAY-03). Gagal di tahap mana pun → tidak ada perubahan data. Tombol dikunci saat diproses dan kunci idempotensi mencegah pesanan ganda. Jadwal pengambilan yang diisi pembeli disimpan sebagai `pickup_at` pada pesanan. | BB+WB |
 | ORD-03 | Nomor pesanan | Sistem | D§6.4, P§4.1 | Format `IRA-YYMMDD-XXXXXX` (6 karakter acak dari alfabet tanpa karakter membingungkan, unik). Tidak berurutan sehingga tidak dapat ditebak. | WB |
 | ORD-04 | Total di server dan snapshot harga | Sistem | D§6.4, P§2, P§3.1 | `total = Σ(harga_snapshot × jumlah)` dihitung server; nominal dari klien/URL diabaikan. Harga produk yang berubah kemudian tidak memengaruhi pesanan lama. | WB |
 | ORD-05 | Batas bayar pesanan | Sistem | P§3.3, P§11 butir 1 (U-09) | `payment_deadline_at = waktu pesanan dibuat + PAYMENT_EXPIRY_MINUTES` (default 30). Pembayaran baru untuk pesanan yang sama tidak memperpanjang batas ini. Setelah batas terlewati pesanan tidak dapat dibayar. | WB+BB |
 | ORD-06 | State machine pesanan | Sistem | D§6.3, P§5.2 | Hanya transisi pada §9.2 yang diterima; yang lain ditolak dan tidak mengubah data. Setiap transisi menulis riwayat (ORD-14). Diuji menyeluruh sebagai tabel transisi. | WB |
 | ORD-07 | Pembatalan pesanan oleh pembeli | Pembeli | D§6.3, D§4.2, P§3.3 | Hanya untuk pesanan milik sendiri berstatus `menunggu_pembayaran`; dialog konfirmasi. Efek atomik: pesanan `dibatalkan`, pembayaran `pending` (bila ada) → `cancelled`, stok dilepas (STK-04), event `cancel` (alasan `buyer`). Pesanan tidak dihapus. Pesanan terbayar/final tidak dapat dibatalkan (pesan jelas). Token pembayaran lama menjadi tidak dapat dipakai. | BB+WB |
 | ORD-08 | Riwayat pesanan pembeli | Pembeli | D§6.3, D§4.2, D§11-B5 | Daftar pesanan milik sendiri, terbaru lebih dulu, berpaginasi, dengan nomor, tanggal (WITA), total, status; filter status. Keadaan kosong tersedia. | BB |
-| ORD-09 | Detail pesanan pembeli | Pembeli | D§6.3, P§3.2 | Item, total, linimasa status, ringkasan pembayaran, tautan ke detail pembayaran dan jejaknya (PAY-50), tombol bayar/batal sesuai status. | BB |
+| ORD-09 | Detail pesanan pembeli | Pembeli | D§6.3, P§3.2 | Item, total, linimasa status, ringkasan pembayaran, tautan ke detail pembayaran dan jejaknya (PAY-50), tombol bayar/batal sesuai status. Instruksi pengambilan di toko (tanggal + jam WITA) tampil setelah pembayaran berhasil. | BB |
 | ORD-10 | Daftar pesanan admin | Admin Toko | D§6.3, D§4.1 | Tabel berpaginasi semua pesanan; filter status, rentang tanggal, asal data; pencarian nomor pesanan; badge SIMULASI bila `developer_simulation`. | BB |
-| ORD-11 | Detail pesanan admin | Admin Toko | D§6.3, D§4.1 | Item, pembeli, total, pembayaran terkait dan statusnya, riwayat status, asal data; read-only kecuali ORD-12. | BB |
-| ORD-12 | Ubah status pemenuhan oleh admin | Admin Toko | D§6.3, D§4.1 (K-03) | Hanya `dibayar → diproses` dan `diproses → selesai`; tombol hanya menampilkan transisi valid; transisi lain (mis. menandai terbayar, membatalkan pesanan terbayar) ditolak di server. Pelaku dan waktu tercatat. | BB+WB |
+| ORD-11 | Detail pesanan admin | Admin Toko | D§6.3, D§4.1 | Item, pembeli, total, pembayaran terkait dan statusnya, riwayat status, asal data; read-only kecuali ORD-12. Baris "Jadwal pengambilan" tampil bila `pickup_at` terisi. | BB |
+| ORD-12 | Ubah status pemenuhan oleh admin | Admin Toko | D§6.3, D§4.1 (K-03) | Hanya `dibayar → diproses` dan `diproses → selesai`; tombol hanya menampilkan transisi valid; transisi lain (mis. menandai terbayar, membatalkan pesanan terbayar) ditolak di server. Pelaku dan waktu tercatat. Saat transisi ke `selesai`, sistem mencatat `picked_up_at` (waktu penyelesaian). | BB+WB |
 | ORD-13 | Melihat pembatalan | Admin Toko | D§4.1, D§6.3 | Filter/tampilan pesanan `dibatalkan` dan `kedaluwarsa` dengan alasan (`buyer`/`expired`), waktu, dan pemicu. Admin tidak memiliki aksi pembatalan. | BB |
 | ORD-14 | Riwayat status pesanan | Sistem | D§6.3, D§6.4, P§4.2 | Setiap transisi menulis baris tak-ubah: status lama → baru, pemicu (`pembeli`, `callback_simulasi`, `job_kedaluwarsa`, `admin`, `panel_developer`), pelaku, waktu, `origin`. | WB |
 

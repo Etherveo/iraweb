@@ -190,7 +190,7 @@ erDiagram
 | `products` | `id`, `category_id`, `name`, `description`, `price_idr`, `stock_on_hand`, `stock_reserved`, `is_active`, timestamps | FK `category_id` `RESTRICT`; unik `lower(name)`; `CHECK price_idr BETWEEN 1 AND 100000000`; `CHECK stock_on_hand >= 0`; `CHECK stock_reserved >= 0`; `CHECK stock_reserved <= stock_on_hand`; indeks `(category_id, is_active)` | PRD-01..06, STK-01 |
 | `stock_movements` | `id`, `product_id`, `type` (`penyesuaian`/`cadangkan`/`konfirmasi`/`lepas`), `delta_on_hand`, `delta_reserved`, `order_id` (null), `actor_type`, `actor_id`, `note`, `origin`, `simulation_run_id`, `created_at` | append-only; indeks `(product_id, created_at)` | PRD-07, STK-05 |
 | `carts` / `cart_items` | `carts(user_id)`; `cart_items(cart_id, product_id, quantity)` | unik `carts.user_id`; unik `(cart_id, product_id)`; `CHECK quantity BETWEEN 1 AND 99` | CRT-01..06 |
-| `orders` | `id`, `order_number`, `user_id`, `status`, `total_idr`, `payment_deadline_at`, `checkout_key`, `origin`, `simulation_run_id`, `created_at`, `updated_at` | unik `order_number`; unik `(user_id, checkout_key)`; `CHECK status IN (...)` (§9.2 PRD); indeks `(status, payment_deadline_at)`, `(user_id, created_at)`, `(origin, created_at)` | ORD-01..14 |
+| `orders` | `id`, `order_number`, `user_id`, `status`, `total_idr`, `payment_deadline_at`, `paid_at` (null), `pickup_at` (null), `picked_up_at` (null), `checkout_key`, `origin`, `simulation_run_id`, `created_at`, `updated_at` | unik `order_number`; unik `(user_id, checkout_key)`; `CHECK status IN (...)` (§9.2 PRD); indeks `(status, payment_deadline_at)`, `(user_id, created_at)`, `(origin, created_at)` | ORD-01..14 |
 | `order_items` | `id`, `order_id`, `product_id`, `product_name_snapshot`, `unit_price_idr`, `quantity`, `subtotal_idr`, `origin`, `simulation_run_id` | FK `product_id` `RESTRICT`; `CHECK quantity BETWEEN 1 AND 99`; indeks `(product_id)`, `(order_id)` | ORD-04, EVT-07 |
 | `order_status_histories` | `id`, `order_id`, `from_status`, `to_status`, `trigger`, `actor_type`, `actor_id`, `reason`, `occurred_at`, `origin`, `simulation_run_id` | append-only; indeks `(order_id, occurred_at)` | ORD-14 |
 | `payments` | `id` (ULID = `payment_id`), `order_id`, `user_id`, `provider` (`simulator`), `provider_payment_id` (null; cadangan untuk provider riil), `payment_method`, `amount_idr`, `currency` (`IDR`), `status`, `reference_code`, `payment_token`, `qr_url`, `expires_at`, `paid_at`, `is_simulated`, `origin`, `simulation_run_id`, timestamps | unik `payment_token`; unik `reference_code`; **indeks parsial unik** `(order_id) WHERE status='pending'` (PAY-63); **indeks parsial unik** `(order_id) WHERE status='paid'`; `CHECK is_simulated = true` pada tahap ini; `CHECK payment_method IN (...)`; indeks `(status, paid_at)`, `(user_id, created_at)` | PAY-03, PAY-62, PAY-63 |
@@ -226,7 +226,7 @@ transaksi:
   3. Muat produk dalam transaksi tulis (urut id) untuk update bersyarat.
   4. Validasi tiap item: produk aktif, qty 1..99, (stok_fisik - stok_dicadangkan) >= qty. Gagal satu → rollback.
   5. stok_dicadangkan += qty; tulis stock_movements(cadangkan).
-  6. Buat orders(status=menunggu_pembayaran, payment_deadline_at=now+PAYMENT_EXPIRY_MINUTES, order_number acak unik).
+  6. Buat orders(status=menunggu_pembayaran, payment_deadline_at=now+PAYMENT_EXPIRY_MINUTES, pickup_at dari input checkout (tanggal+jam WITA, wajib), order_number acak unik).
   7. Buat order_items (snapshot nama, harga); total = jumlah subtotal (dihitung di server).
   8. Tulis event booking per item; tulis order_status_histories(null → menunggu_pembayaran, trigger=pembeli).
   9. Kosongkan item keranjang.
@@ -269,7 +269,7 @@ Syarat: pesanan `menunggu_pembayaran`, `now < payment_deadline_at`, tidak ada pe
 
 ### 7.7 Ubah status pemenuhan oleh admin (ORD-12)
 
-Kunci pesanan; tabel transisi hanya mengizinkan `dibayar → diproses` dan `diproses → selesai`; riwayat ditulis dengan pelaku admin. Tidak ada jalur untuk menyentuh `payments` dari controller admin (PAY-53).
+Kunci pesanan; tabel transisi hanya mengizinkan `dibayar → diproses` dan `diproses → selesai`; riwayat ditulis dengan pelaku admin. Saat transisi ke `selesai`, `picked_up_at` diisi waktu penyelesaian. Tidak ada jalur untuk menyentuh `payments` dari controller admin (PAY-53).
 
 ## 8. Modul Payment Gateway Simulator
 
