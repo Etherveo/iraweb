@@ -305,7 +305,7 @@ test('SIM-02 akun simulasi berbagi satu hash kata sandi (hash sekali per request
     // membuat 82 akun menabrak batas 30 detik PHP (FatalError di
     // BcryptHasher). Semua akun memakai satu kata sandi bersama
     // (SIM-08), jadi satu hash dipakai ulang untuk semua akun.
-    $hashes = array_unique(array_map(fn ($user) => $user->password, $users));
+    $hashes = $users->pluck('password')->unique();
     expect($hashes)->toHaveCount(1);
 
     foreach ($users as $user) {
