@@ -290,8 +290,27 @@ test('SIM-02/07 membuat akun simulasi dengan penanda + alamat + run', function (
         expect($user->addresses->first()->postal_code)->toBe('96115');
     }
 
-    // Kata sandi bersama di-hash per akun, tidak pernah disimpan polos.
+    // Kata sandi bersama di-hash sekali dan dipakai ulang, tidak pernah disimpan polos.
     expect(Hash::check('rahasia-sim-test', $users[0]->password))->toBeTrue();
+});
+
+test('SIM-02 akun simulasi berbagi satu hash kata sandi (hash sekali per request)', function () {
+    $developer = m4tDeveloper();
+
+    [$users] = m4tCreateAccounts($this, $developer, 3, ['seed' => 42, 'offset' => 0]);
+
+    expect($users)->toHaveCount(3);
+
+    // Regression: hash per akun (±0,35 detik di laptop pengembangan)
+    // membuat 82 akun menabrak batas 30 detik PHP (FatalError di
+    // BcryptHasher). Semua akun memakai satu kata sandi bersama
+    // (SIM-08), jadi satu hash dipakai ulang untuk semua akun.
+    $hashes = array_unique(array_map(fn ($user) => $user->password, $users));
+    expect($hashes)->toHaveCount(1);
+
+    foreach ($users as $user) {
+        expect(Hash::check('rahasia-sim-test', $user->password))->toBeTrue();
+    }
 });
 
 test('SIM-02/05 biodata deterministik: seed+offset+count sama → biodata identik', function () {

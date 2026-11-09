@@ -468,7 +468,7 @@ interface BiodataGenerator
 - Isi script generator **tidak ditetapkan di sini**; script dari pemilik proyek dipasang sebagai implementasi baru di balik antarmuka yang sama (bila perlu adaptor), tanpa mengubah fitur lain.
 - Sampai script diterima, repositori hanya memuat *test double* untuk pengujian (nama berurutan, mis. "Simulasi 0001") dan **tidak** dirilis sebagai generator final.
 - Setelah generate: `SimulationRequestValidator` memeriksa tabrakan email terhadap `users` dan di dalam hasil; tabrakan → seluruh permintaan ditolak utuh (SIM-05) atau, pada mode random, dibangkitkan ulang terbatas lalu ditolak bila tetap bertabrakan.
-- Kata sandi tidak berasal dari generator; dari `SIM_ACCOUNT_PASSWORD` (SIM-08). Hash dihitung sekali per akun (biaya ±beberapa puluh ms per akun, sehingga 100 akun masih wajar dalam satu request).
+- Kata sandi tidak berasal dari generator; dari `SIM_ACCOUNT_PASSWORD` (SIM-08). Hash dihitung sekali per request dan dipakai ulang untuk semua akun — koreksi 2026-11-09: hash per akun ±0,35 detik di laptop pengembangan sehingga 82 akun menabrak batas 30 detik PHP; semua akun memakai satu kata sandi bersama, jadi satu hash cukup (`Hash::check` bekerja sama untuk setiap akun).
 
 ### 9.4 Distribusi (SIM-20..23, SIM-34)
 

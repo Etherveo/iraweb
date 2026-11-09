@@ -206,17 +206,23 @@ final class SimulationAccountService
             ]);
         }
 
+        // Semua akun simulasi memakai satu kata sandi bersama (SIM-08),
+        // jadi hash dihitung SEKALI dan dipakai ulang untuk semua akun
+        // dalam satu request. Hash per akun (±0,35 detik di laptop
+        // pengembangan) membuat 82 akun menabrak batas 30 detik PHP
+        // (FatalError di BcryptHasher). Hash::check tetap bekerja sama
+        // untuk setiap akun; pola ini sama dengan UserFactory Laravel
+        // (hash di-cache sekali). Nilai kata sandi tidak pernah di-log
+        // atau diaudit (SIM-08).
+        $hash = Hash::make($password);
+
         $users = [];
 
         foreach ($biodata as $row) {
-            // Hash computed once per account (blueprint §9.3), following
-            // ProvisionAccountCommand: a pre-made hash is passed to the
-            // model, and the 'hashed' cast does not re-hash it. The
-            // password value itself is never logged or audited (SIM-08).
             $user = User::query()->create([
                 'name' => $row['name'],
                 'email' => $row['email'],
-                'password' => Hash::make($password),
+                'password' => $hash,
                 'role' => 'pembeli',
                 'origin' => 'developer_simulation',
                 'is_active' => true,
