@@ -9,8 +9,10 @@ use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Auth\BuyerAuthController;
 use App\Http\Controllers\Auth\DeveloperAuthController;
 use App\Http\Controllers\Developer\AccountCreationController;
+use App\Http\Controllers\Developer\CategoryController as DeveloperCategoryController;
 use App\Http\Controllers\Developer\DashboardController;
 use App\Http\Controllers\Developer\FunnelController;
+use App\Http\Controllers\Developer\ProductController as DeveloperProductController;
 use App\Http\Controllers\Developer\ResetController;
 use App\Http\Controllers\Developer\RunController;
 use App\Http\Controllers\Developer\SimulationAccountController;
@@ -204,4 +206,22 @@ Route::middleware(['auth:developer', 'role:dev', 'no-cache'])->group(function ()
     Route::get('/developer/reset', [ResetController::class, 'index'])->name('developer.reset.index');
     Route::post('/developer/reset/run/{run}', [ResetController::class, 'resetRun'])->name('developer.reset.run');
     Route::post('/developer/reset/semua', [ResetController::class, 'resetAll'])->name('developer.reset.all');
+
+    // Katalog di Panel Developer (keputusan Ren 2026-11-10): CRUD yang
+    // sama dengan admin, ditambah release_date di form produk. Atur stok
+    // + riwayat stok tetap admin-only. Parameter {produk}/{kategori}
+    // disamakan dengan admin supaya ProductRequest/CategoryRequest
+    // (pemeriksaan nama unik saat ubah) bekerja tanpa perubahan.
+    Route::get('/developer/produk', [DeveloperProductController::class, 'index'])->name('developer.produk.index');
+    Route::get('/developer/produk/tambah', [DeveloperProductController::class, 'create'])->name('developer.produk.create');
+    Route::post('/developer/produk', [DeveloperProductController::class, 'store'])->name('developer.produk.store');
+    Route::get('/developer/produk/{produk}/ubah', [DeveloperProductController::class, 'edit'])->name('developer.produk.edit');
+    Route::put('/developer/produk/{produk}', [DeveloperProductController::class, 'update'])->name('developer.produk.update');
+    Route::post('/developer/produk/{produk}/toggle', [DeveloperProductController::class, 'toggle'])->name('developer.produk.toggle');
+    Route::get('/developer/kategori', [DeveloperCategoryController::class, 'index'])->name('developer.kategori.index');
+    Route::get('/developer/kategori/tambah', [DeveloperCategoryController::class, 'create'])->name('developer.kategori.create');
+    Route::post('/developer/kategori', [DeveloperCategoryController::class, 'store'])->name('developer.kategori.store');
+    Route::get('/developer/kategori/{kategori}/ubah', [DeveloperCategoryController::class, 'edit'])->name('developer.kategori.edit');
+    Route::put('/developer/kategori/{kategori}', [DeveloperCategoryController::class, 'update'])->name('developer.kategori.update');
+    Route::delete('/developer/kategori/{kategori}', [DeveloperCategoryController::class, 'destroy'])->name('developer.kategori.destroy');
 });

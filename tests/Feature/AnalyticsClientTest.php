@@ -229,6 +229,27 @@ test('M5 facts builder build() assembles the full request payload', function () 
     expect($payload['order_totals'][0]['orders_paid'])->toBe(1);
 });
 
+test('M5 facts builder leaves active_since null so the trend series starts at first activity', function () {
+    // Regresi 2026-11-10: mengirim created_at (tanggal seed Nov 2026)
+    // sebagai active_since memotong deret tren tiap produk menjadi 0
+    // minggu penuh, karena riwayat penjualan simulasi di-backdate ke
+    // Sep–Okt 2026 — sebelum produk "ada". Modul harus memakai fallback
+    // minggu pertama yang punya aktivitas.
+    $a = anaProduct(['name' => 'Pulpen A']);
+
+    $payload = app(AnalyticsFactsBuilder::class)->build('2026-11-02', '2026-11-02');
+
+    expect(collect($payload['products'])->firstWhere('id', $a->id)['active_since'])->toBeNull();
+});
+
+test('M5 facts builder sends release_date as active_since when set', function () {
+    $a = anaProduct(['name' => 'Pulpen A', 'release_date' => '2026-09-01']);
+
+    $payload = app(AnalyticsFactsBuilder::class)->build('2026-11-02', '2026-11-02');
+
+    expect(collect($payload['products'])->firstWhere('id', $a->id)['active_since'])->toBe('2026-09-01');
+});
+
 // ---- AnalyticsClient ----
 
 test('M5 analytics client returns the parsed result on success', function () {

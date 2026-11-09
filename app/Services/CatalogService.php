@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Category;
+use App\Models\Developer;
 use App\Models\Product;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
@@ -42,7 +43,7 @@ class CatalogService
         return $category->fresh();
     }
 
-    public function createProduct(array $data, User $actor): Product
+    public function createProduct(array $data, User|Developer $actor): Product
     {
         return DB::transaction(function () use ($data, $actor) {
             $product = Product::create([
@@ -53,6 +54,7 @@ class CatalogService
                 'stock_on_hand' => (int) $data['stock_on_hand'],
                 'stock_reserved' => 0,
                 'is_active' => $data['is_active'] ?? true,
+                'release_date' => $data['release_date'] ?? null,
             ]);
 
             $this->stock->recordInitialStock($product, $actor);
@@ -73,6 +75,10 @@ class CatalogService
             'description' => array_key_exists('description', $data) ? $data['description'] : $product->description,
             'price_idr' => isset($data['price_idr']) ? (int) $data['price_idr'] : $product->price_idr,
             'is_active' => array_key_exists('is_active', $data) ? (bool) $data['is_active'] : $product->is_active,
+            // release_date hanya berubah bila kuncinya ada di data
+            // tervalidasi: form admin tidak mengirimnya, jadi pembaruan
+            // dari admin tidak menghapus tanggal yang diset developer.
+            'release_date' => array_key_exists('release_date', $data) ? $data['release_date'] : $product->release_date,
         ]);
 
         return $product->fresh();

@@ -160,22 +160,28 @@ class AnalyticsFactsBuilder
 
     /**
      * Product list for the request: every product (active and inactive —
-     * the module labels inactive ones itself), with active_since = the
-     * product's creation date in WITA.
+     * the module labels inactive ones itself). `active_since` is the
+     * product's release_date when set (keputusan Ren 2026-11-10: tanggal
+     * produk mulai dijual, boleh di-backdate supaya riwayat simulasi
+     * terhitung); when empty it is null and the module falls back to
+     * each product's first week with any activity as the series start
+     * (blueprint §11). Never the DB created_at: that is the seed date
+     * (Nov 2026) while the simulated sales history is backdated months
+     * earlier, which truncated every trend series to 0 full weeks.
      */
     public function buildProducts(): array
     {
         return Product::query()
             ->orderBy('id')
-            ->get(['id', 'name', 'category_id', 'price_idr', 'is_active', 'created_at'])
+            ->get(['id', 'name', 'category_id', 'price_idr', 'is_active', 'release_date'])
             ->map(fn ($product) => [
                 'id' => $product->id,
                 'name' => $product->name,
                 'category_id' => $product->category_id,
                 'price_idr' => $product->price_idr,
                 'is_active' => (bool) $product->is_active,
-                'active_since' => $product->created_at
-                    ? $product->created_at->copy()->setTimezone($this->timezone)->toDateString()
+                'active_since' => $product->release_date
+                    ? $product->release_date->toDateString()
                     : null,
             ])
             ->all();

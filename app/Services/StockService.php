@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\Developer;
 use App\Models\Order;
 use App\Models\Product;
 use App\Models\StockMovement;
@@ -29,7 +30,7 @@ class StockService
     // PRD-01: when a product is created with initial stock > 0, exactly
     // one 'penyesuaian' movement is written in the same transaction as
     // the product (the caller owns the transaction). Stock 0 => no row.
-    public function recordInitialStock(Product $product, User $actor): void
+    public function recordInitialStock(Product $product, User|Developer $actor): void
     {
         $initial = (int) $product->stock_on_hand;
 
@@ -43,7 +44,7 @@ class StockService
             'delta_on_hand' => $initial,
             'delta_reserved' => 0,
             'order_id' => null,
-            'actor_type' => 'admin_toko',
+            'actor_type' => $actor instanceof Developer ? 'developer' : 'admin_toko',
             'actor_id' => $actor->id,
             'note' => 'Stok awal produk: 0 → '.$initial.'.',
             'origin' => 'normal',

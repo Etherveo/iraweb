@@ -31,6 +31,7 @@ class ProductRequest extends FormRequest
             'category_id' => ['required', 'integer', 'exists:categories,id'],
             'description' => ['nullable', 'string', 'max:2000'],
             'price_idr' => ['required', 'integer', 'min:1', 'max:100000000'],
+            'release_date' => ['nullable', 'date'],
             'is_active' => ['sometimes', 'boolean'],
         ];
 
