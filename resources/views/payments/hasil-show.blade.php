@@ -50,6 +50,8 @@
                     </div>
                 </dl>
 
+                @include('payments._pickup-instruction', ['order' => $order])
+
                 <div class="pay-cta-stack">
                     <a class="btn-primary buyer-cta-block" href="{{ route('pesanan.show', $order) }}">Lihat detail pesanan</a>
                     <a class="btn-secondary buyer-cta-block" href="{{ route('pembayaran.struk', $payment) }}">Lihat struk</a>

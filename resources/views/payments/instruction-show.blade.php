@@ -108,6 +108,8 @@
                     </div>
                 </dl>
 
+                @include('payments._pickup-instruction', ['order' => $order])
+
                 <div class="pay-countdown-card">
                     <span class="pay-countdown-label">Sisa waktu bayar</span>
                     <strong class="pay-countdown-timer" id="countdown" data-expires-at="{{ $expiresAtIso }}" data-server-now="{{ $serverNowIso }}" data-poll-url="{{ route('pembayaran.status', $payment) }}">—</strong>

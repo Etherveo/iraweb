@@ -52,6 +52,7 @@ class CheckoutController extends Controller
             Auth::guard('web')->user(),
             (string) $request->validated('payment_method'),
             $request->validated('checkout_key'),
+            $request->pickupAt(),
         );
 
         return redirect()->route('pesanan.bayar', $order)

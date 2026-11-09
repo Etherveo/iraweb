@@ -40,6 +40,8 @@
                 </div>
             </dl>
 
+            @include('payments._pickup-instruction', ['order' => $order])
+
             <h2 class="admin-section-title receipt-items-title">Item</h2>
             <ul class="buyer-summary-lines receipt-items">
                 @foreach ($order->items as $item)

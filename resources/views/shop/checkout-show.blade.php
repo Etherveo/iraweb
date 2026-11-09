@@ -59,6 +59,26 @@
                     </div>
 
                     <div class="card admin-panel">
+                        <h2 class="admin-section-title">Jadwal pengambilan</h2>
+                        <p class="admin-hint">Pesanan diambil di toko Ira Stationery. Pilih tanggal dan jam pengambilan sebelum memilih metode pembayaran.</p>
+                        <div class="admin-field-grid">
+                            <div class="admin-field">
+                                <label for="pickup_date" class="admin-label">Tanggal pengambilan</label>
+                                <input class="input" id="pickup_date" name="pickup_date" type="date" value="{{ old('pickup_date') }}" required
+                                       min="{{ \Carbon\Carbon::now(config('ira.reporting_timezone'))->toDateString() }}"
+                                       @error('pickup_date') aria-invalid="true" aria-describedby="pickup_date-error" @enderror>
+                                @error('pickup_date')<p class="alert-error field-error" id="pickup_date-error">{{ $message }}</p>@enderror
+                            </div>
+                            <div class="admin-field">
+                                <label for="pickup_time" class="admin-label">Jam pengambilan (WITA)</label>
+                                <input class="input" id="pickup_time" name="pickup_time" type="time" value="{{ old('pickup_time') }}" required
+                                       @error('pickup_time') aria-invalid="true" aria-describedby="pickup_time-error" @enderror>
+                                @error('pickup_time')<p class="alert-error field-error" id="pickup_time-error">{{ $message }}</p>@enderror
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card admin-panel">
                         <fieldset class="buyer-method-fieldset">
                             <legend class="admin-section-title">Pilih metode pembayaran</legend>
                             <p class="admin-hint">Batas waktu bayar setelah pesanan dibuat: {{ $expiry_minutes }} menit.</p>

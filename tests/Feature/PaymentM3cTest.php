@@ -46,6 +46,16 @@ function m3cProduct(array $attributes = []): Product
     ));
 }
 
+// Pickup schedule (keputusan Ren 2026-11-09): checkout wajib membawa
+// jadwal — besok pukul 10:00 WITA, selalu valid.
+function m3cPickup(): array
+{
+    return [
+        'pickup_date' => Carbon::now('Asia/Makassar')->addDay()->toDateString(),
+        'pickup_time' => '10:00',
+    ];
+}
+
 // Build a cart through the real HTTP routes, then check out. Returns
 // the created order (fresh). The checkout POST redirects to the
 // payment instruction page (M3b).
@@ -63,6 +73,7 @@ function m3cCheckout($t, User $buyer, array $lines, string $method = 'qris', ?st
     $t->post('/checkout', [
         'payment_method' => $method,
         'checkout_key' => $key ?? (string) Str::uuid(),
+        ...m3cPickup(),
     ])->assertRedirect();
 
     return Order::where('user_id', $buyer->id)->latest('id')->first();

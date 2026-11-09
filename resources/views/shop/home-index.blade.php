@@ -2,7 +2,8 @@
 
 @section('content')
     {{-- UI polish Tahap 3: halaman home publik di `/`. Tiga section produk
-         aktif: Terlaris (disembunyikan bila belum ada pesanan berbayar),
+         aktif: Terlaris (disembunyikan bila belum ada produk yang memenuhi
+         threshold 3 unit berbayar dalam 30 hari terakhir),
          Terbaru, dan Teratas (dengan tombol "Lihat selengkapnya" ke /katalog).
          Tidak ada form beli dan tidak mencatat event view. --}}
     @php($gradients = ['lavender', 'blue', 'purple', 'cyan'])

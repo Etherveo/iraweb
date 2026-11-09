@@ -56,6 +56,12 @@
                         <span class="admin-kv-value">{{ $order->paid_at?->setTimezone(config('ira.reporting_timezone'))->format('d M Y H:i') }} WITA</span>
                     </div>
                 @endif
+                @if ($order->pickup_at)
+                    <div class="admin-kv-item">
+                        <span class="admin-kv-label">Jadwal pengambilan</span>
+                        <span class="admin-kv-value">{{ $order->pickup_at?->setTimezone(config('ira.reporting_timezone'))->format('d M Y H:i') }} WITA</span>
+                    </div>
+                @endif
                 @if ($order->picked_up_at)
                     <div class="admin-kv-item">
                         <span class="admin-kv-label">Diambil</span>
@@ -151,7 +157,7 @@
                 <form method="POST" action="{{ route('admin.pesanan.status', $order) }}" class="admin-form-actions">
                     @csrf
                     <input type="hidden" name="to_status" value="selesai">
-                    <button class="btn-primary" type="submit">Tandai Sudah Diambil &amp; Dibayar</button>
+                    <button class="btn-primary" type="submit">Tandai Sudah Diambil</button>
                 </form>
             @else
                 <p class="admin-hint">Tidak ada aksi pemenuhan untuk status {{ $order->statusLabel() }}.</p>

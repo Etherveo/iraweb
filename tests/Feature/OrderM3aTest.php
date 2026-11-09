@@ -38,6 +38,16 @@ function m3Product(array $attributes = []): Product
 
 // Build a cart through the real HTTP routes, then check out. Returns
 // the created order (fresh).
+// Pickup schedule (keputusan Ren 2026-11-09): checkout wajib membawa
+// jadwal — besok pukul 10:00 WITA, selalu valid.
+function m3Pickup(): array
+{
+    return [
+        'pickup_date' => Carbon::now('Asia/Makassar')->addDay()->toDateString(),
+        'pickup_time' => '10:00',
+    ];
+}
+
 function m3Checkout($t, User $buyer, array $lines, string $method = 'qris', ?string $key = null): Order
 {
     $t->actingAs($buyer, 'web');
@@ -52,6 +62,7 @@ function m3Checkout($t, User $buyer, array $lines, string $method = 'qris', ?str
     $t->post('/checkout', [
         'payment_method' => $method,
         'checkout_key' => $key ?? (string) Str::uuid(),
+        ...m3Pickup(),
     ])->assertRedirect();
 
     return Order::where('user_id', $buyer->id)->latest('id')->first();
@@ -200,7 +211,7 @@ test('CRT-05 a blocked item is flagged on the cart page and blocks checkout unti
         ->assertSee('Perhatian:')->assertSee('Stok tersedia (1) kurang dari jumlah di keranjang (2).')
         ->assertDontSee('Lanjut ke Checkout');
     $this->get('/checkout')->assertRedirect('/keranjang');
-    $this->post('/checkout', ['payment_method' => 'qris', 'checkout_key' => (string) Str::uuid()])
+    $this->post('/checkout', ['payment_method' => 'qris', 'checkout_key' => (string) Str::uuid(), ...m3Pickup()])
         ->assertSessionHasErrors('keranjang');
     $this->assertDatabaseCount('orders', 0);
 
@@ -220,7 +231,7 @@ test('CRT-05 an inactive product in the cart blocks checkout', function () {
     Product::query()->whereKey($product->id)->update(['is_active' => false]);
 
     $this->get('/keranjang')->assertOk()->assertSee('Produk sudah tidak aktif.');
-    $this->post('/checkout', ['payment_method' => 'qris', 'checkout_key' => (string) Str::uuid()])
+    $this->post('/checkout', ['payment_method' => 'qris', 'checkout_key' => (string) Str::uuid(), ...m3Pickup()])
         ->assertSessionHasErrors('keranjang');
     $this->assertDatabaseCount('orders', 0);
 });
@@ -361,7 +372,7 @@ test('ORD-01 checkout summary shows items, server total and the six simulation m
         ->assertSee('checkout_key', false);
 
     // An unknown method is rejected by the server.
-    $this->post('/checkout', ['payment_method' => 'kartu_kredit', 'checkout_key' => (string) Str::uuid()])
+    $this->post('/checkout', ['payment_method' => 'kartu_kredit', 'checkout_key' => (string) Str::uuid(), ...m3Pickup()])
         ->assertSessionHasErrors('payment_method');
     $this->assertDatabaseCount('orders', 0);
 });
@@ -389,7 +400,7 @@ test('ORD-02 checkout failure rolls everything back: no order, no reservation, n
     // Stock of B drops to zero after the add, so checkout must fail.
     Product::query()->whereKey($b->id)->update(['stock_on_hand' => 0]);
 
-    $this->post('/checkout', ['payment_method' => 'qris', 'checkout_key' => (string) Str::uuid()])
+    $this->post('/checkout', ['payment_method' => 'qris', 'checkout_key' => (string) Str::uuid(), ...m3Pickup()])
         ->assertSessionHasErrors('keranjang');
 
     $this->assertDatabaseCount('orders', 0);
@@ -409,7 +420,7 @@ test('ORD-02 re-posting the same checkout_key returns the same order instead of 
     $this->actingAs($buyer, 'web');
     $this->post('/keranjang/tambah', ['product_id' => $product->id, 'quantity' => 1])->assertRedirect('/keranjang');
 
-    $first = $this->post('/checkout', ['payment_method' => 'qris', 'checkout_key' => $key]);
+    $first = $this->post('/checkout', ['payment_method' => 'qris', 'checkout_key' => $key, ...m3Pickup()]);
     $orderId = Order::first()->id;
     // Sejak M3b checkout sukses redirect ke halaman instruksi
     // pembayaran, bukan detail pesanan (perubahan ini terlewat saat
@@ -417,7 +428,7 @@ test('ORD-02 re-posting the same checkout_key returns the same order instead of 
     $first->assertRedirect('/pesanan/'.$orderId.'/bayar');
 
     // The cart is empty now, but the same key still returns the order.
-    $second = $this->post('/checkout', ['payment_method' => 'qris', 'checkout_key' => $key]);
+    $second = $this->post('/checkout', ['payment_method' => 'qris', 'checkout_key' => $key, ...m3Pickup()]);
     $second->assertRedirect('/pesanan/'.$orderId.'/bayar');
     $this->assertDatabaseCount('orders', 1);
     $this->assertDatabaseCount('payments', 1);
@@ -696,7 +707,9 @@ test('ORD-12 admin fulfillment moves dibayar to diproses to selesai, and nothing
     // M5: picked_up_at stays NULL until the order is selesai.
     expect($order->fresh()->picked_up_at)->toBeNull();
     $this->get('/admin/pesanan/'.$order->id)->assertOk()
-        ->assertSee('Tandai Sudah Diambil & Dibayar');
+        ->assertSee('Tandai Sudah Diambil')
+        ->assertDontSee('Tandai Sudah Diambil &amp; Dibayar')
+        ->assertDontSee('Tandai Sudah Diambil & Dibayar');
     $this->assertDatabaseHas('order_status_histories', [
         'order_id' => $order->id, 'from_status' => 'dibayar',
         'to_status' => 'diproses', 'trigger' => 'admin',

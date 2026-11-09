@@ -68,6 +68,12 @@
                         @endif
                     </dl>
 
+                    {{-- Instruksi pengambilan: tidak tampil bila pesanan
+                         dibatalkan/kedaluwarsa (tidak ada yang diambil). --}}
+                    @if ($order->pickup_at && ! in_array($order->status, ['dibatalkan', 'kedaluwarsa'], true))
+                        @include('payments._pickup-instruction', ['order' => $order])
+                    @endif
+
                     <h3 class="admin-kv-group-title">Item</h3>
                     <div class="admin-table-wrap">
                         <table class="admin-table">

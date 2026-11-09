@@ -39,7 +39,7 @@ class Order extends Model
 
     protected $fillable = [
         'order_number', 'user_id', 'status', 'total_idr',
-        'payment_deadline_at', 'paid_at', 'picked_up_at', 'checkout_key',
+        'payment_deadline_at', 'paid_at', 'picked_up_at', 'pickup_at', 'checkout_key',
         'origin', 'simulation_run_id',
     ];
 
@@ -50,6 +50,7 @@ class Order extends Model
             'payment_deadline_at' => 'datetime',
             'paid_at' => 'datetime',
             'picked_up_at' => 'datetime',
+            'pickup_at' => 'datetime',
         ];
     }
 

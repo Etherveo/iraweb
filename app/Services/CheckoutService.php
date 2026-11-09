@@ -6,6 +6,7 @@ use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\User;
 use App\Support\OrderNumber;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -65,13 +66,13 @@ class CheckoutService
         return (string) Str::uuid();
     }
 
-    public function checkout(User $user, string $paymentMethod, ?string $checkoutKey): Order
+    public function checkout(User $user, string $paymentMethod, ?string $checkoutKey, ?Carbon $pickupAt = null): Order
     {
         $checkoutKey = $checkoutKey !== null && trim($checkoutKey) !== ''
             ? trim($checkoutKey)
             : $this->newCheckoutKey();
 
-        return DB::transaction(function () use ($user, $paymentMethod, $checkoutKey) {
+        return DB::transaction(function () use ($user, $paymentMethod, $checkoutKey, $pickupAt) {
             // Idempotency first: a re-posted key returns the order that
             // the first post created, even though the cart is empty now.
             $existing = Order::query()
@@ -132,6 +133,10 @@ class CheckoutService
                 'total_idr' => $total,
                 'payment_deadline_at' => now()->addMinutes($this->expiryMinutes()),
                 'paid_at' => null,
+                // Jadwal pengambilan (keputusan Ren 2026-11-09): dari
+                // checkout, UTC; NULL bila pemanggil tidak memberinya
+                // (mis. pesanan simulasi tidak punya jadwal).
+                'pickup_at' => $pickupAt,
                 'checkout_key' => $checkoutKey,
                 // ACC-15/K-04: UI checkout is normal activity, even for
                 // a simulation account; see ActivityRecorder.
