@@ -195,7 +195,14 @@ final class SimulationRequestValidator
      * picks). Returns the validated scope plus the effective seed (the
      * passed seed, or a generated one for random scope).
      *
-     * @return array{user_ids: list<int>, skipped_inactive_ids: list<int>, seed: ?int}
+     * SIM-09: scope 'all' is CAPPED to the first maxAccounts()
+     * simulator ids (by id) when there are more — it never throws for
+     * exceeding the cap. The cap is reported via scope_capped_out /
+     * scope_total_sim_accounts so the preview can show it (never
+     * silent). Explicit checklists ('one'/'several') still throw above
+     * the cap via validateUserScope().
+     *
+     * @return array{user_ids: list<int>, skipped_inactive_ids: list<int>, seed: ?int, scope_total_sim_accounts: int, scope_capped_out: int, scope_cap: int}
      */
     public function resolveUserScope(string $scope, array $selectedIds = [], ?int $randomK = null, ?int $seed = null): array
     {
@@ -214,6 +221,9 @@ final class SimulationRequestValidator
             throw ValidationException::withMessages(['user_scope' => "Cakupan 'satu user' membutuhkan tepat 1 akun."]);
         }
 
+        // Accounts the 'all' cap leaves out (0 for every other scope).
+        $cappedOut = 0;
+
         if ($scope === 'random') {
             if ($randomK === null || $randomK < 1) {
                 throw ValidationException::withMessages(['random_k' => 'Jumlah user acak (k) harus bilangan bulat ≥ 1.']);
@@ -228,7 +238,8 @@ final class SimulationRequestValidator
             $seed ??= random_int(1, PHP_INT_MAX);
             $candidates = array_slice((new SeededRandom($seed))->shuffle($allSimIds), 0, $randomK);
         } elseif ($scope === 'all') {
-            $candidates = $allSimIds;
+            $candidates = array_slice($allSimIds, 0, $this->maxAccounts());
+            $cappedOut = count($allSimIds) - count($candidates);
         } elseif ($scope === 'one' || $scope === 'several') {
             $candidates = $selectedIds;
         } else {
@@ -239,6 +250,9 @@ final class SimulationRequestValidator
         // (and reported) by validateUserScope, per SIM-19.
         $resolved = $this->validateUserScope($candidates);
         $resolved['seed'] = $seed;
+        $resolved['scope_total_sim_accounts'] = count($allSimIds);
+        $resolved['scope_capped_out'] = $cappedOut;
+        $resolved['scope_cap'] = $this->maxAccounts();
 
         return $resolved;
     }
@@ -368,6 +382,9 @@ final class SimulationRequestValidator
             'action' => 'tx_period_first',
             'user_ids' => $scope['user_ids'],
             'skipped_inactive_ids' => $scope['skipped_inactive_ids'],
+            'scope_total_sim_accounts' => $scope['scope_total_sim_accounts'],
+            'scope_capped_out' => $scope['scope_capped_out'],
+            'scope_cap' => $scope['scope_cap'],
             'user_scope' => (string) ($input['user_scope'] ?? 'all'),
             'transaction_count' => $count,
         ]);

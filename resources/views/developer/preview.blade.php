@@ -52,6 +52,9 @@
                         @if ($skippedInactiveIds !== [])
                             <br><small>{{ count($skippedInactiveIds) }} akun nonaktif dilewati (SIM-19).</small>
                         @endif
+                        @if (($scopeCappedOut ?? 0) > 0)
+                            <br><small>Dipakai {{ count($params['user_ids']) }} dari {{ $scopeTotalSimAccounts }} akun simulasi ({{ $scopeCappedOut }} tidak ikut — cakupan "Semua" dibatasi maks {{ $scopeCap }} akun per request, SIM-09).</small>
+                        @endif
                     </dd>
                 </div>
                 <div class="developer-kv-row">

@@ -521,6 +521,32 @@ test('SIM-18/19 cakupan user period-first: random deterministik + error', functi
         ->toThrow(ValidationException::class);
 });
 
+test('SIM-09 cakupan "Semua" dibatasi ke 100 akun pertama, bukan ditolak', function () {
+    $developer = m4tDeveloper();
+
+    // 101 akun simulasi: satu di atas batas per request. Dibuat dalam
+    // dua request karena pembuatan akun sendiri dibatasi 100/request
+    // (SIM-03); offset kedua menjaga email tetap unik.
+    [$first] = m4tCreateAccounts($this, $developer, 100);
+    [$second] = m4tCreateAccounts($this, $developer, 1, ['offset' => 100]);
+
+    $users = $first->merge($second)->sortBy('id')->values();
+
+    $validator = app(SimulationRequestValidator::class);
+
+    $resolved = $validator->resolveUserScope('all');
+
+    expect($resolved['user_ids'])->toHaveCount(100);
+    expect($resolved['user_ids'])->toEqual($users->take(100)->pluck('id')->all());
+    expect($resolved['scope_total_sim_accounts'])->toBe(101);
+    expect($resolved['scope_capped_out'])->toBe(1);
+    expect($resolved['scope_cap'])->toBe(100);
+
+    // Pilih eksplisit > 100 akun lewat checklist tetap ditolak (SIM-09).
+    expect(fn () => $validator->validateUserScope($users->pluck('id')->all()))
+        ->toThrow(ValidationException::class);
+});
+
 test('SIM-19 period-first tanpa akun simulasi ditolak', function () {
     $developer = m4tDeveloper();
 
