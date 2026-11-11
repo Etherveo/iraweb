@@ -1693,6 +1693,10 @@ test('retry run buat-akun yang nyangkut membuat akun yang sama', function () {
 test('retry run yang sudah berhasil ditolak', function () {
     $developer = m4tDeveloper();
 
+    // Butuh 3 produk aktif: items_per_tx default maks 3 harus <= jumlah
+    // produk terpilih, kalau tidak validator menolak pratinjau (302).
+    m4tProduct();
+    m4tProduct();
     m4tProduct();
 
     [$users] = m4tCreateAccounts($this, $developer, 1);
@@ -1721,6 +1725,10 @@ test('retry run yang sudah berhasil ditolak', function () {
 test('batalkan run yang nyangkut menandainya gagal + jejak audit', function () {
     $developer = m4tDeveloper();
 
+    // Butuh 3 produk aktif: items_per_tx default maks 3 harus <= jumlah
+    // produk terpilih, kalau tidak validator menolak pratinjau (302).
+    m4tProduct();
+    m4tProduct();
     m4tProduct();
 
     [$users] = m4tCreateAccounts($this, $developer, 1);
@@ -1756,6 +1764,10 @@ test('batalkan run yang nyangkut menandainya gagal + jejak audit', function () {
 test('batalkan run yang sudah berhasil ditolak', function () {
     $developer = m4tDeveloper();
 
+    // Butuh 3 produk aktif: items_per_tx default maks 3 harus <= jumlah
+    // produk terpilih, kalau tidak validator menolak pratinjau (302).
+    m4tProduct();
+    m4tProduct();
     m4tProduct();
 
     [$users] = m4tCreateAccounts($this, $developer, 1);
@@ -1775,6 +1787,10 @@ test('batalkan run yang sudah berhasil ditolak', function () {
 test('retry run distribusi satu titik: hash params selamat dari round-trip JSON', function () {
     $developer = m4tDeveloper();
 
+    // Butuh 3 produk aktif: items_per_tx default maks 3 harus <= jumlah
+    // produk terpilih, kalau tidak validator menolak pratinjau (302).
+    m4tProduct();
+    m4tProduct();
     m4tProduct();
 
     [$users] = m4tCreateAccounts($this, $developer, 2);
