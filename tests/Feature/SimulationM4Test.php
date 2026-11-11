@@ -223,6 +223,32 @@ function m4tRunFunnel($t, Developer $developer, array $userIds, array $overrides
     return SimulationRun::query()->where('idempotency_key', $key)->firstOrFail();
 }
 
+/**
+ * Run nyangkut buatan: baris run dibuat lewat recordRunStart dengan
+ * params dari run yang sudah berhasil, lalu dibiarkan 'running'
+ * (eksekusi tidak pernah jalan) — persis keadaan run yang request-nya
+ * mati di tengah jalan. $status 'gagal' menutupnya sebagai gagal
+ * (untuk menguji retry dari run gagal).
+ */
+function m4tStuckRun(Developer $developer, SimulationRun $source, string $status = 'running'): SimulationRun
+{
+    $stuck = app(SimulationAudit::class)->recordRunStart(
+        $developer,
+        $source->action,
+        $source->params,
+        $source->seed,
+        (string) Str::uuid(),
+        $source->params['period_start'] ?? null,
+        $source->params['period_end'] ?? null,
+    );
+
+    if ($status === 'gagal') {
+        app(SimulationAudit::class)->recordRunFailed($stuck, 'gagal buatan untuk tes');
+    }
+
+    return $stuck;
+}
+
 // ---- Guard / akses panel -----------------------------------------------
 
 test('panel developer menolak tamu (redirect ke /masuk?aktor=developer)', function () {
@@ -1541,4 +1567,242 @@ test('M7 SIM-32/33 tombol preset tampil di form funnel dan nilainya lolos valida
         [$users[0]->id],
         ['view_count' => 200, 'add_to_cart_count' => 120, 'booking_count' => 60, 'purchase_count' => 40],
     ))->assertOk();
+});
+
+// ---- Retry/cancel run nyangkut (keputusan Ren 2026-11-11) -------------
+// Run yang request eksekusinya mati di tengah jalan (500/timeout)
+// tertinggal 'Berjalan' selamanya. "Coba lagi" membuat run BARU
+// dengan params identik; "Batalkan" hanya menandai run 'Gagal'.
+
+test('retry run period-first yang nyangkut membuat run baru dengan params identik dan selesai', function () {
+    $developer = m4tDeveloper();
+
+    m4tProduct();
+    m4tProduct();
+    m4tProduct();
+
+    [$users] = m4tCreateAccounts($this, $developer, 2);
+
+    $original = m4tRunPeriodFirst($this, $developer);
+
+    expect($original->status)->toBe('berhasil');
+
+    $stuck = m4tStuckRun($developer, $original);
+
+    expect($stuck->status)->toBe('running');
+
+    $this->actingAs($developer, 'developer');
+
+    // Tombol tampil di daftar dan detail run yang nyangkut.
+    $this->get(route('developer.run.index'))->assertOk()->assertSee('Coba lagi')->assertSee('Batalkan');
+    $this->get(route('developer.run.show', $stuck))->assertOk()->assertSee('Coba lagi')->assertSee('Batalkan');
+
+    $response = $this->post(route('developer.run.retry', $stuck));
+
+    $newRun = SimulationRun::query()
+        ->where('action', 'tx_period_first')
+        ->whereNotIn('id', [$original->id, $stuck->id])
+        ->firstOrFail();
+
+    $response->assertRedirect(route('developer.run.show', $newRun))->assertSessionHas('status');
+
+    expect($newRun->status)->toBe('berhasil');
+    expect($newRun->params)->toEqual($stuck->params);
+    expect($newRun->seed)->toBe($stuck->seed);
+    expect($newRun->period_start->format('Y-m-d'))->toBe('2026-10-01');
+    expect($newRun->period_end->format('Y-m-d'))->toBe('2026-10-07');
+    expect($newRun->counts['orders'])->toBe(4);
+    expect(Order::where('simulation_run_id', $newRun->id)->count())->toBe(4);
+
+    // Run lama tidak disentuh: tetap 'Berjalan', tanpa finished_at.
+    $fresh = $stuck->fresh();
+
+    expect($fresh->status)->toBe('running');
+    expect($fresh->finished_at)->toBeNull();
+    expect(Order::where('simulation_run_id', $stuck->id)->count())->toBe(0);
+});
+
+test('retry run funnel yang gagal membuat run baru yang selesai', function () {
+    $developer = m4tDeveloper();
+
+    m4tProduct();
+    m4tProduct();
+
+    [$users] = m4tCreateAccounts($this, $developer, 2);
+
+    $original = m4tRunFunnel($this, $developer, $users->pluck('id')->all());
+
+    $failed = m4tStuckRun($developer, $original, 'gagal');
+
+    expect($failed->status)->toBe('gagal');
+
+    $this->actingAs($developer, 'developer');
+
+    $this->post(route('developer.run.retry', $failed))->assertRedirect()->assertSessionHas('status');
+
+    $newRun = SimulationRun::query()
+        ->where('action', 'funnel_events')
+        ->whereNotIn('id', [$original->id, $failed->id])
+        ->firstOrFail();
+
+    expect($newRun->status)->toBe('berhasil');
+    expect($newRun->params)->toEqual($failed->params);
+    expect($newRun->counts['orders'])->toBe(4);
+    expect(Order::where('simulation_run_id', $newRun->id)->count())->toBe(4);
+
+    expect($failed->fresh()->status)->toBe('gagal');
+});
+
+test('retry run buat-akun yang nyangkut membuat akun yang sama', function () {
+    $developer = m4tDeveloper();
+
+    // Run buat-akun nyangkut: baris run dibuat, akun belum pernah dibuat.
+    $stuck = app(SimulationAudit::class)->recordRunStart(
+        $developer, 'create_accounts',
+        ['count' => 2, 'mode' => 'deterministic', 'seed' => 42, 'offset' => 0],
+        42, (string) Str::uuid(),
+    );
+
+    expect($stuck->status)->toBe('running');
+
+    $this->actingAs($developer, 'developer');
+
+    $this->post(route('developer.run.retry', $stuck))->assertRedirect()->assertSessionHas('status');
+
+    $newRun = SimulationRun::query()
+        ->where('action', 'create_accounts')
+        ->where('id', '!=', $stuck->id)
+        ->firstOrFail();
+
+    expect($newRun->status)->toBe('berhasil');
+    expect($newRun->params)->toEqual($stuck->params);
+    expect($newRun->counts)->toBe(['accounts' => 2]);
+
+    $users = User::where('simulation_run_id', $newRun->id)->orderBy('id')->get();
+
+    expect($users)->toHaveCount(2);
+    expect($users->pluck('email')->all())->toBe([
+        'simulasi0001@sim.ira-stationery.test',
+        'simulasi0002@sim.ira-stationery.test',
+    ]);
+
+    expect($stuck->fresh()->status)->toBe('running');
+    expect(User::where('simulation_run_id', $stuck->id)->count())->toBe(0);
+});
+
+test('retry run yang sudah berhasil ditolak', function () {
+    $developer = m4tDeveloper();
+
+    m4tProduct();
+
+    [$users] = m4tCreateAccounts($this, $developer, 1);
+
+    $run = m4tRunUserFirst($this, $developer, $users->pluck('id')->all(), [
+        'transactions_per_account' => 1,
+    ]);
+
+    expect($run->status)->toBe('berhasil');
+
+    $this->actingAs($developer, 'developer');
+
+    // Tombol tidak tampil di detail run yang sudah berhasil.
+    $this->get(route('developer.run.show', $run))
+        ->assertOk()
+        ->assertDontSee('Coba lagi')
+        ->assertDontSee('Batalkan');
+
+    $this->post(route('developer.run.retry', $run))->assertSessionHasErrors('run');
+
+    expect($run->fresh()->status)->toBe('berhasil');
+    expect(SimulationRun::where('action', 'tx_user_first')->count())->toBe(1);
+    expect(Order::where('origin', 'developer_simulation')->count())->toBe(1);
+});
+
+test('batalkan run yang nyangkut menandainya gagal + jejak audit', function () {
+    $developer = m4tDeveloper();
+
+    m4tProduct();
+
+    [$users] = m4tCreateAccounts($this, $developer, 1);
+
+    $original = m4tRunUserFirst($this, $developer, $users->pluck('id')->all(), [
+        'transactions_per_account' => 1,
+    ]);
+
+    $stuck = m4tStuckRun($developer, $original);
+
+    $this->actingAs($developer, 'developer');
+
+    $this->post(route('developer.run.cancel', $stuck))
+        ->assertRedirect(route('developer.run.index'))
+        ->assertSessionHas('status');
+
+    $fresh = $stuck->fresh();
+
+    expect($fresh->status)->toBe('gagal');
+    expect($fresh->finished_at)->not->toBeNull();
+    expect($fresh->error_message)->toContain('Dibatalkan manual');
+
+    $log = SimulationAuditLog::where('run_id', $stuck->id)->where('outcome', 'gagal')->firstOrFail();
+
+    expect($log->action)->toBe('tx_user_first');
+    expect($log->summary['error'])->toContain('Dibatalkan manual');
+
+    // Pembatalan tidak membuat/menghapus data apa pun.
+    expect(Order::where('simulation_run_id', $stuck->id)->count())->toBe(0);
+    expect($original->fresh()->status)->toBe('berhasil');
+});
+
+test('batalkan run yang sudah berhasil ditolak', function () {
+    $developer = m4tDeveloper();
+
+    m4tProduct();
+
+    [$users] = m4tCreateAccounts($this, $developer, 1);
+
+    $run = m4tRunUserFirst($this, $developer, $users->pluck('id')->all(), [
+        'transactions_per_account' => 1,
+    ]);
+
+    $this->actingAs($developer, 'developer');
+
+    $this->post(route('developer.run.cancel', $run))->assertSessionHasErrors('run');
+
+    expect($run->fresh()->status)->toBe('berhasil');
+    expect(SimulationAuditLog::where('run_id', $run->id)->where('outcome', 'gagal')->count())->toBe(0);
+});
+
+test('retry run distribusi satu titik: hash params selamat dari round-trip JSON', function () {
+    $developer = m4tDeveloper();
+
+    m4tProduct();
+
+    [$users] = m4tCreateAccounts($this, $developer, 2);
+
+    $original = m4tRunPeriodFirst($this, $developer, [
+        'transaction_count' => 2,
+        'time_distribution' => 'single',
+        'single_point' => '2026-10-03 10:00',
+    ]);
+
+    expect($original->status)->toBe('berhasil');
+
+    $stuck = m4tStuckRun($developer, $original);
+
+    $this->actingAs($developer, 'developer');
+
+    $this->post(route('developer.run.retry', $stuck))->assertRedirect()->assertSessionHas('status');
+
+    $newRun = SimulationRun::query()
+        ->where('action', 'tx_period_first')
+        ->whereNotIn('id', [$original->id, $stuck->id])
+        ->firstOrFail();
+
+    expect($newRun->status)->toBe('berhasil');
+    expect($newRun->params)->toEqual($stuck->params);
+
+    // Semua booking tetap di titik yang sama (10:00 WITA = 02:00 UTC).
+    expect(Order::where('simulation_run_id', $newRun->id)->pluck('created_at')
+        ->map(fn ($c) => $c->format('Y-m-d H:i:s'))->unique()->all())
+        ->toBe(['2026-10-03 02:00:00']);
 });

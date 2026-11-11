@@ -223,5 +223,7 @@
                 <a class="btn-danger" href="{{ route('developer.reset.index') }}">Reset run ini</a>
             </div>
         @endif
+
+        @include('developer.partials._run-actions', ['run' => $run])
     </div>
 @endsection

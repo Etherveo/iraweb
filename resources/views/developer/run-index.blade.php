@@ -57,6 +57,7 @@
                                 <th>Periode</th>
                                 <th>Mulai (WITA)</th>
                                 <th>Hasil</th>
+                                <th>Aksi</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -87,6 +88,13 @@
                                                 {{ $key }}: <strong>{{ $value }}</strong>@if (! $loop->last), @endif
                                             @endforeach
                                         </small>
+                                    @else
+                                        –
+                                    @endif
+                                </td>
+                                <td>
+                                    @if ($run->status === 'running' || $run->status === 'gagal')
+                                        @include('developer.partials._run-actions', ['run' => $run])
                                     @else
                                         –
                                     @endif

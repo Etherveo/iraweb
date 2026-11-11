@@ -202,6 +202,12 @@ Route::middleware(['auth:developer', 'role:dev', 'no-cache'])->group(function ()
     Route::get('/developer/run', [RunController::class, 'index'])->name('developer.run.index');
     Route::get('/developer/run/{run}', [RunController::class, 'show'])->name('developer.run.show');
 
+    // Retry/cancel run nyangkut (keputusan Ren 2026-11-11): "Coba lagi"
+    // membuat run BARU dengan params identik, "Batalkan" menandai run
+    // 'Berjalan' sebagai 'Gagal'. Hanya untuk run 'running'/'gagal'.
+    Route::post('/developer/run/{run}/retry', [RunController::class, 'retry'])->name('developer.run.retry');
+    Route::post('/developer/run/{run}/cancel', [RunController::class, 'cancel'])->name('developer.run.cancel');
+
     // SIM-38/39: reset per run + reset-all (type-the-phrase).
     Route::get('/developer/reset', [ResetController::class, 'index'])->name('developer.reset.index');
     Route::post('/developer/reset/run/{run}', [ResetController::class, 'resetRun'])->name('developer.reset.run');
