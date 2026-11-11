@@ -35,7 +35,7 @@ function anaWita(string $wita): Carbon
 }
 
 /** Paid order with explicit paid_at (WITA string); lines are [product, qty, unit_price]. */
-function anaPaidOrder(User $buyer, array $lines, string $paidAtWita, string $origin = 'normal'): Order
+function anaPaidOrder(User $buyer, array $lines, string $paidAtWita, string $origin = 'normal', string $status = 'dibayar'): Order
 {
     $total = 0;
 
@@ -45,7 +45,7 @@ function anaPaidOrder(User $buyer, array $lines, string $paidAtWita, string $ori
 
     $order = Order::factory()->create([
         'user_id' => $buyer->id,
-        'status' => 'dibayar',
+        'status' => $status,
         'total_idr' => $total,
         'paid_at' => anaWita($paidAtWita),
         'origin' => $origin,
@@ -133,6 +133,38 @@ test('M5 facts builder counts only paid order items for sales, events for funnel
         'units_sold' => 0, 'revenue_idr' => 0, 'orders_paid' => 0,
         'views' => 0, 'add_to_carts' => 0, 'bookings' => 1, 'purchases' => 0, 'cancels' => 1,
     ]);
+});
+
+test('M5 facts builder counts paid orders that advanced to diproses or selesai', function () {
+    // Regresi 2026-11-11: penjualan hanya dihitung dari order yang
+    // statusnya masih 'dibayar'. Order yang sudah maju ke 'diproses' /
+    // 'selesai' — ~80% order simulator berakhir 'selesai' — tidak
+    // terhitung, padahal K9 menghitung pembelian saat dibayar (paid_at),
+    // bukan dari status saat ini.
+    $buyer = anaBuyer();
+    $a = anaProduct(['name' => 'Pulpen A']);
+    $b = anaProduct(['name' => 'Pulpen B']);
+
+    anaPaidOrder($buyer, [[$a, 2, 5000]], '2026-11-02 10:00:00', 'normal', 'diproses');
+    anaPaidOrder($buyer, [[$b, 1, 5000]], '2026-11-02 11:00:00', 'normal', 'selesai');
+
+    $facts = app(AnalyticsFactsBuilder::class)->buildFacts('2026-11-02', '2026-11-02');
+
+    expect($facts)->toHaveCount(2);
+    $byProduct = collect($facts)->keyBy('product_id');
+    expect($byProduct[$a->id])->toMatchArray([
+        'date' => '2026-11-02', 'product_id' => $a->id,
+        'units_sold' => 2, 'revenue_idr' => 10000, 'orders_paid' => 1,
+    ]);
+    expect($byProduct[$b->id])->toMatchArray([
+        'date' => '2026-11-02', 'product_id' => $b->id,
+        'units_sold' => 1, 'revenue_idr' => 5000, 'orders_paid' => 1,
+    ]);
+
+    $totals = app(AnalyticsFactsBuilder::class)->buildOrderTotals('2026-11-02', '2026-11-02');
+
+    expect($totals)->toHaveCount(1);
+    expect($totals[0]['orders_paid'])->toBe(2);
 });
 
 test('M5 facts builder buckets by WITA date, not UTC', function () {

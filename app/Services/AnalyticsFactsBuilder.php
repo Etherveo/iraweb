@@ -24,10 +24,15 @@ use InvalidArgumentException;
 //     as stored and never re-dedups (simulation orphan views are planned
 //     counts and must stay intact).
 //   - Sales (units_sold, revenue_idr, orders_paid) come from PAID order
-//     items only (orders.status = 'dibayar', bucketed by orders.paid_at in
-//     WITA). "Purchase dihitung saat dibayar" — the purchase event is
-//     written at the same payment instant, so the two sources agree on
-//     well-formed data (invarian I1: purchase events = paid items).
+//     items only, bucketed by orders.paid_at in WITA — paid_at is the
+//     source of truth (K9: "Purchase dihitung saat dibayar"). No status
+//     filter: a paid order advances dibayar → diproses → selesai while
+//     paid_at is kept, so filtering on status = 'dibayar' wrongly
+//     excluded finished orders (regression 2026-11-11: ~80% of simulator
+//     orders end 'selesai' and were invisible to analytics). The purchase
+//     event is written at the same payment instant, so the two sources
+//     agree on well-formed data (invarian I1: purchase events = paid
+//     items).
 //   - order_totals counts UNIQUE paid orders per WITA day (never the sum
 //     of orders_paid per product — that double-counts multi-product
 //     orders, I5). by_category may exceed the day total (one order can
@@ -111,9 +116,13 @@ class AnalyticsFactsBuilder
             $cell[$field]++;
         }
 
+        // K9: sales count at paid (paid_at), not by current status. A
+        // paid order advances dibayar → diproses → selesai while paid_at
+        // is kept, so a status filter would wrongly exclude finished
+        // orders. whereBetween on paid_at already restricts to paid
+        // orders (NULL paid_at never matches the range).
         $items = DB::table('order_items')
             ->join('orders', 'orders.id', '=', 'order_items.order_id')
-            ->where('orders.status', 'dibayar')
             ->whereBetween('orders.paid_at', [$range->startUtc, $range->endUtc])
             ->when($origin !== null, fn ($q) => $q->where('orders.origin', $origin)->where('order_items.origin', $origin))
             ->select(
@@ -209,8 +218,10 @@ class AnalyticsFactsBuilder
         $this->validateOrigin($origin);
         $range = $this->resolve($startDate, $endDate);
 
+        // K9: paid_at is the source of truth — see buildFacts above.
+        // No status filter: orders that advanced to diproses/selesai
+        // are still paid orders.
         $orders = DB::table('orders')
-            ->where('status', 'dibayar')
             ->whereBetween('paid_at', [$range->startUtc, $range->endUtc])
             ->when($origin !== null, fn ($q) => $q->where('origin', $origin))
             ->select('id', 'paid_at')
